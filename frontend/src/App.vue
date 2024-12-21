@@ -1,14 +1,9 @@
 <template>
   <div>
-    <TheNav></TheNav>
+    <router-view></router-view>
   </div>
 </template>
 
-<script setup>
-import TheNav from '@/components/TheNav.vue';
+<script setup></script>
 
-</script>
-
-<style lang="scss" scoped>
-
-</style>
+<style lang="scss" scoped></style>
