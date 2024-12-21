@@ -1,0 +1,15 @@
+spring:
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: jdbc:mysql://localhost:3306/auto_trip
+    username: root
+    password: Ljcje0325!
+
+server:
+  port: 2024
+
+mybatis:
+  type-aliases-package:
+  configuration.map-underscore-to-camel-case: true
+ #잠시 주석처리 mapper-locations: classpath*:mapper/**/*.xml
+
