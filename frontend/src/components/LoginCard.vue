@@ -44,7 +44,7 @@
           data-mdb-ripple-init
           class="btn btn-primary btn-block mb-4"
         >
-          Sign in
+          <router-link class="nav-link" to="/main/setting"> Sign in </router-link>
         </button>
 
         <!-- Register buttons -->
