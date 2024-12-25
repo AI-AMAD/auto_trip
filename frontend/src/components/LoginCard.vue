@@ -1,68 +1,70 @@
 <template>
-  <!-- 로그인 템플릿 -->
-  <div class="mt-4 d-flex justify-content-center">
-    <span class="mt-5 mb-5 ms-5 me-5 border-2 rounded-3 border border-primary">
-      <form class="mt-5 mb-5 ms-5 me-5">
-        <!-- Email input -->
-        <div data-mdb-input-init class="form-outline mb-4">
-          <input type="email" id="form2Example1" class="form-control" />
-          <label class="form-label" for="form2Example1">Email address</label>
-        </div>
-
-        <!-- Password input -->
-        <div data-mdb-input-init class="form-outline mb-4">
-          <input type="password" id="form2Example2" class="form-control" />
-          <label class="form-label" for="form2Example2">Password</label>
-        </div>
-
-        <!-- 2 column grid layout for inline styling -->
-        <div class="row mb-4">
-          <div class="col d-flex justify-content-center">
-            <!-- Checkbox -->
-            <div class="form-check">
-              <input
-                class="form-check-input"
-                type="checkbox"
-                value=""
-                id="form2Example31"
-                checked
-              />
-              <label class="form-check-label" for="form2Example31"> Remember me </label>
+  <body class="bg-gradient-primary">
+    <div class="container">
+      <!-- Outer Row -->
+      <div class="row justify-content-center">
+        <div class="col-xl-10 col-lg-12 col-md-9">
+          <div class="card o-hidden border-0 shadow-lg my-5">
+            <div class="card-body p-0">
+              <!-- Nested Row within Card Body -->
+              <div class="row">
+                <div class="col-lg-6 d-none d-lg-block bg-login-image"></div>
+                <div class="col-lg-6">
+                  <div class="p-5">
+                    <div class="text-center">
+                      <h1 class="h4 text-gray-900 mb-4">Welcome Back!</h1>
+                    </div>
+                    <form class="user">
+                      <div class="form-group">
+                        <input
+                          type="email"
+                          class="form-control form-control-user"
+                          id="exampleInputEmail"
+                          aria-describedby="emailHelp"
+                          placeholder="Enter Email Address..."
+                        />
+                      </div>
+                      <div class="form-group">
+                        <input
+                          type="password"
+                          class="form-control form-control-user"
+                          id="exampleInputPassword"
+                          placeholder="Password"
+                        />
+                      </div>
+                      <div class="form-group">
+                        <div class="custom-control custom-checkbox small">
+                          <input type="checkbox" class="custom-control-input" id="customCheck" />
+                          <label class="custom-control-label" for="customCheck">Remember Me</label>
+                        </div>
+                      </div>
+                      <router-link to="/main" class="btn btn-primary btn-user btn-block">
+                        Login
+                      </router-link>
+                      <hr />
+                      <a href="index.html" class="btn btn-primary btn-user">
+                        <i class="fab fa-google fa-fw"></i> Login with Google
+                      </a>
+                      <a href="index.html" class="btn btn-facebook btn-user btn-block">
+                        <i class="fab fa-facebook-f fa-fw"></i> Login with Facebook
+                      </a>
+                    </form>
+                    <hr />
+                    <div class="text-center">
+                      <a class="small" href="forgot-password.html">Forgot Password?</a>
+                    </div>
+                    <div class="text-center">
+                      <a class="small" href="register.html">Create an Account!</a>
+                    </div>
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
-
-          <div class="col">
-            <!-- Simple link -->
-            <a href="#!">Forgot password?</a>
-          </div>
         </div>
-
-        <!-- Submit button -->
-        <button
-          type="button"
-          data-mdb-button-init
-          data-mdb-ripple-init
-          class="btn btn-primary btn-block mb-4"
-        >
-          <router-link class="nav-link" to="/main/setting"> Sign in </router-link>
-        </button>
-
-        <!-- Register buttons -->
-        <div class="text-center">
-          <p>Not a member? <a href="#!">Register</a></p>
-          <p>or sign up with:</p>
-          <button
-            type="button"
-            data-mdb-button-init
-            data-mdb-ripple-init
-            class="btn btn-link btn-floating mx-1"
-          >
-            <img src="@/assets/kakao_login.png" />
-          </button>
-        </div>
-      </form>
-    </span>
-  </div>
+      </div>
+    </div>
+  </body>
 </template>
 
 <script setup></script>
