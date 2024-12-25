@@ -1,0 +1,184 @@
+/**  Profile page  **/
+.user-sticky-bar {
+    position: sticky;
+    top: 30px;
+    margin-bottom: 30px;
+    .cx-user-block-detail {
+        margin-bottom: 30px;
+        padding: 0 0 30px 0;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        border-bottom: 1px solid $border-eee;
+
+        .profile-img {
+            position: relative;
+        }
+
+        .v-img {
+            width: 100px;
+            height: 100px;
+            margin-bottom: 15px;
+            border: 1px solid $border-eee;
+            border-radius: 50%;
+            background-size: 100%;
+            background-position: center;
+        }
+
+        h5 {
+            font-size: 15px;
+            font-weight: 600;
+            color: $text-777;
+        }
+
+        .cx-settings {
+            display: flex;
+            flex-direction: row;
+            align-items: center;
+        }
+
+        .cx-settings {
+            button {
+                width: 35px;
+                height: 35px;
+            }
+        }
+    }
+
+    .cx-user-block-img {
+        p {
+            line-height: 28px;
+            font-size: 13px;
+            font-weight: 300;
+        }
+    }
+
+    .cx-user-info {
+        ul {
+            margin: -10px 0 0 0;
+            padding: 0;
+
+            li {
+                padding: 8px 0;
+                font-size: 13px;
+                color: $text-777;
+            }
+        }
+    }
+
+    .cx-user-contact {
+        margin-top: 15px;
+        padding-top: 15px;
+        display: flex;
+        flex-direction: column;
+        border-top: 1px solid $border-eee;
+
+        a {
+            margin-top: 15px;
+        }
+    }
+}
+
+.cx-user-detail {
+    padding-bottom: 30px;
+}
+
+.user-profile {
+    h3 {
+        font-size: 17px;
+        font-weight: 600;
+        color: $title-color;
+    }
+
+    p {
+        max-width: 700px;
+        margin: 0;
+    }
+
+    .cx-card-user {
+        margin-bottom: -6px;
+        padding: 24px 24px 0 24px;
+    }
+
+    .cx-card-user-content {
+        margin-bottom: -30px;
+    }
+}
+
+.user-details {
+    h3 {
+        color: $title-color;
+        font-size: 22px;
+        font-weight: 600;
+        line-height: 24px;
+        text-transform: capitalize;
+    }
+    h6 {
+        margin-bottom: 15px;
+        padding: 14px;
+        display: flex;
+        justify-content: space-between;
+        font-size: 14px;
+        font-weight: 600;
+        color: $text-777;
+        background: $body-bg;
+        border-radius: 5px;
+        border: 1px solid $border-eee;
+    }
+
+    ul {
+        margin: 0;
+        padding: 0;
+
+        li {
+            padding: 5px 0;
+            font-size: 14px;
+            color: $text-777;
+            line-height: 26px;
+            display: flex;
+            flex-wrap: wrap;
+
+            i {
+                font-size: 20px;
+            }
+
+            a {
+                color: $text-777;
+                line-break: anywhere;
+                &:hover {
+                    color: $main-primary-color;
+                }
+            }
+
+            strong {
+                margin-right: 10px;
+                font-size: 12px;
+                color: $text-999;
+                font-weight: 500;
+            }
+        }
+    }
+}
+
+/* Responsive css */
+@media only screen and (max-width: 1399px) {
+    .cx-user-detail {
+        padding-bottom: 15px;
+    }
+    .user-sticky-bar {
+        .cx-user-block-img {
+            p {
+                font-size: 12px;
+            }
+        }
+    }
+}
+
+@media only screen and (max-width: 575px) {
+    .user-details {
+        h3 {
+            font-size: 18px;
+        }
+    }
+}

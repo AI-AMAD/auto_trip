@@ -1,0 +1,93 @@
+/** Invoice page css **/
+.cx-invoice {
+    .invoice-wrapper {
+        address {
+            font-size: 14px;
+            color: $text-777;
+            line-height: 24px;
+        }
+        p {
+            font-size: 14px;
+            font-weight: 600;
+            color: $title-color;
+        }
+        .note {
+            margin: 24px 0 0 0;
+            padding: 10px 15px;
+            background-color: #fff;
+            border: 1px solid $border-eee;
+            border-radius: 10px;
+            label {
+                font-size: 15px;
+                font-weight: 500;
+                color: $title-color;
+            }
+            p {
+                margin: 0;
+                font-size: 13px;
+                font-weight: 300;
+                line-height: 26px;
+                color: $text-999;
+            }
+        }
+        .list-unstyled {
+            margin: 24px 0 0 0;
+            li {
+                font-size: 15px;
+                color: $title-color;
+                font-weight: 500;
+                display: flex;
+                justify-content: space-between;
+                span {
+                    color: $text-777;
+                }
+            }
+        }
+    }
+
+    .table-responsive {
+        border-bottom: 1px solid $border-eee;
+        table {
+            thead {
+                tr {
+                    th {
+                        padding: 10px;
+                        border: 0 !important;
+                        background-color: $trans-bg;
+                    }
+                }
+            }
+            tbody {
+                tr {
+                    td.name {
+                        font-weight: 500;
+                        color: $title-color;
+                    }
+                    td.price {
+                        font-weight: 500;
+                    }
+                }
+            }
+        }
+    }
+}
+
+.cx-chart-header {
+    margin-bottom: 30px;
+
+    .block {
+        h5 {
+            margin: 0;
+            color: #485568;
+            font-weight: 600;
+            font-size: 15px;
+        }
+    }
+}
+
+/* Responsive css */
+@media only screen and (max-width: 575px) {
+    .cx-chart-header{
+        margin-bottom: 15px;
+    }
+}

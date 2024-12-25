@@ -1,68 +1,73 @@
 <template>
-  <!-- 로그인 템플릿 -->
-  <div class="mt-4 d-flex justify-content-center">
-    <span class="mt-5 mb-5 ms-5 me-5 border-2 rounded-3 border border-primary">
-      <form class="mt-5 mb-5 ms-5 me-5">
-        <!-- Email input -->
-        <div data-mdb-input-init class="form-outline mb-4">
-          <input type="email" id="form2Example1" class="form-control" />
-          <label class="form-label" for="form2Example1">Email address</label>
-        </div>
+  <head> </head>
 
-        <!-- Password input -->
-        <div data-mdb-input-init class="form-outline mb-4">
-          <input type="password" id="form2Example2" class="form-control" />
-          <label class="form-label" for="form2Example2">Password</label>
+  <body data-cx-mode="light">
+    <main class="wrapper">
+      <section class="auth-section">
+        <div class="cx-left">
+          <div class="cx-bg"></div>
         </div>
-
-        <!-- 2 column grid layout for inline styling -->
-        <div class="row mb-4">
-          <div class="col d-flex justify-content-center">
-            <!-- Checkbox -->
-            <div class="form-check">
-              <input
-                class="form-check-input"
-                type="checkbox"
-                value=""
-                id="form2Example31"
-                checked
-              />
-              <label class="form-check-label" for="form2Example31"> Remember me </label>
-            </div>
+        <div class="cx-right">
+          <div class="cx-form-page">
+            <!-- Login form -->
+            <form class="cx-form">
+              <h4>Login</h4>
+              <div class="input-control">
+                <input type="text" placeholder="Enter Username" name="uname" required />
+                <span class="password-field-show">
+                  <input
+                    type="password"
+                    placeholder="Enter Password"
+                    name="password"
+                    class="password-field"
+                    value=""
+                    required
+                  />
+                  <span
+                    data-toggle=".password-field"
+                    class="fa fa-fw fa-eye field-icon toggle-password"
+                  ></span>
+                </span>
+                <div class="remember">
+                  <div class="form-group">
+                    <input type="checkbox" id="remember" />
+                    <label for="remember">Remember me</label>
+                  </div>
+                  <a href="forgot.html" class="forgot-btn">Forgot password?</a>
+                </div>
+                <div class="form-btns">
+                  <button type="submit">Login</button>
+                </div>
+                <div class="division-lines">
+                  <p>or login with</p>
+                </div>
+                <div class="form-with-btns">
+                  <span class="social">
+                    <button type="button" class="google">
+                      <i class="ri-google-fill"></i>
+                    </button>
+                    <button type="button" class="facebook">
+                      <i class="ri-facebook-fill"></i>
+                    </button>
+                    <button type="button" class="twitter">
+                      <i class="ri-twitter-fill"></i>
+                    </button>
+                    <button type="button" class="linkedin">
+                      <i class="ri-linkedin-fill"></i>
+                    </button>
+                  </span>
+                  <span class="already-acc"
+                    >Not a member?
+                    <a href="signup.html" class="signup-btn">Sign up</a>
+                  </span>
+                </div>
+              </div>
+            </form>
           </div>
-
-          <div class="col">
-            <!-- Simple link -->
-            <a href="#!">Forgot password?</a>
-          </div>
         </div>
-
-        <!-- Submit button -->
-        <button
-          type="button"
-          data-mdb-button-init
-          data-mdb-ripple-init
-          class="btn btn-primary btn-block mb-4"
-        >
-          <router-link class="nav-link" to="/main/setting"> Sign in </router-link>
-        </button>
-
-        <!-- Register buttons -->
-        <div class="text-center">
-          <p>Not a member? <a href="#!">Register</a></p>
-          <p>or sign up with:</p>
-          <button
-            type="button"
-            data-mdb-button-init
-            data-mdb-ripple-init
-            class="btn btn-link btn-floating mx-1"
-          >
-            <img src="@/assets/kakao_login.png" />
-          </button>
-        </div>
-      </form>
-    </span>
-  </div>
+      </section>
+    </main>
+  </body>
 </template>
 
 <script setup></script>

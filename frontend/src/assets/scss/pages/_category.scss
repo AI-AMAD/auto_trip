@@ -1,0 +1,65 @@
+/**  Category page  **/
+.cat-table {
+	tbody {
+		tr {
+			td {
+				font-weight: 400 !important;
+				.cx-sub-cat-count {
+					margin: 2px 0 2px 5px;
+					background-color: $main-primary-color;
+					padding: 2px 7px;
+					color: $title-color;
+					border-radius: 10px;
+					display: inline-block;
+				}
+				.cx-sub-cat-tag {
+					margin: 3px 0 3px 5px;
+					background-color: rgba(72, 85, 104, 0.08);
+					color: #485568;
+					padding: 2px 7px;
+					border-radius: 10px;
+					text-transform: capitalize;
+					display: inline-block;
+					flex-direction: row;
+					font-size: 12px;
+					letter-spacing: 0.02rem;
+					font-weight: 400;
+				}
+				.badge {
+					padding: 8px;
+					border-radius: $radius-10;
+				}
+				
+				.badge-success {
+					background-color: $green !important;
+				}
+				.bg-primary {
+					background-color: $blue !important;
+				}
+				.bg-danger {
+					background-color: $red !important;
+				}
+				button {
+					border-radius: $radius-10 !important;
+					background-color: transparent;
+				}
+			}
+			td.name {
+				font-weight: 500 !important;
+				color: $title-color;
+			}
+			td.active {
+				color: $green !important;
+			}
+		}
+	}
+}
+.add-category, .add-sub-category {
+	input, textarea, select {
+		margin-bottom: 15px;
+	}
+	label {
+		margin-bottom: .5rem;
+		font-size: 14px;
+	}
+}
