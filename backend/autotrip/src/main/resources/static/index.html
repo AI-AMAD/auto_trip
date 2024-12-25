@@ -1,50 +1,39 @@
 <!DOCTYPE html>
 <html lang="en">
   <head>
-    <meta charset="UTF-8" />
-    <link rel="icon" href="/favicon.ico" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Auto-Trip에 여행 계획을 맡겨라!</title>
 
-    <!-- App favicon -->
-    <link rel="shortcut icon" href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAAACXBIWXMAAAsTAAALEwEAmpwYAAAH3mlUWHRYTUw6Y29tLmFkb2JlLnhtcAAAAAAAPD94cGFja2V0IGJlZ2luPSLvu78iIGlkPSJXNU0wTXBDZWhpSHpyZVN6TlRjemtjOWQiPz4gPHg6eG1wbWV0YSB4bWxuczp4PSJhZG9iZTpuczptZXRhLyIgeDp4bXB0az0iQWRvYmUgWE1QIENvcmUgNS42LWMxNDggNzkuMTY0MDM2LCAyMDE5LzA4LzEzLTAxOjA2OjU3ICAgICAgICAiPiA8cmRmOlJERiB4bWxuczpyZGY9Imh0dHA6Ly93d3cudzMub3JnLzE5OTkvMDIvMjItcmRmLXN5bnRheC1ucyMiPiA8cmRmOkRlc2NyaXB0aW9uIHJkZjphYm91dD0iIiB4bWxuczp4bXA9Imh0dHA6Ly9ucy5hZG9iZS5jb20veGFwLzEuMC8iIHhtbG5zOnhtcE1NPSJodHRwOi8vbnMuYWRvYmUuY29tL3hhcC8xLjAvbW0vIiB4bWxuczpzdEV2dD0iaHR0cDovL25zLmFkb2JlLmNvbS94YXAvMS4wL3NUeXBlL1Jlc291cmNlRXZlbnQjIiB4bWxuczpkYz0iaHR0cDovL3B1cmwub3JnL2RjL2VsZW1lbnRzLzEuMS8iIHhtbG5zOnBob3Rvc2hvcD0iaHR0cDovL25zLmFkb2JlLmNvbS9waG90b3Nob3AvMS4wLyIgeG1wOkNyZWF0b3JUb29sPSJBZG9iZSBQaG90b3Nob3AgMjEuMCAoV2luZG93cykiIHhtcDpDcmVhdGVEYXRlPSIyMDIzLTAzLTE1VDEyOjE1OjU4KzA1OjMwIiB4bXA6TWV0YWRhdGFEYXRlPSIyMDI0LTAyLTAxVDE2OjI4OjA2KzA1OjMwIiB4bXA6TW9kaWZ5RGF0ZT0iMjAyNC0wMi0wMVQxNjoyODowNiswNTozMCIgeG1wTU06SW5zdGFuY2VJRD0ieG1wLmlpZDo3YWZmZDMxNS0xMTg1LTIzNGEtYmMyOC01ZTk1ZTY3MmFlZGIiIHhtcE1NOkRvY3VtZW50SUQ9ImFkb2JlOmRvY2lkOnBob3Rvc2hvcDoyYzk1NTRjNi0xMjU2LTIyNDQtYWU2Yi1lMTgzYmRiYjE1MDgiIHhtcE1NOk9yaWdpbmFsRG9jdW1lbnRJRD0ieG1wLmRpZDo3MDVkMjRlYS0xYTdlLTVmNDItODVhMS1iODZiNmU1ZjQ4ZjAiIGRjOmZvcm1hdD0iaW1hZ2UvcG5nIiBwaG90b3Nob3A6Q29sb3JNb2RlPSIzIiBwaG90b3Nob3A6SUNDUHJvZmlsZT0ic1JHQiBJRUM2MTk2Ni0yLjEiPiA8eG1wTU06SGlzdG9yeT4gPHJkZjpTZXE+IDxyZGY6bGkgc3RFdnQ6YWN0aW9uPSJjcmVhdGVkIiBzdEV2dDppbnN0YW5jZUlEPSJ4bXAuaWlkOjcwNWQyNGVhLTFhN2UtNWY0Mi04NWExLWI4NmI2ZTVmNDhmMCIgc3RFdnQ6d2hlbj0iMjAyMy0wMy0xNVQxMjoxNTo1OCswNTozMCIgc3RFdnQ6c29mdHdhcmVBZ2VudD0iQWRvYmUgUGhvdG9zaG9wIDIxLjAgKFdpbmRvd3MpIi8+IDxyZGY6bGkgc3RFdnQ6YWN0aW9uPSJzYXZlZCIgc3RFdnQ6aW5zdGFuY2VJRD0ieG1wLmlpZDpjYWFhZWQ3ZS03Y2M3LWRmNDMtOTJmOC02YzNjNjEwNTdkMTkiIHN0RXZ0OndoZW49IjIwMjMtMDMtMTVUMTI6MTU6NTgrMDU6MzAiIHN0RXZ0OnNvZnR3YXJlQWdlbnQ9IkFkb2JlIFBob3Rvc2hvcCAyMS4wIChXaW5kb3dzKSIgc3RFdnQ6Y2hhbmdlZD0iLyIvPiA8cmRmOmxpIHN0RXZ0OmFjdGlvbj0ic2F2ZWQiIHN0RXZ0Omluc3RhbmNlSUQ9InhtcC5paWQ6N2FmZmQzMTUtMTE4NS0yMzRhLWJjMjgtNWU5NWU2NzJhZWRiIiBzdEV2dDp3aGVuPSIyMDI0LTAyLTAxVDE2OjI4OjA2KzA1OjMwIiBzdEV2dDpzb2Z0d2FyZUFnZW50PSJBZG9iZSBQaG90b3Nob3AgMjEuMCAoV2luZG93cykiIHN0RXZ0OmNoYW5nZWQ9Ii8iLz4gPC9yZGY6U2VxPiA8L3htcE1NOkhpc3Rvcnk+IDxwaG90b3Nob3A6VGV4dExheWVycz4gPHJkZjpCYWc+IDxyZGY6bGkgcGhvdG9zaG9wOkxheWVyTmFtZT0iQ3guIiBwaG90b3Nob3A6TGF5ZXJUZXh0PSJDeC4iLz4gPC9yZGY6QmFnPiA8L3Bob3Rvc2hvcDpUZXh0TGF5ZXJzPiA8cGhvdG9zaG9wOkRvY3VtZW50QW5jZXN0b3JzPiA8cmRmOkJhZz4gPHJkZjpsaT5hZG9iZTpkb2NpZDpwaG90b3Nob3A6NWQ2NjQ3YWItOTFmNC1kNzQ5LWI3Y2EtY2JlM2ZiYTAyN2E1PC9yZGY6bGk+IDwvcmRmOkJhZz4gPC9waG90b3Nob3A6RG9jdW1lbnRBbmNlc3RvcnM+IDwvcmRmOkRlc2NyaXB0aW9uPiA8L3JkZjpSREY+IDwveDp4bXBtZXRhPiA8P3hwYWNrZXQgZW5kPSJyIj8+61NB7wAAAjFJREFUWMPNl01LAlEUhmdZoX/CNAhaBQWBBkEFbYIwsB+Qf0HaB5JBmzb5EUQuo4XQKnLZYoJABXctXAU6bp2o2Uz3He4Z7oxO3dFx9MKDeObjfefcc7+UWCymSBJhZBhFhsroMb45PR4r8nsisu+VuSnOqDAGDFOSAX8mPomBBcYF48eHsBs8W+Dv8mVgmdGYQNhNwysbo8TXGd0AxYkuf/efBuBSm4I4obkzIYovMppTFCdaXGvIQCEEcaLgNoCiM0I0YFBXkIFKiOLELRmIuieZ0+M18/EqaRrvhzYfT/vm3flWkAagGVX41GlfuD7bdAi7aT7sBmkiAwNlChztrdpCr/c71n+KQ5iuwWRABsoKX0SsAKX98+Vg6ObkxspQN+TzeZNatVq1YqlUytR13YrV6/X/DKgw0KcABGAARmS/olarWWIQhThE0TqdjszzfUVcbPDlMOC32CCG1m63bTPpdFpqsXIYGCcDAGKUdrRcLie9Wjq64Plm27MGyCCyg3oQ4xAUG7pF0kDfUYQY/6NGAQTxn66JXSR+PXUFGgpUwoDqGIbjzAMkSkWnqqptIpvN2vdhlFCduIdhxu0MmaDu+GsmpIoXiw4jQdM0K45finsYyIycikNCp6lY4QvDzBYj2gmFvRwnZrkhufTakrVC2pItzeWmdC625WImWgGnPT7O0aww4egwxj2aiST4plX3IfzFx3kiiNOxeDw/YZQYb7ygDI7GYyV+j/Tx/Bc6dIzv9jAytAAAAABJRU5ErkJggg==" />
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
+    <meta name="description" content="" />
+    <meta name="author" content="" />
 
-    <!-- Icon CSS -->
+    <title>SB Admin 2 - Login</title>
+    <!-- Custom fonts for this template-->
     
-    
+    <link
+      href="https://fonts.googleapis.com/css?family=Nunito:200,200i,300,300i,400,400i,600,600i,700,700i,800,800i,900,900i"
+      rel="stylesheet"
+    />
 
-    <!-- Vendor -->
+    <!-- Custom styles for this template-->
     
-    
-    
-    
-    
-    
-    
+    <script type="module" crossorigin src="/assets/index-81f8b519.js"></script>
+    <link rel="stylesheet" href="/assets/index-477f2356.css">
 
-    <!-- Main CSS -->
-    
-    <script type="module" crossorigin src="/assets/index-df184a56.js"></script>
-    <link rel="stylesheet" href="/assets/index-896b9f98.css">
   </head>
   <body>
     <div id="app"></div>
     
-
-    <!-- Vendor Custom -->
-    
-    
-    
-    
-    
-    
-    
-    
+    <!-- Bootstrap core JavaScript-->
     
     
 
-    <!-- Main Custom -->
+    <!-- Core plugin JavaScript-->
     
+
+    <!-- Custom scripts for all pages-->
+
     
   </body>
 </html>

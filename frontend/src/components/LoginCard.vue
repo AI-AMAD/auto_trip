@@ -1,72 +1,69 @@
 <template>
-  <head> </head>
-
-  <body data-cx-mode="light">
-    <main class="wrapper">
-      <section class="auth-section">
-        <div class="cx-left">
-          <div class="cx-bg"></div>
-        </div>
-        <div class="cx-right">
-          <div class="cx-form-page">
-            <!-- Login form -->
-            <form class="cx-form">
-              <h4>Login</h4>
-              <div class="input-control">
-                <input type="text" placeholder="Enter Username" name="uname" required />
-                <span class="password-field-show">
-                  <input
-                    type="password"
-                    placeholder="Enter Password"
-                    name="password"
-                    class="password-field"
-                    value=""
-                    required
-                  />
-                  <span
-                    data-toggle=".password-field"
-                    class="fa fa-fw fa-eye field-icon toggle-password"
-                  ></span>
-                </span>
-                <div class="remember">
-                  <div class="form-group">
-                    <input type="checkbox" id="remember" />
-                    <label for="remember">Remember me</label>
+  <body class="bg-gradient-primary">
+    <div class="container">
+      <!-- Outer Row -->
+      <div class="row justify-content-center">
+        <div class="col-xl-10 col-lg-12 col-md-9">
+          <div class="card o-hidden border-0 shadow-lg my-5">
+            <div class="card-body p-0">
+              <!-- Nested Row within Card Body -->
+              <div class="row">
+                <div class="col-lg-6 d-none d-lg-block bg-login-image"></div>
+                <div class="col-lg-6">
+                  <div class="p-5">
+                    <div class="text-center">
+                      <h1 class="h4 text-gray-900 mb-4">Welcome Back!</h1>
+                    </div>
+                    <form class="user">
+                      <div class="form-group">
+                        <input
+                          type="email"
+                          class="form-control form-control-user"
+                          id="exampleInputEmail"
+                          aria-describedby="emailHelp"
+                          placeholder="Enter Email Address..."
+                        />
+                      </div>
+                      <div class="form-group">
+                        <input
+                          type="password"
+                          class="form-control form-control-user"
+                          id="exampleInputPassword"
+                          placeholder="Password"
+                        />
+                      </div>
+                      <div class="form-group">
+                        <div class="custom-control custom-checkbox small">
+                          <input type="checkbox" class="custom-control-input" id="customCheck" />
+                          <label class="custom-control-label" for="customCheck">Remember Me</label>
+                        </div>
+                      </div>
+                      <router-link to="/main" class="btn btn-primary btn-user btn-block">
+                        Login
+                      </router-link>
+                      <hr />
+                      <a href="index.html" class="btn btn-primary btn-user">
+                        <i class="fab fa-google fa-fw"></i> Login with Google
+                      </a>
+                      <a href="index.html" class="btn btn-facebook btn-user btn-block">
+                        <i class="fab fa-facebook-f fa-fw"></i> Login with Facebook
+                      </a>
+                    </form>
+                    <hr />
+                    <div class="text-center">
+                      <a class="small" href="forgot-password.html">Forgot Password?</a>
+                    </div>
+                    <div class="text-center">
+                      <a class="small" href="register.html">Create an Account!</a>
+                    </div>
                   </div>
-                  <a href="forgot.html" class="forgot-btn">Forgot password?</a>
-                </div>
-                <div class="form-btns">
-                  <button type="submit">Login</button>
-                </div>
-                <div class="division-lines">
-                  <p>or login with</p>
-                </div>
-                <div class="form-with-btns">
-                  <span class="social">
-                    <button type="button" class="google">
-                      <i class="ri-google-fill"></i>
-                    </button>
-                    <button type="button" class="facebook">
-                      <i class="ri-facebook-fill"></i>
-                    </button>
-                    <button type="button" class="twitter">
-                      <i class="ri-twitter-fill"></i>
-                    </button>
-                    <button type="button" class="linkedin">
-                      <i class="ri-linkedin-fill"></i>
-                    </button>
-                  </span>
-                  <span class="already-acc"
-                    >Not a member?
-                    <a href="signup.html" class="signup-btn">Sign up</a>
-                  </span>
                 </div>
               </div>
-            </form>
+            </div>
           </div>
         </div>
-      </section>
-    </main>
+      </div>
+    </div>
   </body>
 </template>
 
