@@ -1,0 +1,168 @@
+/** Kanban css **/
+ul {
+	list-style-type: none;
+	margin: 0;
+	padding: 0;
+}
+.drag-list {
+	display: flex;
+	align-items: flex-start;
+}
+
+.drag-column-header {
+  margin-bottom: 15px;
+	display: flex;
+	align-items: center;
+	justify-content: flex-start;
+  h2 {
+    margin: 0;
+		font-size: 18px;
+    line-height: 18px;
+		text-transform: capitalize;
+		font-weight: 600;
+    color: $title-color;
+	}
+  a{
+    width: 30px;
+    height: 30px;
+    margin-right: 15px;
+    border: 1px solid $border-ddd;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 10px;
+    user-select: none;
+    background-color: #fff;
+    i {
+      color: $title-color;
+    }
+    &:hover {
+      background-color: $trans-bg;
+    }
+  }
+}
+
+.drag-inner-list {
+	min-height: 50px;
+}
+
+.drag-item {
+	transition: $ease-out;
+	
+	&.is-moving {
+		transform: scale(1.1);
+		background: rgba(rgb(255, 255, 255), 0.8);
+	}
+	.tool {
+    margin-bottom: 15px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    p {
+      margin: 0;
+      font-size: 13px;
+      color: $text-999;
+    }
+  }
+  .body {
+    h3 {
+      margin-bottom: 15px;
+      font-size: 18px;
+      font-weight: 600;
+      line-height: 25px;
+      color: $title-color;
+    }
+    .team {
+      margin-bottom: 15px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      a {
+        padding: 5px 10px;
+        color: $text-777;
+        background-color: $trans-bg;
+        border-radius: $radius-10;
+      }
+      .images {
+        display: flex;
+        justify-content: space-between;
+        img {
+          @include ease3;
+          width: 40px;
+          height: 40px;
+          border-radius: $radius-15;
+          border: 2px solid #fff;
+          &:not(:first-child){
+            margin-left: -10px;
+          }
+          &:hover {
+            z-index: 5;
+            transform: scale(1.1);
+          }
+        }
+      }
+    }
+    .files {
+      margin-bottom: 15px;
+      display: flex;
+      a {
+        width: 50px;
+        height: 50px;
+        margin-right: 5px;
+        background-color: $trans-bg;
+        border-radius: $radius-20;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        i {
+          color: $title-color;
+          font-size: 24px;
+          line-height: 24px;
+        }
+      }
+    }
+    .cx-images {
+      margin-bottom: 20px;
+      img {
+        width: 100%;
+        border-radius: $radius-20;
+      }
+    }
+  }
+}
+.progress {
+  height: 5px;
+  background-color: $trans-bg;
+  .progress-bar.todo {
+    background-color: $main-primary-color !important;
+  }
+  .progress-bar.progress {
+    background-color: $green !important;
+  }
+  .progress-bar.review {
+    background-color: $blue !important;
+  }
+  .progress-bar.done {
+    background-color: $title-color !important;
+  }
+}
+/* Dragula CSS  */
+.gu-mirror {
+  position: fixed !important;
+  margin: 0 !important;
+  z-index: 9999 !important;
+  opacity: 0.8;
+	list-style-type: none;
+}
+
+.gu-hide {
+  display: none !important;
+}
+
+.gu-unselectable {
+  user-select: none !important;
+}
+
+.gu-transit {
+  opacity: 0.2;
+}

@@ -1,0 +1,78 @@
+@charset "UTF-8";
+
+/*-----------------------------------------------------------------------------------
+
+    Item Name: Corex - Admin & Dashboard HTML Template..
+    Author: Maraviya Infotech
+    Version: 1.0
+    Copyright 2024
+
+-----------------------------------------------------------------------------------*/
+
+/*---------------------------------------------------------------------------------
+    Included CSS INDEX
+-----------------------------------------------------------------------------------
+
+01. Typography
+02. Components
+    - Common
+    - Sidebar
+    - notify var
+    - Header
+    - Main Content
+    - Footer
+
+03. Layout 
+    - Card
+    - Breadcrumb
+    - event-calendar
+    - Modal
+
+04. Pages
+    - Todo
+    - Chatapp
+    - Calendar
+    - Kanban
+    - Auth
+    - Services
+    - Element
+    - Product
+    - Category
+    - Invoice
+    - Profile
+
+-----------------------------------------------------------------------------------*/
+
+// Typography
+@import "base/_typography";
+
+// Utilities
+@import "utilities/_variables";
+@import "utilities/_mixins";
+
+// Components
+@import "components/_common";
+@import "components/_sidebar";
+@import "components/_notify-bar";
+@import "components/_header";
+@import "components/_main-content";
+@import "components/_footer";
+
+// Layouts
+@import "layouts/_card";
+@import "layouts/_breadcrumb";
+@import "layouts/_event-calendar";
+@import "layouts/_modal";
+
+// Pages
+@import "pages/_todo";
+@import "pages/_chatapp";
+@import "pages/_calendar";
+@import "pages/_kanban";
+@import "pages/_auth";
+@import "pages/_services";
+@import "pages/_elements";
+@import "pages/_product";
+@import "pages/_category";
+@import "pages/_invoice";
+@import "pages/_profile";
