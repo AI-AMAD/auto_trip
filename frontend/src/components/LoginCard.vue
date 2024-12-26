@@ -42,11 +42,8 @@
                         Login
                       </router-link>
                       <hr />
-                      <a href="index.html" class="btn btn-primary btn-user">
-                        <i class="fab fa-google fa-fw"></i> Login with Google
-                      </a>
-                      <a href="index.html" class="btn btn-facebook btn-user btn-block">
-                        <i class="fab fa-facebook-f fa-fw"></i> Login with Facebook
+                      <a href="index.html" class="btn btn-warning btn-user btn-block">
+                        <i class="fab fa-google fa-fw"></i> Login with Kakao
                       </a>
                     </form>
                     <hr />
@@ -54,7 +51,7 @@
                       <a class="small" href="forgot-password.html">Forgot Password?</a>
                     </div>
                     <div class="text-center">
-                      <a class="small" href="register.html">Create an Account!</a>
+                      <router-link to="/signup" class="small">Create an Account!</router-link>
                     </div>
                   </div>
                 </div>
