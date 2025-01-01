@@ -38,7 +38,7 @@
                           <label class="custom-control-label" for="customCheck">Remember Me</label>
                         </div>
                       </div>
-                      <router-link to="/main" class="btn btn-primary btn-user btn-block">
+                      <router-link to="/main/manual" class="btn btn-primary btn-user btn-block">
                         Login
                       </router-link>
                       <hr />
