@@ -5,6 +5,10 @@ import SignUp from '@/components/SignUp.vue'
 import MySetting from '@/components/MySetting.vue'
 import WhereTrip from '@/components/WhereTrip.vue'
 import WhenTrip from '@/components/WhenTrip.vue'
+import WhatTrip from '@/components/WhatTrip.vue'
+import WhoTrip from '@/components/WhoTrip.vue'
+import HowTrip from '@/components/HowTrip.vue'
+import HotelTrip from '@/components/HotelTrip.vue'
 import MainManual from '@/components/MainManual.vue'
 import MyPlan from '@/components/MyPlan.vue'
 import MySchedule from '@/components/MySchedule.vue'
@@ -43,6 +47,22 @@ const router = createRouter({
             {
               path: 'when',
               component: WhenTrip
+            },
+            {
+              path: 'who',
+              component: WhoTrip
+            },
+            {
+              path: 'what',
+              component: WhatTrip
+            },
+            {
+              path: 'how',
+              component: HowTrip
+            },
+            {
+              path: 'hotel',
+              component: HotelTrip
             }
           ]
         },
