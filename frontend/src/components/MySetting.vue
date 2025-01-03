@@ -1,44 +1,107 @@
 <template>
   <div class="container mt-3">
     <div class="step-container">
-      <router-link to="/main/setting/where">
-        <div class="step active" onclick="goToStep(1)" id="step-1">어디로?</div>
+      <router-link to="/main/setting/where" class="nav-link">
+        <div
+          class="step"
+          :class="activeButton === 'where' ? 'btn-active' : 'btn-inactive'"
+          @click="setActive('where')"
+        >
+          어디로?
+        </div>
       </router-link>
-      <div class="step-arrow active" id="arrow-1"></div>
-      <router-link to="/main/setting/when">
-        <div class="step inactive" onclick="goToStep(2)" id="step-2">언제?</div>
+
+      <div
+        class="step-arrow"
+        :class="activeButton === 'where' ? 'arrow-active' : 'arrow-inactive'"
+      ></div>
+
+      <router-link to="/main/setting/when" class="nav-link">
+        <div
+          class="step"
+          :class="activeButton === 'when' ? 'btn-active' : 'btn-inactive'"
+          @click="setActive('when')"
+        >
+          언제?
+        </div>
+      </router-link>
+
+      <div
+        class="step-arrow"
+        :class="activeButton === 'when' ? 'arrow-active' : 'arrow-inactive'"
+      ></div>
+
+      <router-link to="/main/setting/who" class="nav-link">
+        <div
+          class="step"
+          :class="activeButton === 'who' ? 'btn-active' : 'btn-inactive'"
+          @click="setActive('who')"
+        >
+          누구랑?
+        </div>
+      </router-link>
+
+      <div
+        class="step-arrow"
+        :class="activeButton === 'who' ? 'arrow-active' : 'arrow-inactive'"
+      ></div>
+
+      <router-link to="/main/setting/what" class="nav-link">
+        <div
+          class="step"
+          :class="activeButton === 'what' ? 'btn-active' : 'btn-inactive'"
+          @click="setActive('what')"
+        >
+          뭐하지?
+        </div>
+      </router-link>
+
+      <div
+        class="step-arrow"
+        :class="activeButton === 'what' ? 'arrow-active' : 'arrow-inactive'"
+      ></div>
+
+      <router-link to="/main/setting/how" class="nav-link">
+        <div
+          class="step"
+          :class="activeButton === 'how' ? 'btn-active' : 'btn-inactive'"
+          @click="setActive('how')"
+        >
+          어떻게 갈까?
+        </div>
+      </router-link>
+
+      <div
+        class="step-arrow"
+        :class="activeButton === 'how' ? 'arrow-active' : 'arrow-inactive'"
+      ></div>
+
+      <router-link to="/main/setting/hotel" class="nav-link">
+        <div
+          class="step"
+          :class="activeButton === 'hotel' ? 'btn-active' : 'btn-inactive'"
+          @click="setActive('hotel')"
+        >
+          숙소는?
+        </div>
       </router-link>
     </div>
   </div>
+
   <!-- 여행 계획 설정 -->
   <router-view></router-view>
   <!-- end of 여행 계획 설정 -->
 </template>
 
 <script setup>
-const goToStep = (step) => {
-  const steps = document.querySelectorAll('.step')
-  const arrows = document.querySelectorAll('.step-arrow')
+import { ref } from 'vue'
 
-  steps.forEach((stepElement, index) => {
-    if (index < step) {
-      stepElement.classList.add('active')
-      stepElement.classList.remove('inactive')
-    } else {
-      stepElement.classList.remove('active')
-      stepElement.classList.add('inactive')
-    }
-  })
+// 현재 활성화된 버튼을 관리하는 상태
+const activeButton = ref('where')
 
-  arrows.forEach((arrow, index) => {
-    if (index < step - 1) {
-      arrow.classList.add('active')
-      arrow.classList.remove('inactive')
-    } else {
-      arrow.classList.remove('active')
-      arrow.classList.add('inactive')
-    }
-  })
+// 버튼 활성화 상태 변경
+const setActive = (button) => {
+  activeButton.value = button
 }
 </script>
 
@@ -46,8 +109,7 @@ const goToStep = (step) => {
 .step-container {
   display: flex;
   align-items: center;
-  justify-content: flex-start; /* 버튼 정렬 (여기서 간격 조절 가능) */
-  gap: 10px; /* 버튼과 화살표 간격 조정 */
+  justify-content: flex-start;
 }
 .step {
   display: flex;
@@ -58,23 +120,31 @@ const goToStep = (step) => {
   font-weight: bold;
   border-radius: 30px;
   color: white;
-  background-color: #5bc0be; /* 활성화 단계 색상 */
+  background-color: #5bc0be;
   cursor: pointer;
   transition: background-color 0.3s ease;
 }
-.step.inactive {
-  background-color: #e0e0e0; /* 비활성화 단계 색상 */
-  color: #6c757d;
-  cursor: not-allowed;
-}
+
 .step-arrow {
   width: 0;
   height: 0;
   border-top: 15px solid transparent;
   border-bottom: 15px solid transparent;
-  border-left: 15px solid #5bc0be; /* 기본 화살표 색상 */
+  border-left: 15px solid #4aa8d8;
 }
-.step-arrow.inactive {
-  border-left-color: #e0e0e0; /* 비활성화 단계 화살표 색상 */
+.arrow-active {
+  border-left-color: #4aa8d8; /* 활성화 색상 */
+}
+.arrow-inactive {
+  border-left-color: #e0e0e0; /* 비활성화 색상 */
+}
+
+.btn-active {
+  background-color: #4aa8d8; /* 활성화 색상 */
+  color: white;
+}
+.btn-inactive {
+  background-color: #e0e0e0; /* 비활성화 색상 */
+  color: #6c757d;
 }
 </style>
