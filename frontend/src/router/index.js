@@ -4,15 +4,11 @@ import MainPage from '@/views/MainPage.vue'
 import SignUp from '@/components/SignUp.vue'
 import MySetting from '@/components/MySetting.vue'
 import WhereTrip from '@/components/WhereTrip.vue'
-import WhenTrip from '@/components/WhenTrip.vue'
-import WhatTrip from '@/components/WhatTrip.vue'
-import WhoTrip from '@/components/WhoTrip.vue'
+import SettingTrip from '@/components/SettingTrip.vue'
 import HowTrip from '@/components/HowTrip.vue'
 import HotelTrip from '@/components/HotelTrip.vue'
 import MainManual from '@/components/MainManual.vue'
 import MyPlan from '@/components/MyPlan.vue'
-import MySchedule from '@/components/MySchedule.vue'
-import MyDiary from '@/components/MyDiary.vue'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -45,16 +41,8 @@ const router = createRouter({
               component: WhereTrip
             },
             {
-              path: 'when',
-              component: WhenTrip
-            },
-            {
-              path: 'who',
-              component: WhoTrip
-            },
-            {
-              path: 'what',
-              component: WhatTrip
+              path: 'details',
+              component: SettingTrip
             },
             {
               path: 'how',
@@ -69,14 +57,6 @@ const router = createRouter({
         {
           path: 'plan',
           component: MyPlan
-        },
-        {
-          path: 'schedule',
-          component: MySchedule
-        },
-        {
-          path: 'diary',
-          component: MyDiary
         }
       ]
     }

@@ -18,49 +18,19 @@
           :class="activeButton === 'where' ? 'arrow-active' : 'arrow-inactive'"
         ></div>
 
-        <router-link to="/main/setting/when" class="nav-link">
+        <router-link to="/main/setting/details" class="nav-link">
           <div
             class="step"
-            :class="activeButton === 'when' ? 'btn-active' : 'btn-inactive'"
-            @click="setActive('when')"
+            :class="activeButton === 'details' ? 'btn-active' : 'btn-inactive'"
+            @click="setActive('details')"
           >
-            언제?
+            세부 설정!
           </div>
         </router-link>
 
         <div
           class="step-arrow"
-          :class="activeButton === 'when' ? 'arrow-active' : 'arrow-inactive'"
-        ></div>
-
-        <router-link to="/main/setting/who" class="nav-link">
-          <div
-            class="step"
-            :class="activeButton === 'who' ? 'btn-active' : 'btn-inactive'"
-            @click="setActive('who')"
-          >
-            누구랑?
-          </div>
-        </router-link>
-
-        <div
-          class="step-arrow"
-          :class="activeButton === 'who' ? 'arrow-active' : 'arrow-inactive'"
-        ></div>
-
-        <router-link to="/main/setting/what" class="nav-link">
-          <div
-            class="step"
-            :class="activeButton === 'what' ? 'btn-active' : 'btn-inactive'"
-            @click="setActive('what')"
-          >
-            뭐하지?
-          </div>
-        </router-link>
-
-        <div
-          class="step-arrow"
-          :class="activeButton === 'what' ? 'arrow-active' : 'arrow-inactive'"
+          :class="activeButton === 'details' ? 'arrow-active' : 'arrow-inactive'"
         ></div>
 
         <router-link to="/main/setting/how" class="nav-link">
