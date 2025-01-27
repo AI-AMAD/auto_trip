@@ -1,22 +1,22 @@
 <template>
-  <div class="row custom-row-spacing" v-for="(date, dateIndex) in dates" :key="date.id">
+  <div class="row" v-for="(date, dateIndex) in dates" :key="date.id">
     <span class="badge text-bg-secondary">{{ date.text }}</span>
-    <div v-for="(item, index) in date.items" :key="item.id" class="col-3 d-flex align-items-center">
-      <div
-        class="draggable-item card h-100 d-flex align-items-center p-3"
-        style="max-width: 85%"
-        draggable="true"
-        @dragstart="onDragStart(dateIndex, index)"
-        @dragover.prevent
-        @drop="onDrop(dateIndex, index)"
-        :class="{ faded: item.isFaded }"
-      >
+    <div
+      v-for="(item, index) in date.items"
+      :key="item.id"
+      class="col-3 d-flex align-items-center"
+      draggable="true"
+      @dragstart="onDragStart(dateIndex, index)"
+      @dragover.prevent
+      @drop="onDrop(dateIndex, index)"
+    >
+      <div class="card draggable-item text-center p-3" :class="{ faded: item.isFaded }">
         <img src="@/assets/img/swiss.png" class="card-img-top" />
         <div class="card-body">
           <div class="card-text">
             {{ item.text }}
             <button
-              class="fade-button btn btn-sm btn-danger mt-1"
+              class="fade-button btn btn-sm btn-danger mt-2"
               @click="onFadeItem(dateIndex, index)"
             >
               X
@@ -27,6 +27,7 @@
       <div v-if="index < date.items.length - 1" class="arrow ms-2">→</div>
     </div>
   </div>
+
   <div class="text-center mt-4">
     <button class="btn btn-success" @click="onSave">저장</button>
   </div>
@@ -134,9 +135,5 @@ const onSave = () => {
   font-size: 24px;
   color: #6c757d;
   margin: 0 10px;
-}
-
-.custom-row-spacing {
-  margin-bottom: 50px; /* 원하는 크기로 설정 */
 }
 </style>

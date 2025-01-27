@@ -2,6 +2,7 @@ import 'bootstrap/dist/css/bootstrap.min.css'
 
 import VueDatePicker from '@vuepic/vue-datepicker'
 import '@vuepic/vue-datepicker/dist/main.css'
+import 'bootstrap-icons/font/bootstrap-icons.css'
 
 import { createApp } from 'vue'
 import { createPinia } from 'pinia'
