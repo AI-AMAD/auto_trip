@@ -1,28 +1,38 @@
-// package com.amad.autotrip.config;
+package com.amad.autotrip.config;
 
-// import org.springframework.context.annotation.Bean;
-// import org.springframework.context.annotation.Configuration;
-// import org.springframework.security.config.annotation.web.builders.HttpSecurity;
-// import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
-// import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.security.config.http.SessionCreationPolicy;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.web.SecurityFilterChain;
 
-// @Configuration
-// @EnableWebSecurity
-// public class SecurityConfig {
+@Configuration
+@EnableWebSecurity
+public class SecurityConfig {
 
-//   @Bean
-//   public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+  @Bean
+  public BCryptPasswordEncoder bCryptPasswordEncoder() {
+    
+    return new BCryptPasswordEncoder();
+  }
 
-//     http.csrf((auth) -> auth.disable());
+  @Bean
+  public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 
-//     http.formLogin((auth) -> auth.disable());
+    http.csrf((auth) -> auth.disable());
 
-//     http.httpBasic((auth) -> auth.disable());
+    http.formLogin((auth) -> auth.disable());
 
-//     http.authorizeRequests((auth) -> auth
-//                             .requestMatchers("/").permitAll()
-//                             .anyRequest().authenticated());
-//     return http.build();
-//   }
+    http.httpBasic((auth) -> auth.disable());
+
+    http.authorizeHttpRequests((authrize) -> authrize.anyRequest().permitAll());
+
+    http.sessionManagement((session) -> session
+      .sessionCreationPolicy(SessionCreationPolicy.STATELESS));
+
+    return http.build();
+  }
   
-// }
+}
