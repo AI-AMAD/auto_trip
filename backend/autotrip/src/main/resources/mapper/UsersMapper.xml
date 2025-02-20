@@ -6,4 +6,11 @@
         where id = #{id}
         limit 1
     </select>
+
+    <insert id="register" parameterType="com.amad.autotrip.dto.Users">
+        insert into users
+            (id, name, cell_phone, mail_address, password)
+        value
+            (#{id}, #{name}, #{cellPhone}, #{mailAddress}, #{password})
+    </insert>
 </mapper>

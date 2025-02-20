@@ -20,8 +20,12 @@ public class UserController {
     @PostMapping("/join")
     public String joinProcess(@RequestBody Users user) {
 
-        userService.join(user);
-
-        return "join ok";
+        Boolean joinSuccess;
+        joinSuccess = userService.join(user);
+        if (joinSuccess) {
+            return "회원 가입 완료!";
+        } else {
+            return "이미 가입되어있습니다.";
+        }
     }
 }
