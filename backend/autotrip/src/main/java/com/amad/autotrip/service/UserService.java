@@ -4,6 +4,7 @@ import com.amad.autotrip.dto.Users;
 import com.amad.autotrip.mybatis.UsersMapper;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import org.springframework.web.bind.annotation.RequestBody;
 
 @Slf4j
 @Service
@@ -19,18 +20,21 @@ public class UserService {
         return usersMapper.findByUserId(id) != null;
     }
 
-    public String join(Users user) {
+    public void registerUser(Users user) {
+        usersMapper.register(user);
+    }
+
+    public Boolean join(Users user) {
 
         String id = user.getId();
 
         Boolean isExist = existCheck(id);
 
         if (!isExist) {
-            log.info("회원가입 진행 해도 됨");
+            registerUser(user);
+            return true;
         } else {
-            log.info("이미 존재하는 회원 입니다.");
+            return false;
         }
-
-        return "회원 가입이 정상적으로 이루어졌습니다.";
     }
 }
