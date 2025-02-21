@@ -1,0 +1,16 @@
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.amad.autotrip.mybatis.UsersMapper">
+    <select id="findByUserId" resultType="int" parameterType="com.amad.autotrip.dto.Users">
+        select 1
+        from users
+        where id = #{id}
+        limit 1
+    </select>
+
+    <insert id="register" parameterType="com.amad.autotrip.dto.Users">
+        insert into users
+            (id, name, cell_phone, mail_address, password)
+        value
+            (#{id}, #{name}, #{cellPhone}, #{mailAddress}, #{password})
+    </insert>
+</mapper>
