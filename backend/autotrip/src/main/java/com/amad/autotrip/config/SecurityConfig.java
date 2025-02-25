@@ -1,16 +1,32 @@
 package com.amad.autotrip.config;
 
+import com.amad.autotrip.jwt.LoginFilter;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
 @Configuration
 @EnableWebSecurity
 public class SecurityConfig {
+
+  private final AuthenticationConfiguration authenticationConfiguration;
+
+  public SecurityConfig(AuthenticationConfiguration authenticationConfiguration) {
+    this.authenticationConfiguration = authenticationConfiguration;
+  }
+
+  @Bean
+  public AuthenticationManager authenticationManager(AuthenticationConfiguration configuration) throws Exception {
+
+    return configuration.getAuthenticationManager();
+  }
 
   @Bean
   public BCryptPasswordEncoder bCryptPasswordEncoder() {
@@ -27,10 +43,14 @@ public class SecurityConfig {
 
     http.httpBasic((auth) -> auth.disable());
 
-    http.authorizeHttpRequests((authrize) -> authrize.anyRequest().permitAll());
+    http.authorizeHttpRequests((auth) -> auth
+            .requestMatchers("/login", "/", "join").permitAll()
+            .anyRequest().authenticated());
 
     http.sessionManagement((session) -> session
       .sessionCreationPolicy(SessionCreationPolicy.STATELESS));
+
+    http.addFilterAt(new LoginFilter(authenticationManager(authenticationConfiguration)), UsernamePasswordAuthenticationFilter.class);
 
     return http.build();
   }
