@@ -19,7 +19,7 @@ public class UserService {
     }
 
     public Boolean existCheck(String id) {
-        return usersMapper.findByUserId(id) != null;
+        return usersMapper.existByUserId(id) != null;
     }
 
     public void registerUser(Users user) {
