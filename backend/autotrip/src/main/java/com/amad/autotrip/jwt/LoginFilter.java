@@ -37,6 +37,8 @@ public class LoginFilter extends UsernamePasswordAuthenticationFilter {
                                             FilterChain chain,
                                             Authentication authentication ) {
 
+        System.out.println("로그인 성공!");
+
     }
 
     @Override
@@ -44,5 +46,6 @@ public class LoginFilter extends UsernamePasswordAuthenticationFilter {
                                               HttpServletResponse response,
                                               AuthenticationException failed) {
 
+        System.out.println("로그인 실패!!!!");
     }
 }

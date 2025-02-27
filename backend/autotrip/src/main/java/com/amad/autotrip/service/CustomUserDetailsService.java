@@ -1,7 +1,7 @@
 package com.amad.autotrip.service;
 
 import com.amad.autotrip.dto.CustomUsersDetails;
-import com.amad.autotrip.dto.Login;
+import com.amad.autotrip.dto.Users;
 import com.amad.autotrip.mybatis.UsersMapper;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
@@ -20,7 +20,7 @@ public class CustomUserDetailsService implements UserDetailsService {
     @Override
     public UserDetails loadUserByUsername(String userId) throws UsernameNotFoundException {
 
-        Login userData = usersMapper.findByUserId(userId);
+        Users userData = usersMapper.findByUserId(userId);
 
         if (userData != null) {
             return new CustomUsersDetails(userData);
