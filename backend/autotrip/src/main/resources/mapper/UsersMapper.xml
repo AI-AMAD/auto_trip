@@ -9,9 +9,9 @@
 
     <insert id="register" parameterType="com.amad.autotrip.dto.Users">
         insert into users
-            (id, name, cell_phone, mail_address, password)
+            (id, name, cell_phone, mail_address, password, role)
         value
-            (#{id}, #{name}, #{cellPhone}, #{mailAddress}, #{password})
+            (#{id}, #{name}, #{cellPhone}, #{mailAddress}, #{password}, #{role})
     </insert>
 
     <select id="findByUserId" parameterType="com.amad.autotrip.dto.Login">

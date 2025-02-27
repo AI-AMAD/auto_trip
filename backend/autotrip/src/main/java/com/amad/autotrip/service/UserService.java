@@ -33,6 +33,7 @@ public class UserService {
         String name = user.getName();
         String cellPhone = user.getCellPhone();
         String mailAddress = user.getMailAddress();
+        String role = user.getRole();
 
         Boolean isExist = existCheck(id);
 
@@ -44,6 +45,7 @@ public class UserService {
             joinUser.setName(name);
             joinUser.setCellPhone(cellPhone);
             joinUser.setMailAddress(mailAddress);
+            joinUser.setRole(role);
 
             registerUser(joinUser);
             return true;
