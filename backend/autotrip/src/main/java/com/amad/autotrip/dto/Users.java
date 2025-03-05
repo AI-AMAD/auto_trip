@@ -1,8 +1,11 @@
 package com.amad.autotrip.dto;
 
-import lombok.Data;
 
-@Data
+import lombok.Getter;
+import lombok.Setter;
+
+@Getter
+@Setter
 public class Users {
     private String id;
     private String name;
