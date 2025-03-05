@@ -20,13 +20,13 @@ public class LoginFilter extends UsernamePasswordAuthenticationFilter {
 
     @Override
     public Authentication attemptAuthentication(HttpServletRequest request, HttpServletResponse response) throws AuthenticationException {
-        String username = obtainUsername(request);
+        String id = obtainUsername(request);
         String password = obtainPassword(request);
 
-        System.out.println("username: " + username);
+        System.out.println("username: " + id);
         System.out.println("password: " + password);
 
-        UsernamePasswordAuthenticationToken token = new UsernamePasswordAuthenticationToken(username, password);
+        UsernamePasswordAuthenticationToken token = new UsernamePasswordAuthenticationToken(id, password);
 
         return authenticationManager.authenticate(token);
     }

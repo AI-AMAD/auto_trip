@@ -14,7 +14,7 @@
             (#{id}, #{name}, #{cellPhone}, #{mailAddress}, #{password}, #{role})
     </insert>
 
-    <select id="findByUserId" parameterType="com.amad.autotrip.dto.Login">
+    <select id="findByUserId" parameterType="com.amad.autotrip.dto.Users">
         select *
           from users
          where id = #{id}
