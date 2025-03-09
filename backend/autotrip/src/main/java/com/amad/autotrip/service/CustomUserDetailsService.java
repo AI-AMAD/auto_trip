@@ -1,31 +1,45 @@
 package com.amad.autotrip.service;
 
-import com.amad.autotrip.dto.CustomUsersDetails;
-import com.amad.autotrip.dto.Users;
-import com.amad.autotrip.mybatis.UsersMapper;
+import com.amad.autotrip.entity.Users;
+import com.amad.autotrip.repository.UserRepository;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
-import org.springframework.stereotype.Service;
+import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
 
-@Service
+import java.util.List;
+import java.util.stream.Collectors;
+
+@Component("userDetailsService")
 public class CustomUserDetailsService implements UserDetailsService {
+    private final UserRepository userRepository;
 
-    private final UsersMapper usersMapper;
-
-    public CustomUserDetailsService(UsersMapper usersMapper) {
-        this.usersMapper = usersMapper;
+    public CustomUserDetailsService(UserRepository userRepository) {
+        this.userRepository = userRepository;
     }
 
     @Override
-    public UserDetails loadUserByUsername(String userId) throws UsernameNotFoundException {
+    @Transactional
+    public UserDetails loadUserByUsername(final String username) {
+        return userRepository.findOneWithAuthoritiesByUsername(username)
+                .map(user -> createUser(username, user))
+                .orElseThrow(() -> new UsernameNotFoundException(username + " -> 데이터베이스에서 찾을 수 없습니다."));
+    }
 
-        Users userData = usersMapper.findByUserId(userId);
-
-        if (userData != null) {
-            return new CustomUsersDetails(userData);
+    private org.springframework.security.core.userdetails.User createUser(String username, Users user) {
+        if (!user.isActivated()) {
+            throw new RuntimeException(username + " -> 활성화되어 있지 않습니다.");
         }
 
-        return null;
+        List<GrantedAuthority> grantedAuthorities = user.getAuthorities().stream()
+                .map(authority -> new SimpleGrantedAuthority(authority.getAuthorityName()))
+                .collect(Collectors.toList());
+
+        return new org.springframework.security.core.userdetails.User(user.getUsername(),
+                user.getPassword(),
+                grantedAuthorities);
     }
 }
