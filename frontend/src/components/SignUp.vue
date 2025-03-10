@@ -13,30 +13,24 @@
                 </div>
                 <form class="user">
                   <div class="form-group row">
-                    <div class="col-sm-6 mb-3 mb-sm-0">
+                    <div class="col-sm-8 mb-3 mb-sm-0">
                       <input
                         type="text"
                         class="form-control form-control-user"
-                        id="exampleFirstName"
-                        placeholder="First Name"
-                      />
-                    </div>
-                    <div class="col-sm-6">
-                      <input
-                        type="text"
-                        class="form-control form-control-user"
-                        id="exampleLastName"
-                        placeholder="Last Name"
+                        id="exampleName"
+                        placeholder="Name"
                       />
                     </div>
                   </div>
-                  <div class="form-group">
-                    <input
-                      type="email"
-                      class="form-control form-control-user"
-                      id="exampleInputEmail"
-                      placeholder="Email Address"
-                    />
+                  <div class="form-group row">
+                    <div class="col-sm-8 mb-3 mb-sm-0">
+                      <input
+                        type="text"
+                        class="form-control form-control-user"
+                        id="exampleInputId"
+                        placeholder="ID"
+                      />
+                    </div>
                   </div>
                   <div class="form-group row">
                     <div class="col-sm-6 mb-3 mb-sm-0">
@@ -56,23 +50,22 @@
                       />
                     </div>
                   </div>
-                  <a href="login.html" class="btn btn-primary btn-user btn-block">
-                    Register Account
-                  </a>
+                  <a href="login.html" class="btn btn-primary btn-user btn-block"> 회원 가입 </a>
                   <hr />
-                  <a href="index.html" class="btn btn-google btn-user btn-block">
-                    <i class="fab fa-google fa-fw"></i> Register with Google
-                  </a>
-                  <a href="index.html" class="btn btn-facebook btn-user btn-block">
-                    <i class="fab fa-facebook-f fa-fw"></i> Register with Facebook
+                  <a href="index.html" class="btn btn-warning btn-user btn-block">
+                    <i class="fab fa-google fa-fw"></i> Kakao로 가입하기
                   </a>
                 </form>
                 <hr />
                 <div class="text-center">
-                  <a class="small" href="forgot-password.html">Forgot Password?</a>
+                  <a class="small" href="forgot-password.html"
+                    >비밀번호가 기억이 나지 않으실때는?</a
+                  >
                 </div>
                 <div class="text-center">
-                  <router-link to="/" class="small">Already have an account? Login!</router-link>
+                  <router-link to="/" class="small"
+                    >이미 계정이 있으시다면 로그인을 진행해주세요!
+                  </router-link>
                 </div>
               </div>
             </div>
