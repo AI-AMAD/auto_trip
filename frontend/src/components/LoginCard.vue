@@ -14,22 +14,25 @@
                     <div class="text-center">
                       <h1 class="h4 text-gray-900 mb-4">Welcome Back!</h1>
                     </div>
-                    <form class="user">
+                    <form @submit.prevent="login" class="user">
                       <div class="form-group">
                         <input
-                          type="email"
+                          v-model="username"
+                          type="text"
                           class="form-control form-control-user"
-                          id="exampleInputEmail"
-                          aria-describedby="emailHelp"
-                          placeholder="Enter Email Address..."
+                          id="exampleInputId"
+                          placeholder="ID"
+                          required
                         />
                       </div>
                       <div class="form-group">
                         <input
+                          v-model="password"
                           type="password"
                           class="form-control form-control-user"
                           id="exampleInputPassword"
                           placeholder="Password"
+                          required
                         />
                       </div>
                       <div class="form-group">
@@ -38,9 +41,9 @@
                           <label class="custom-control-label" for="customCheck">Remember Me</label>
                         </div>
                       </div>
-                      <router-link to="/main/manual" class="btn btn-primary btn-user btn-block">
+                      <button type="submit" class="btn btn-primary btn-user btn-block">
                         Login
-                      </router-link>
+                      </button>
                       <hr />
                       <a href="index.html" class="btn btn-warning btn-user btn-block">
                         <i class="fab fa-google fa-fw"></i> Login with Kakao
@@ -64,6 +67,36 @@
   </body>
 </template>
 
-<script setup></script>
+<script setup>
+import { ref } from 'vue'
+import axios from 'axios'
+import { useRouter } from 'vue-router'
+
+const username = ref('')
+const password = ref('')
+const router = useRouter()
+
+const login = async () => {
+  try {
+    const response = await axios.post('/api/login', {
+      username: username.value,
+      password: password.value
+    })
+
+    if (response.status === 200) {
+      alert('로그인 성공!')
+      // 성공 후 추가적인 처리 (예: 로그인 페이지로 이동)
+      router.push('/main/manual')
+    }
+  } catch (error) {
+    if (error.response && error.response.data && error.response.data.message) {
+      alert(error.response.data.message)
+    } else {
+      console.log('response.status------>: ', error.response.status)
+      alert('로그인 중 오류 발생.')
+    }
+  }
+}
+</script>
 
 <style lang="scss" scoped></style>

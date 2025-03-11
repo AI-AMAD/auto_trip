@@ -20,5 +20,14 @@ export default defineConfig({
     postcss: {
       map: false // 빌드 안 되는 문제 해결 위해 postcss map 비활성화
     }
+  },
+  // proxy 설정
+  server: {
+    proxy: {
+      '/api': {
+        target: 'http://localhost:2024',
+        changeOrigin: true
+      }
+    }
   }
 })
