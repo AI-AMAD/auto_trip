@@ -9,9 +9,11 @@ import org.springframework.web.bind.annotation.*;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
+
 import java.io.IOException;
 
 @RestController
+@RequestMapping("/api")
 public class UserController {
     private final UserService userService;
 

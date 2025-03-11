@@ -1,6 +1,7 @@
 package com.amad.autotrip.service;
 
 import java.util.Collections;
+
 import com.amad.autotrip.dto.UserDto;
 import com.amad.autotrip.entity.Authority;
 import com.amad.autotrip.entity.Users;
@@ -28,12 +29,8 @@ public class UserService {
     @Transactional
     public UserDto signup(UserDto userDto) {
         if (userRepository.findOneWithAuthoritiesByUsername(userDto.getUsername()).orElse(null) != null) {
-            throw new DuplicateMemberException("이미 가입되어 있는 유저입니다.");
+            throw new DuplicateMemberException("userService 에서 생성한 에러 문구 입니다 -> 이미 가입되어 있는 유저입니다.");
         }
-
-//        Authority authority = Authority.builder()
-//                .authorityName("ROLE_USER")
-//                .build();
 
         Authority authority = authorityRepository.findById("ROLE_USER")
                 .orElseGet(() -> authorityRepository.save(Authority.builder().authorityName("ROLE_USER").build()));
