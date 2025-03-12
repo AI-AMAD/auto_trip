@@ -71,10 +71,12 @@
 import { ref } from 'vue'
 import axios from 'axios'
 import { useRouter } from 'vue-router'
+import { useAuthStore } from '@/stores/auth'
 
 const username = ref('')
 const password = ref('')
 const router = useRouter()
+const authStore = useAuthStore() // Pinia 스토어 사용
 
 const login = async () => {
   try {
@@ -84,6 +86,8 @@ const login = async () => {
     })
 
     if (response.status === 200) {
+      const token = response.data.token
+      console.log('token------>: ', token)
       alert('로그인 성공!')
       // 성공 후 추가적인 처리 (예: 로그인 페이지로 이동)
       router.push('/main/manual')

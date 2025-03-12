@@ -11,8 +11,8 @@
         <router-link to="/main/manual" class="nav-link" active-class="active">
           <a class="sidebar-brand d-flex align-items-center justify-content-center">
             <!-- <div class="sidebar-brand-icon rotate-n-15">
-              <i class="fas fa-laugh-wink"></i>
-            </div> -->
+    <i class="fas fa-laugh-wink"></i>
+  </div> -->
             <div class="sidebar-brand-text mx-3">Auto-trip</div>
           </a>
         </router-link>
@@ -28,7 +28,7 @@
             width="100"
             height="100"
           />
-          <span class="d-block mt-2 text-gray-600 small">AMAD</span>
+          <span class="d-block mt-2 text-gray-600 small">{{ nickname }}</span>
         </li>
 
         <!-- Divider -->
@@ -72,7 +72,11 @@
   </body>
 </template>
 
-<script setup></script>
+<script setup>
+import { ref } from 'vue'
+
+const nickname = ref('')
+</script>
 
 <style scoped>
 #content-wrapper {
