@@ -2,6 +2,7 @@ package com.amad.autotrip.entity;
 
 import lombok.*;
 import jakarta.persistence.*;
+
 import java.util.Set;
 
 @Entity
@@ -29,6 +30,9 @@ public class Users {
 
     @Column(name = "activated")
     private boolean activated;
+
+    @Column(name = "profile_image_url", nullable = true)
+    private String profileImageUrl;
 
     @ManyToMany(cascade = CascadeType.ALL)
     @JoinTable(

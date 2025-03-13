@@ -11,8 +11,8 @@
         <router-link to="/main/manual" class="nav-link" active-class="active">
           <a class="sidebar-brand d-flex align-items-center justify-content-center">
             <!-- <div class="sidebar-brand-icon rotate-n-15">
-    <i class="fas fa-laugh-wink"></i>
-  </div> -->
+  <i class="fas fa-laugh-wink"></i>
+</div> -->
             <div class="sidebar-brand-text mx-3">Auto-trip</div>
           </a>
         </router-link>
@@ -73,9 +73,24 @@
 </template>
 
 <script setup>
-import { ref } from 'vue'
+import { onMounted } from 'vue'
+import { useAuthStore } from '@/stores/auth'
 
-const nickname = ref('')
+const authStore = useAuthStore()
+
+// Pinia에서 상태를 직접 사용
+const nickname = authStore.nickname
+const profileImageUrl = authStore.profileImageUrl
+
+// 페이지 로드 시 토큰이 있으면 유저 정보 확인
+onMounted(() => {
+  if (authStore.token && !authStore.nickname) {
+    authStore.fetchUserProfile().catch((error) => {
+      console.error('유저 정보 로드 실패:', error)
+      // 필요 시 로그인 페이지로 리다이렉트
+    })
+  }
+})
 </script>
 
 <style scoped>

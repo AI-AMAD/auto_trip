@@ -88,6 +88,12 @@ const login = async () => {
     if (response.status === 200) {
       const token = response.data.token
       console.log('token------>: ', token)
+
+      // Pinia에 토큰 저장
+      authStore.setToken(token)
+      // 유저 정보 요청
+      await authStore.fetchUserProfile()
+
       alert('로그인 성공!')
       // 성공 후 추가적인 처리 (예: 로그인 페이지로 이동)
       router.push('/main/manual')

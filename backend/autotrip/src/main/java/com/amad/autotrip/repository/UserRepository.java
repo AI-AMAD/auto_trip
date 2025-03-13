@@ -9,4 +9,6 @@ import java.util.Optional;
 public interface UserRepository extends JpaRepository<Users, Long> {
     @EntityGraph(attributePaths = "authorities")
     Optional<Users> findOneWithAuthoritiesByUsername(String username);
+
+    Optional<Users> findByUsername(String username);
 }

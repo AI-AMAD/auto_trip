@@ -1,9 +1,11 @@
 package com.amad.autotrip.controller;
 
 import com.amad.autotrip.dto.UserDto;
+import com.amad.autotrip.dto.UserProfileDto;
 import com.amad.autotrip.service.UserService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
 import jakarta.servlet.http.HttpServletRequest;
@@ -36,6 +38,13 @@ public class UserController {
             @Valid @RequestBody UserDto userDto
     ) {
         return ResponseEntity.ok(userService.signup(userDto));
+    }
+
+    @GetMapping("/user/profile")
+    public ResponseEntity<UserProfileDto> getUserProfile(Authentication authentication) {
+        String username = authentication.getName(); // JWT에서 추출된 username
+        UserProfileDto profile = userService.getUserProfile(username);
+        return ResponseEntity.ok(profile);
     }
 
     @GetMapping("/user")

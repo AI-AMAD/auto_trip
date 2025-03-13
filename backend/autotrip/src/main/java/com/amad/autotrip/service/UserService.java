@@ -3,6 +3,7 @@ package com.amad.autotrip.service;
 import java.util.Collections;
 
 import com.amad.autotrip.dto.UserDto;
+import com.amad.autotrip.dto.UserProfileDto;
 import com.amad.autotrip.entity.Authority;
 import com.amad.autotrip.entity.Users;
 import com.amad.autotrip.exception.DuplicateMemberException;
@@ -44,6 +45,12 @@ public class UserService {
                 .build();
 
         return UserDto.from(userRepository.save(user));
+    }
+
+    public UserProfileDto getUserProfile(String username) {
+        Users user = userRepository.findByUsername(username)
+                .orElseThrow(() -> new NotFoundMemberException("사용자 없음: " + username));
+        return new UserProfileDto(user.getNickname(), user.getProfileImageUrl());
     }
 
     @Transactional(readOnly = true)
