@@ -11,7 +11,7 @@
         <router-link to="/main/manual" class="nav-link" active-class="active">
           <a class="sidebar-brand d-flex align-items-center justify-content-center">
             <!-- <div class="sidebar-brand-icon rotate-n-15">
-  <i class="fas fa-laugh-wink"></i>
+<i class="fas fa-laugh-wink"></i>
 </div> -->
             <div class="sidebar-brand-text mx-3">Auto-trip</div>
           </a>
@@ -29,6 +29,7 @@
             height="100"
           />
           <span class="d-block mt-2 text-gray-600 small">{{ nickname }}</span>
+          <button @click="logout" class="btn btn-sm btn-danger mt-2">로그아웃</button>
         </li>
 
         <!-- Divider -->
@@ -74,13 +75,22 @@
 
 <script setup>
 import { onMounted } from 'vue'
+import { useRouter } from 'vue-router'
 import { useAuthStore } from '@/stores/auth'
 
 const authStore = useAuthStore()
+const router = useRouter()
 
 // Pinia에서 상태를 직접 사용
 const nickname = authStore.nickname
 const profileImageUrl = authStore.profileImageUrl
+
+// 로그아웃 함수
+const logout = () => {
+  authStore.logout() // Pinia 상태 초기화
+  alert('로그아웃 되었습니다.')
+  router.push('/') // 로그인 페이지로 리다이렉트
+}
 
 // 페이지 로드 시 토큰이 있으면 유저 정보 확인
 onMounted(() => {
