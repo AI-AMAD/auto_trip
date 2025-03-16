@@ -4,8 +4,8 @@ import axios from 'axios'
 export const useAuthStore = defineStore('auth', {
   state: () => ({
     token: localStorage.getItem('token') || null, // 초기값은 localStorage에서 가져옴
-    nickname: '',
-    profileImageUrl: ''
+    nickname: localStorage.getItem('nickname') || '',
+    profileImageUrl: localStorage.getItem('profileImageUrl') || ''
   }),
   actions: {
     // 로그인 시 토큰 저장
@@ -23,6 +23,10 @@ export const useAuthStore = defineStore('auth', {
         })
         this.nickname = response.data.nickname
         this.profileImageUrl = response.data.profileImageUrl
+
+        // localStorage에 저장
+        localStorage.setItem('nickname', this.nickname)
+        localStorage.setItem('profileImageUrl', this.profileImageUrl)
       } catch (error) {
         console.error('유저 정보 로드 실패:', error)
       }
@@ -33,6 +37,8 @@ export const useAuthStore = defineStore('auth', {
       this.nickname = ''
       this.profileImageUrl = ''
       localStorage.removeItem('token')
+      localStorage.removeItem('nickname')
+      localStorage.removeItem('profileImageUrl')
     }
   }
 })
