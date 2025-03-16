@@ -45,9 +45,9 @@
                         Login
                       </button>
                       <hr />
-                      <a href="index.html" class="btn btn-warning btn-user btn-block">
+                      <button @click="kakaoLogin" class="btn btn-warning btn-user btn-block">
                         <i class="fab fa-google fa-fw"></i> Login with Kakao
-                      </a>
+                      </button>
                     </form>
                     <hr />
                     <div class="text-center">
@@ -106,6 +106,17 @@ const login = async () => {
       alert('로그인 중 오류 발생.')
     }
   }
+}
+
+const kakaoLogin = () => {
+  const clientId = import.meta.env.VITE_KAKAO_CLIENT_ID
+  const redirectUri = import.meta.env.VITE_KAKAO_REDIRECT_URI
+  console.log('clientId------>: ', clientId)
+  console.log('redirectUri-------->: ', redirectUri)
+  const kakaoAuthUrl = `https://kauth.kakao.com/oauth/authorize?client_id=${clientId}&redirect_uri=${redirectUri}&response_type=code`
+
+  // 브라우저를 카카오 로그인 페이지로 리다이렉트
+  window.location.href = kakaoAuthUrl
 }
 </script>
 
