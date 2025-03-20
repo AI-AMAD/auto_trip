@@ -1,0 +1,21 @@
+version: "3"
+
+services:
+  mysql:
+    build:
+      context: ./mysql
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+      MYSQL_DATABASE: ${MYSQL_DATABASE}
+      MYSQL_USER: ${MYSQL_USER}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD}
+    container_name: mysql-escapeH
+    ports:
+      - 1541:1541
+    volumes:
+      - ./mysql/init/:/docker-entrypoint-initdb.d/
+      - MYSQL_DATA:/var/lib/mysql
+    restart: always
+
+volumes:
+  MYSQL_DATA:
