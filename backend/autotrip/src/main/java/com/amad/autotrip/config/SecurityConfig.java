@@ -58,7 +58,10 @@ public class SecurityConfig {
                 )
 
                 .authorizeHttpRequests(authorizeHttpRequests -> authorizeHttpRequests
-                        .requestMatchers("/api/login", "/connectiontest", "/api/signup").permitAll()
+                        .requestMatchers("/api/login",
+                                "/connectiontest",
+                                "/api/signup",
+                                "/api/auth/kakao/callback").permitAll()
                         // .requestMatchers(PathRequest.toH2Console()).permitAll()
                         .anyRequest().authenticated()
                 )
