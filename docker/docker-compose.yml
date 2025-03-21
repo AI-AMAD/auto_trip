@@ -11,7 +11,7 @@ services:
       MYSQL_PASSWORD: ${MYSQL_PASSWORD}
     container_name: mysql-escapeH
     ports:
-      - 1541:1541
+      - 1541:3306
     volumes:
       - ./mysql/init/:/docker-entrypoint-initdb.d/
       - MYSQL_DATA:/var/lib/mysql

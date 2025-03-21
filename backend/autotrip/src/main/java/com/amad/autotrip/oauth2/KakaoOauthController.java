@@ -27,10 +27,13 @@ public class KakaoOauthController {
 
     @GetMapping("/auth/kakao/callback")
     public ResponseEntity<?> callback(@RequestParam("code") String code) {
+        System.out.println("code: " + code);
+        System.out.println("컨트롤러 진입은 한거니??");
         String accessToken = kakaoOauthService.getAccessTokenFromKakao(code);
 
         KakaoUserInfoResponseDto userInfo = kakaoOauthService.getUserInfo(accessToken);
 
+        System.out.println("userinfo--->: " + userInfo);
         // 여기에 서버 사용자 로그인(인증) 또는 회원가입 로직 추가
         return new ResponseEntity<>(HttpStatus.OK);
     }
