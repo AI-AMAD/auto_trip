@@ -68,15 +68,26 @@
 </template>
 
 <script setup>
-import { ref } from 'vue'
+import { ref, onMounted } from 'vue'
 import axios from 'axios'
-import { useRouter } from 'vue-router'
+import { useRouter, useRoute } from 'vue-router'
 import { useAuthStore } from '@/stores/auth'
 
 const username = ref('')
 const password = ref('')
 const router = useRouter()
+const route = useRoute()
 const authStore = useAuthStore() // Pinia 스토어 사용
+
+// 페이지 로드 시 쿼리 파라미터 확인
+onMounted(() => {
+  const token = route.query.token
+  if (token) {
+    authStore.setToken(token) // 토큰 저장
+    authStore.fetchUserProfile() // 사용자 정보 가져오기
+    router.push('/main/manual') // 메인 페이지로 이동
+  }
+})
 
 const login = async () => {
   try {
