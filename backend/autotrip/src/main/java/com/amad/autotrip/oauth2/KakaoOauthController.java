@@ -7,6 +7,7 @@ import com.amad.autotrip.dto.UserDto;
 import com.amad.autotrip.repository.UserRepository;
 import com.amad.autotrip.service.UserService;
 import jakarta.servlet.http.HttpServletResponse;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -16,6 +17,7 @@ import org.springframework.web.bind.annotation.RestController;
 import java.io.IOException;
 
 
+@Slf4j
 @RestController
 @RequestMapping("/api")
 public class KakaoOauthController {
@@ -32,8 +34,7 @@ public class KakaoOauthController {
 
     @GetMapping("/auth/kakao/callback")
     public void callback(@RequestParam("code") String code, HttpServletResponse response) throws IOException {
-        System.out.println("code: " + code);
-        System.out.println("컨트롤러 진입은 한거니??");
+
         String accessToken = kakaoOauthService.getAccessTokenFromKakao(code);
 
         KakaoUserInfoResponseDto userInfo = kakaoOauthService.getUserInfo(accessToken);
@@ -60,11 +61,10 @@ public class KakaoOauthController {
             token = userService.login(loginDto);
         }
 
-        String redirectUrl = "http://localhost:5173/?token=" + token;
+        log.info("token----->: " + token);
+        String redirectUrl = "http://localhost:5173/?token=" + token.getBody().getToken();
         response.sendRedirect(redirectUrl);
 
-        // 여기에 서버 사용자 로그인(인증) 또는 회원가입 로직 추가
-//        return new ResponseEntity<>(HttpStatus.OK);
     }
 
 }

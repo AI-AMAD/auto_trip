@@ -93,11 +93,13 @@
 <script setup>
 import { ref } from 'vue'
 import axios from 'axios'
+import { useRouter } from 'vue-router'
 
 const username = ref('')
 const password = ref('')
 const confirmPassword = ref('')
 const nickname = ref('')
+const router = useRouter()
 
 const register = async () => {
   if (password.value !== confirmPassword.value) {
@@ -115,6 +117,7 @@ const register = async () => {
     if (response.status === 200) {
       alert('회원가입 성공!')
       // 성공 후 추가적인 처리 (예: 로그인 페이지로 이동)
+      router.push('/')
     }
   } catch (error) {
     if (error.response && error.response.data && error.response.data.message) {
