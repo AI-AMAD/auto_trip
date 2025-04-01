@@ -79,13 +79,19 @@ const router = useRouter()
 const route = useRoute()
 const authStore = useAuthStore() // Pinia 스토어 사용
 
-// 페이지 로드 시 쿼리 파라미터 확인
-onMounted(() => {
+// onMounted 역시 비동기 처리 -> 바로 fetchUserProfile 함수 호출하니 정보 가져오기도 전에 /main/manual로 router.push 됨
+onMounted(async () => {
   const token = route.query.token
   if (token) {
-    authStore.setToken(token) // 토큰 저장
-    authStore.fetchUserProfile() // 사용자 정보 가져오기
-    router.push('/main/manual') // 메인 페이지로 이동
+    authStore.setToken(token)
+    try {
+      await authStore.fetchUserProfile()
+      console.log('Nickname:', authStore.nickname) // 디버깅
+      router.push('/main/manual')
+    } catch (error) {
+      console.error('Profile fetch failed:', error)
+      alert('유저 정보를 가져오지 못했습니다.')
+    }
   }
 })
 
