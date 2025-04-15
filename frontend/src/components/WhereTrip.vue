@@ -1,16 +1,19 @@
 <template>
   <div class="row">
     <div class="col-8">
-      <div class="card">
-        <h5 class="card-header">어디로 여행을 떠나시나요?</h5>
-        <div class="card-body">
-          <h5 class="card-title">Special title treatment</h5>
-          <p class="card-text">
-            With supporting text below as a natural lead-in to additional content.
-          </p>
-          <a href="#" class="btn btn-primary">Go somewhere</a>
-        </div>
-      </div>
+      <!--      <div class="card">-->
+      <!--        <h5 class="card-header">어디로 여행을 떠나시나요?</h5>-->
+      <!--        <div class="card-body">-->
+      <!--          <h5 class="card-title">Special title treatment</h5>-->
+      <!--          <p class="card-text">-->
+      <!--            With supporting text below as a natural lead-in to additional content.-->
+      <!--          </p>-->
+      <!--          <a href="#" class="btn btn-primary">Go somewhere</a>-->
+      <!--        </div>-->
+      <!--      </div>-->
+      <naver-map style="width: 100%; height: 400px" :map-options="mapOptions">
+        <naver-marker latitude="37.51347" longitude="127.041722" />
+      </naver-map>
     </div>
     <div class="col-4">
       <form class="row" @submit.prevent="search">
@@ -50,6 +53,12 @@ import SaveButton from '@/components/SaveButton.vue'
 import { ref } from 'vue'
 import { NaverMap, NaverMarker } from 'vue3-naver-maps'
 
+const mapOptions = {
+  latitude: 37.51347, // 지도 중앙 위도
+  longitude: 127.041722, // 지도 중앙 경도
+  zoom: 13
+}
+
 const inputLocation = ref('')
 const searchedLocation = ref('')
 const search = () => {
@@ -58,46 +67,6 @@ const search = () => {
 
 const saveData = () => {
   alert(`해당 장소를 저장합니다: ${searchedLocation.value}`)
-}
-
-const searchQuery = ref('')
-const place = ref(null)
-const mapCenter = ref({ lat: 37.5665, lng: 126.978 }) // 기본 위치: 서울
-
-const searchPlace = async () => {
-  const query = encodeURIComponent(searchQuery.value)
-  const url = `https://openapi.naver.com/v1/search/local.json?query=${query}&display=1`
-  const response = await fetch(url, {
-    headers: {
-      'X-Naver-Client-Id': 'YOUR_SEARCH_CLIENT_ID',
-      'X-Naver-Client-Secret': 'YOUR_SEARCH_CLIENT_SECRET'
-    }
-  })
-  const data = await response.json()
-  if (data.items && data.items.length > 0) {
-    const item = data.items[0]
-    const lat = parseFloat(item.mapy)
-    const lng = parseFloat(item.mapx)
-    place.value = { position: { lat, lng } }
-    mapCenter.value = { lat, lng }
-    await savePlaceToDB(item)
-  }
-}
-
-const savePlaceToDB = async (item) => {
-  const placeData = {
-    title: item.title,
-    address: item.address,
-    lat: parseFloat(item.mapy),
-    lng: parseFloat(item.mapx)
-  }
-  await fetch('/api/places', {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json'
-    },
-    body: JSON.stringify(placeData)
-  })
 }
 </script>
 
