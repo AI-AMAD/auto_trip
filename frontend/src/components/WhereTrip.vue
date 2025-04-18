@@ -11,9 +11,7 @@
       <!--          <a href="#" class="btn btn-primary">Go somewhere</a>-->
       <!--        </div>-->
       <!--      </div>-->
-      <naver-map style="width: 100%; height: 400px" :map-options="mapOptions">
-        <naver-marker latitude="37.51347" longitude="127.041722" />
-      </naver-map>
+      <div id="map" style="width: 100%; height: 400px"></div>
     </div>
     <div class="col-4">
       <form class="row" @submit.prevent="search">
@@ -51,12 +49,17 @@
 <script setup>
 import SaveButton from '@/components/SaveButton.vue'
 import { ref } from 'vue'
-import { NaverMap, NaverMarker } from 'vue3-naver-maps'
 
-const mapOptions = {
-  latitude: 37.51347, // 지도 중앙 위도
-  longitude: 127.041722, // 지도 중앙 경도
-  zoom: 13
+const script = document.createElement('script')
+script.src = 'https://oapi.map.naver.com/openapi/v3/maps.js'
+script.async = true
+script.defer = true
+document.head.appendChild(script)
+script.onload = () => {
+  new naver.maps.Map('map', {
+    center: new naver.maps.LatLng(37.5670135, 126.978374),
+    zoom: 10
+  })
 }
 
 const inputLocation = ref('')
