@@ -1,16 +1,6 @@
 <template>
   <div class="row">
     <div class="col-8">
-      <!--      <div class="card">-->
-      <!--        <h5 class="card-header">어디로 여행을 떠나시나요?</h5>-->
-      <!--        <div class="card-body">-->
-      <!--          <h5 class="card-title">Special title treatment</h5>-->
-      <!--          <p class="card-text">-->
-      <!--            With supporting text below as a natural lead-in to additional content.-->
-      <!--          </p>-->
-      <!--          <a href="#" class="btn btn-primary">Go somewhere</a>-->
-      <!--        </div>-->
-      <!--      </div>-->
       <div id="map" style="width: 100%; height: 400px"></div>
     </div>
     <div class="col-4">
@@ -48,24 +38,55 @@
 
 <script setup>
 import SaveButton from '@/components/SaveButton.vue'
-import { ref } from 'vue'
+import { ref, onMounted } from 'vue'
 
-const script = document.createElement('script')
-script.src = 'https://oapi.map.naver.com/openapi/v3/maps.js'
-script.async = true
-script.defer = true
-document.head.appendChild(script)
-script.onload = () => {
-  new naver.maps.Map('map', {
-    center: new naver.maps.LatLng(37.5670135, 126.978374),
-    zoom: 10
-  })
-}
-
+let map
 const inputLocation = ref('')
 const searchedLocation = ref('')
+
+onMounted(() => {
+  if (window.naver && window.naver.maps) {
+    map = new window.naver.maps.Map('map', {
+      center: new window.naver.maps.LatLng(37.5670135, 126.978374),
+      zoom: 10
+    })
+  } else {
+    console.error('Naver Maps API is not loaded')
+  }
+})
+
 const search = () => {
-  searchedLocation.value = inputLocation.value
+  // searchedLocation.value = inputLocation.value
+  if (!inputLocation.value) return
+  if (!inputLocation.value.trim()) {
+    alert('검색어를 입력하세요')
+    return
+  }
+  naver.maps.Service.geocode(
+    {
+      query: inputLocation.value.trim()
+    },
+    function (status, response) {
+      console.log('Geocode response:', response) // 응답 구조 확인
+      if (status !== naver.maps.Service.Status.OK) {
+        alert('검색에 실패했습니다: ' + status)
+        return
+      }
+      const addresses = response.v2?.addresses
+      if (!addresses || addresses.length === 0) {
+        alert('검색 결과가 없습니다')
+        return
+      }
+      const result = addresses[0]
+      const point = new naver.maps.LatLng(result.y, result.x)
+      map.setCenter(point)
+      const marker = new naver.maps.Marker({
+        position: point,
+        map: map
+      })
+      searchedLocation.value = result.roadAddress || result.jibunAddress || inputLocation.value
+    }
+  )
 }
 
 const saveData = () => {
