@@ -39,6 +39,9 @@
 <script setup>
 import SaveButton from '@/components/SaveButton.vue'
 import { ref, onMounted } from 'vue'
+import { useAuthStore } from '@/stores/auth'
+
+const authStore = useAuthStore()
 
 let map
 const inputLocation = ref('')
@@ -50,6 +53,8 @@ onMounted(() => {
       center: new window.naver.maps.LatLng(37.5670135, 126.978374),
       zoom: 10
     })
+    console.log('authStore에서 가져온 토큰 입니다.--->: ', authStore.token)
+    console.log('authStore에서 가져온 닉네임 입니다.--->: ', authStore.nickname)
   } else {
     console.error('Naver Maps API is not loaded')
   }
