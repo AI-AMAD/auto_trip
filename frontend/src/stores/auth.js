@@ -4,6 +4,7 @@ import axios from 'axios'
 export const useAuthStore = defineStore('auth', {
   state: () => ({
     token: localStorage.getItem('token') || null, // 초기값은 localStorage에서 가져옴
+    username: localStorage.getItem('username') || '',
     nickname: localStorage.getItem('nickname') || '',
     profileImageUrl: localStorage.getItem('profileImageUrl') || ''
   }),
@@ -21,10 +22,12 @@ export const useAuthStore = defineStore('auth', {
             Authorization: `Bearer ${this.token}`
           }
         })
+        this.username = response.data.username
         this.nickname = response.data.nickname
         this.profileImageUrl = response.data.profileImageUrl
 
         // localStorage에 저장
+        localStorage.setItem('username', this.username)
         localStorage.setItem('nickname', this.nickname)
         localStorage.setItem('profileImageUrl', this.profileImageUrl)
       } catch (error) {
@@ -34,9 +37,11 @@ export const useAuthStore = defineStore('auth', {
     // 로그아웃
     logout() {
       this.token = null
+      this.username = ''
       this.nickname = ''
       this.profileImageUrl = ''
       localStorage.removeItem('token')
+      localStorage.removeItem('username')
       localStorage.removeItem('nickname')
       localStorage.removeItem('profileImageUrl')
     }

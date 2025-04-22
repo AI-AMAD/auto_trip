@@ -55,6 +55,8 @@ onMounted(() => {
     })
     console.log('authStore에서 가져온 토큰 입니다.--->: ', authStore.token)
     console.log('authStore에서 가져온 닉네임 입니다.--->: ', authStore.nickname)
+    console.log('authStore에서 가져온 프로필 입니다.--->: ', authStore.profileImageUrl)
+    console.log('authStore에서 가져온 아이디 입니다.--->: ', authStore.username)
   } else {
     console.error('Naver Maps API is not loaded')
   }
@@ -78,6 +80,7 @@ const search = () => {
         return
       }
       const addresses = response.v2?.addresses
+      console.log('addresses---->: ', addresses)
       if (!addresses || addresses.length === 0) {
         alert('검색 결과가 없습니다')
         return

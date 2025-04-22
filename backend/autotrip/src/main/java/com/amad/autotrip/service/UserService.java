@@ -73,7 +73,7 @@ public class UserService {
     public UserProfileDto getUserProfile(String username) {
         Users user = userRepository.findByUsername(username)
                 .orElseThrow(() -> new NotFoundMemberException("사용자 없음: " + username));
-        return new UserProfileDto(user.getUserId(), user.getNickname(), user.getProfileImageUrl());
+        return new UserProfileDto(user.getUsername(), user.getNickname(), user.getProfileImageUrl());
     }
 
     @Transactional(readOnly = true)
