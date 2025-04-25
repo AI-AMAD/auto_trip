@@ -7,18 +7,16 @@ import org.springframework.stereotype.Service;
 @Service
 public class TripService {
 
-    private TripMapper tripMapper;
+    private final TripMapper tripMapper;
 
     public TripService(TripMapper tripMapper) {
         this.tripMapper = tripMapper;
     }
 
-    public void savePlace(PlaceDto placeDto) {
-        PlaceDto placeInfo = new PlaceDto();
-        placeInfo.setUsername(placeDto.getUsername());
-        placeInfo.setPlace(placeDto.getPlace());
-
-        tripMapper.savePlace(placeInfo);
+    public boolean savePlace(PlaceDto placeDto) {
+        // UPSERT 실행, 업데이트 여부 반환
+        int result = tripMapper.savePlace(placeDto);
+        return result > 1; // MySQL의 ON DUPLICATE KEY UPDATE는 업데이트 시 2 반환
     }
 
 }

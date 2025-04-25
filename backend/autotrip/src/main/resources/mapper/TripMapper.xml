@@ -1,7 +1,8 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.amad.autotrip.mybatis.TripMapper">
     <insert id="savePlace" parameterType="com.amad.autotrip.dto.PlaceDto">
-        INSERT INTO travel_place(username, place)
+        INSERT INTO travel_place (username, place)
         VALUES (#{username}, #{place})
+        ON DUPLICATE KEY UPDATE place = #{place}
     </insert>
 </mapper>

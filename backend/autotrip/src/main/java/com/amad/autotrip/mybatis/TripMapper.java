@@ -6,5 +6,5 @@ import org.apache.ibatis.annotations.Mapper;
 @Mapper
 public interface TripMapper {
 
-    void savePlace(PlaceDto placeDto);
+    int savePlace(PlaceDto placeDto);
 }
