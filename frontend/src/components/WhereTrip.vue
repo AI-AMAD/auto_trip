@@ -40,6 +40,7 @@
 import SaveButton from '@/components/SaveButton.vue'
 import { ref, onMounted } from 'vue'
 import { useAuthStore } from '@/stores/auth'
+import axios from 'axios'
 
 const authStore = useAuthStore()
 
@@ -98,7 +99,26 @@ const search = () => {
 }
 
 const saveData = () => {
-  alert(`해당 장소를 저장합니다: ${searchedLocation.value}`)
+  const placeDto = {
+    username: authStore.username,
+    place: searchedLocation.value
+  }
+  axios
+    .post('/api/save/place', placeDto)
+    .then((response) => {
+      const message = response.data.includes('updated')
+        ? `기존 장소가 새로운 데이터로 업데이트되었습니다: ${searchedLocation.value}`
+        : `장소가 저장되었습니다: ${searchedLocation.value}`
+      alert(message)
+      // 입력 필드와 검색 결과 초기화
+      inputLocation.value = ''
+      searchedLocation.value = ''
+      map.setCenter(new window.naver.maps.LatLng(37.5670135, 126.978374))
+    })
+    .catch((error) => {
+      console.error('저장 실패:', error)
+      alert(`장소 저장에 실패했습니다: ${error.response?.data || error.message}`)
+    })
 }
 </script>
 
