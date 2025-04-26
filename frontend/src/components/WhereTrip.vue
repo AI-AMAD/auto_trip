@@ -4,6 +4,16 @@
       <div id="map" style="width: 100%; height: 400px"></div>
     </div>
     <div class="col-4">
+      <div class="row mb-3">
+        <div class="col">
+          <div class="card">
+            <h5 class="card-header">현재 저장된 장소</h5>
+            <div class="card-body">
+              <p class="card-text">{{ existingPlace || '저장된 장소가 없습니다' }}</p>
+            </div>
+          </div>
+        </div>
+      </div>
       <form class="row" @submit.prevent="search">
         <div class="col-auto">
           <input
@@ -22,7 +32,7 @@
           <div class="card">
             <h5 class="card-header">이 장소가 맞나요?</h5>
             <div class="card-body">
-              <p class="card-text">{{ searchedLocation }}</p>
+              <p class="card-text">{{ searchedLocation || '검색된 장소가 없습니다' }}</p>
             </div>
           </div>
         </div>
@@ -47,6 +57,7 @@ const authStore = useAuthStore()
 let map
 const inputLocation = ref('')
 const searchedLocation = ref('')
+const existingPlace = ref('') // 기존 저장된 장소
 
 onMounted(() => {
   if (window.naver && window.naver.maps) {
@@ -54,14 +65,33 @@ onMounted(() => {
       center: new window.naver.maps.LatLng(37.5670135, 126.978374),
       zoom: 10
     })
-    console.log('authStore에서 가져온 토큰 입니다.--->: ', authStore.token)
-    console.log('authStore에서 가져온 닉네임 입니다.--->: ', authStore.nickname)
-    console.log('authStore에서 가져온 프로필 입니다.--->: ', authStore.profileImageUrl)
-    console.log('authStore에서 가져온 아이디 입니다.--->: ', authStore.username)
   } else {
     console.error('Naver Maps API is not loaded')
   }
+  // 컴포넌트 마운트 시 기존 장소 조회
+  fetchExistingPlace()
 })
+
+// 기존 장소 조회 함수
+const fetchExistingPlace = () => {
+  if (!authStore.username) return
+  axios
+    .get('/api/place', {
+      params: { username: authStore.username },
+      headers: {
+        Authorization: `Bearer ${authStore.token}`
+      }
+    })
+    .then((response) => {
+      existingPlace.value = response.data?.place || ''
+    })
+    .catch((error) => {
+      console.error('기존 장소 조회 실패:', error)
+      if (error.response?.status !== 204) {
+        alert(`기존 장소 조회에 실패했습니다: ${error.response?.data || error.message}`)
+      }
+    })
+}
 
 const search = () => {
   // searchedLocation.value = inputLocation.value
@@ -99,16 +129,37 @@ const search = () => {
 }
 
 const saveData = () => {
+  if (!searchedLocation.value) {
+    alert('저장할 장소가 없습니다. 먼저 검색하세요.')
+    return
+  }
+  if (!authStore.username) {
+    alert('로그인이 필요합니다.')
+    return
+  }
+
   const placeDto = {
     username: authStore.username,
     place: searchedLocation.value
   }
+
   axios
-    .post('/api/save/place', placeDto)
+    .post('/api/save/place', placeDto, {
+      headers: {
+        Authorization: `Bearer ${authStore.token}`,
+        'Content-Type': 'application/json'
+      }
+    })
     .then((response) => {
-      const message = response.data.includes('updated')
-        ? `기존 장소가 새로운 데이터로 업데이트되었습니다: ${searchedLocation.value}`
-        : `장소가 저장되었습니다: ${searchedLocation.value}`
+      const oldPlace = existingPlace.value
+      // 서버에서 최신 데이터 재조회
+      fetchExistingPlace()
+      let message
+      if (response.data.includes('updated') && oldPlace) {
+        message = `기존 장소 "${oldPlace}" -> "${searchedLocation.value}"으로 변경되었습니다.`
+      } else {
+        message = `장소 "${searchedLocation.value}"가 저장되었습니다.`
+      }
       alert(message)
       // 입력 필드와 검색 결과 초기화
       inputLocation.value = ''
