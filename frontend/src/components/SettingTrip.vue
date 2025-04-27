@@ -26,6 +26,7 @@
                           v-model="startDate"
                           locale="ko"
                           :format="format"
+                          :enable-time-picker="false"
                         ></VueDatePicker>
                       </div>
                       <div>~</div>
@@ -34,6 +35,10 @@
                           v-model="endDate"
                           locale="ko"
                           :format="format"
+                          :enable-time-picker="false"
+                          disabled
+                          :select-text="''"
+                          :cancel-text="''"
                         ></VueDatePicker>
                       </div>
                     </div>
@@ -61,11 +66,11 @@
                           <input
                             class="form-check-input"
                             type="checkbox"
-                            value="tour"
-                            id="tour"
+                            value="museum"
+                            id="museum"
                             v-model="selectedCheckboxes"
                           />
-                          <label class="form-check-label" for="tour">명소 구경</label>
+                          <label class="form-check-label" for="tour">박물관</label>
                         </div>
                       </div>
                     </div>
@@ -88,29 +93,29 @@
                           <input
                             class="form-check-input"
                             type="checkbox"
-                            value="exclude"
-                            id="exclude"
+                            value="tour"
+                            id="tour"
                             v-model="selectedCheckboxes"
                           />
-                          <label class="form-check-label" for="exclude">이건 빼주세요</label>
+                          <label class="form-check-label" for="exclude">관광 명소</label>
                         </div>
                       </div>
                     </div>
                   </td>
                   <td class="text-center align-middle">추후 설정</td>
                 </tr>
-                <tr>
-                  <td class="text-center align-middle">출발 장소</td>
-                  <td>
-                    <input
-                      v-model="startLocation"
-                      type="text"
-                      class="form-control"
-                      placeholder="출발지 주소를 입력 하세요"
-                    />
-                  </td>
-                  <td class="text-center align-middle">추후 설정</td>
-                </tr>
+                <!--                <tr>-->
+                <!--                  <td class="text-center align-middle">출발 장소</td>-->
+                <!--                  <td>-->
+                <!--                    <input-->
+                <!--                      v-model="startLocation"-->
+                <!--                      type="text"-->
+                <!--                      class="form-control"-->
+                <!--                      placeholder="출발지 주소를 입력 하세요"-->
+                <!--                    />-->
+                <!--                  </td>-->
+                <!--                  <td class="text-center align-middle">추후 설정</td>-->
+                <!--                </tr>-->
               </tbody>
             </table>
             <div class="d-flex justify-content-end">
@@ -124,11 +129,11 @@
 </template>
 
 <script setup>
-import { ref } from 'vue'
+import { ref, watch } from 'vue'
 import SaveButton from '@/components/SaveButton.vue'
 
 const startDate = ref(new Date())
-const endDate = ref(new Date())
+const endDate = ref(new Date(new Date().setDate(startDate.value.getDate() + 1)))
 // In case of a range picker, you'll receive [Date, Date]
 // date의 타입은 넘버 차후에 스트링으로 변환 하기
 const format = (date) => {
@@ -141,6 +146,23 @@ const format = (date) => {
 
 const startLocation = ref('')
 const selectedCheckboxes = ref([])
+
+// startDate 변경 감지
+watch(
+  startDate,
+  (newStartDate) => {
+    // endDate를 startDate + 1일로 설정
+    const newEndDate = new Date(newStartDate)
+    newEndDate.setDate(newStartDate.getDate() + 1)
+    endDate.value = newEndDate
+
+    // 날짜 업데이트 후 alert를 비동기적으로 표시
+    setTimeout(() => {
+      alert('현재 버전에서는 1박 2일 설정만 가능합니다.')
+    }, 200)
+  },
+  { immediate: false }
+)
 
 const saveData = () => {
   alert(`세부 설정을 저장하였습니다.
