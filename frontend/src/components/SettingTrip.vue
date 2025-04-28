@@ -104,18 +104,6 @@
                   </td>
                   <td class="text-center align-middle">추후 설정</td>
                 </tr>
-                <!--                <tr>-->
-                <!--                  <td class="text-center align-middle">출발 장소</td>-->
-                <!--                  <td>-->
-                <!--                    <input-->
-                <!--                      v-model="startLocation"-->
-                <!--                      type="text"-->
-                <!--                      class="form-control"-->
-                <!--                      placeholder="출발지 주소를 입력 하세요"-->
-                <!--                    />-->
-                <!--                  </td>-->
-                <!--                  <td class="text-center align-middle">추후 설정</td>-->
-                <!--                </tr>-->
               </tbody>
             </table>
             <div class="d-flex justify-content-end">
