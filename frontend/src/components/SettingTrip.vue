@@ -70,7 +70,7 @@
                             id="museum"
                             v-model="selectedCheckboxes"
                           />
-                          <label class="form-check-label" for="tour">박물관</label>
+                          <label class="form-check-label" for="museum">박물관</label>
                         </div>
                       </div>
                     </div>
@@ -97,7 +97,7 @@
                             id="tour"
                             v-model="selectedCheckboxes"
                           />
-                          <label class="form-check-label" for="exclude">관광 명소</label>
+                          <label class="form-check-label" for="tour">관광 명소</label>
                         </div>
                       </div>
                     </div>
@@ -119,9 +119,14 @@
 <script setup>
 import { ref, watch } from 'vue'
 import SaveButton from '@/components/SaveButton.vue'
+import { useAuthStore } from '@/stores/auth'
+import axios from 'axios'
+
+const authStore = useAuthStore()
 
 const startDate = ref(new Date())
 const endDate = ref(new Date(new Date().setDate(startDate.value.getDate() + 1)))
+
 // In case of a range picker, you'll receive [Date, Date]
 // date의 타입은 넘버 차후에 스트링으로 변환 하기
 const format = (date) => {
@@ -132,7 +137,14 @@ const format = (date) => {
   return `${year}/${month}/${day}`
 }
 
-const startLocation = ref('')
+// API로 보낼 날짜 형식 (YYYYMMDD)
+const apiFormat = (date) => {
+  const year = date.getFullYear()
+  const month = String(date.getMonth() + 1).padStart(2, '0')
+  const day = String(date.getDate()).padStart(2, '0')
+  return `${year}${month}${day}`
+}
+
 const selectedCheckboxes = ref([])
 
 // startDate 변경 감지
@@ -153,10 +165,40 @@ watch(
 )
 
 const saveData = () => {
-  alert(`세부 설정을 저장하였습니다.
-  일정 -> ${format(startDate.value)} ~ ${format(endDate.value)}
-  뭐할지 -> ${selectedCheckboxes.value.join(', ')}
-  출발지 -> ${startLocation.value}`)
+  if (selectedCheckboxes.value.length === 0) {
+    alert('활동을 하나 이상 선택해주세요.')
+    return
+  }
+
+  const settingDto = {
+    username: authStore.username,
+    startYmd: apiFormat(startDate.value),
+    endYmd: apiFormat(endDate.value),
+    activity: selectedCheckboxes.value.includes('activity'),
+    museum: selectedCheckboxes.value.includes('museum'),
+    cafe: selectedCheckboxes.value.includes('cafe'),
+    tourAtt: selectedCheckboxes.value.includes('tour')
+  }
+  console.log('activity--->: ', selectedCheckboxes.value.includes('activity'))
+
+  axios
+    .post('/api/save/setting', settingDto, {
+      headers: {
+        Authorization: `Bearer ${authStore.token}`,
+        'Content-Type': 'application/json'
+      }
+    })
+    .then(() => {
+      alert('설정이 성공적으로 저장되었습니다.')
+    })
+    .catch((error) => {
+      alert('설정 저장에 실패했습니다: ' + (error.response?.data || error.message))
+    })
+
+  // alert(`세부 설정을 저장하였습니다.
+  // 일정 -> ${format(startDate.value)} ~ ${format(endDate.value)}
+  // 뭐할지 -> ${selectedCheckboxes.value.join(', ')}
+  // 출발지 -> ${startLocation.value}`)
 }
 </script>
 
