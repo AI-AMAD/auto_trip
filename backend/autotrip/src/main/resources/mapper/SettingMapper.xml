@@ -1,0 +1,14 @@
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.amad.autotrip.mybatis.SettingMapper">
+
+    <insert id="saveSetting" parameterType="com.amad.autotrip.dto.SettingDto">
+        INSERT INTO setting (username, start_ymd, end_ymd, activity, museum, cafe, tour_att)
+        VALUES (#{username}, #{startYmd}, #{endYmd}, #{activity}, #{museum}, #{cafe}, #{tourAtt})
+        ON DUPLICATE KEY UPDATE start_ymd=#{startYmd},
+                                end_ymd=#{endYmd},
+                                activity=#{activity},
+                                museum=#{museum},
+                                cafe=#{cafe},
+                                tour_att=#{tourAtt}
+    </insert>
+</mapper>
