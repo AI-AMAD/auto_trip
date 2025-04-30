@@ -1,12 +1,10 @@
 package com.amad.autotrip.controller;
 
 import com.amad.autotrip.dto.SettingDto;
+import com.amad.autotrip.dto.TripSummaryDto;
 import com.amad.autotrip.service.SettingService;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/api")
@@ -28,4 +26,16 @@ public class SettingController {
         }
     }
 
+    @GetMapping("/get/setting")
+    public ResponseEntity<TripSummaryDto> getSetting(@RequestParam String username) {
+        try {
+            TripSummaryDto tripSummary = settingService.getTripSummary(username);
+            if (tripSummary == null) {
+                return ResponseEntity.noContent().build();
+            }
+            return ResponseEntity.ok(tripSummary);
+        } catch (Exception e) {
+            return ResponseEntity.status(500).build();
+        }
+    }
 }
