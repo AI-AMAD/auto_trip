@@ -10,5 +10,5 @@ public interface SettingMapper {
 
     void saveSetting(SettingDto settingDto);
 
-    TripSummaryDto findSettingByUsername(@RequestParam String username);
+    TripSummaryDto findSettingByUsername(String username);
 }

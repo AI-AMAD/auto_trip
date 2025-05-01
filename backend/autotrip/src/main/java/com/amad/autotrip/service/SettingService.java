@@ -21,7 +21,7 @@ public class SettingService {
         settingMapper.saveSetting(settingDto);
     }
 
-    public TripSummaryDto getTripSummary(@RequestParam String username) {
+    public TripSummaryDto getTripSummary(String username) {
 
         return settingMapper.findSettingByUsername(username);
     }

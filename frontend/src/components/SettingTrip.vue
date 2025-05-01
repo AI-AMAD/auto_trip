@@ -112,23 +112,32 @@
           </div>
         </div>
       </div>
+      <!-- 여행 정보 요약 컴포넌트 -->
+      <TripData :trip-data="tripData" />
     </div>
   </div>
 </template>
 
 <script setup>
-import { ref, watch } from 'vue'
+import { ref, watch, onMounted } from 'vue'
 import SaveButton from '@/components/SaveButton.vue'
+import TripData from '@/components/TripData.vue'
 import { useAuthStore } from '@/stores/auth'
 import axios from 'axios'
 
 const authStore = useAuthStore()
-
 const startDate = ref(new Date())
 const endDate = ref(new Date(new Date().setDate(startDate.value.getDate() + 1)))
+const tripData = ref(null)
 
-// In case of a range picker, you'll receive [Date, Date]
-// date의 타입은 넘버 차후에 스트링으로 변환 하기
+// 컴포넌트 마운트 시 데이터 조회
+onMounted(() => {
+  if (authStore.username && authStore.token) {
+    fetchTripData()
+  }
+})
+
+// 화면에 표시할 날짜 형식 (YYYY/MM/DD)
 const format = (date) => {
   const year = date.getFullYear()
   const month = date.getMonth() + 1
@@ -190,15 +199,34 @@ const saveData = () => {
     })
     .then(() => {
       alert('설정이 성공적으로 저장되었습니다.')
+      fetchTripData()
     })
     .catch((error) => {
       alert('설정 저장에 실패했습니다: ' + (error.response?.data || error.message))
     })
+}
 
-  // alert(`세부 설정을 저장하였습니다.
-  // 일정 -> ${format(startDate.value)} ~ ${format(endDate.value)}
-  // 뭐할지 -> ${selectedCheckboxes.value.join(', ')}
-  // 출발지 -> ${startLocation.value}`)
+// 여행 정보 조회
+const fetchTripData = () => {
+  axios
+    .get('/api/get/setting', {
+      params: { username: authStore.username },
+      headers: {
+        Authorization: `Bearer ${authStore.token}`,
+        'Content-Type': 'application/json'
+      }
+    })
+    .then((response) => {
+      if (response.data) {
+        tripData.value = response.data
+      } else {
+        tripData.value = null
+      }
+    })
+    .catch((error) => {
+      console.error('여행 정보 조회 실패:', error.response?.data || error.message)
+      tripData.value = null
+    })
 }
 </script>
 

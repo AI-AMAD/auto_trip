@@ -1,5 +1,6 @@
 package com.amad.autotrip.controller;
 
+import com.amad.autotrip.dto.ErrorDto;
 import com.amad.autotrip.dto.SettingDto;
 import com.amad.autotrip.dto.TripSummaryDto;
 import com.amad.autotrip.service.SettingService;
@@ -27,15 +28,19 @@ public class SettingController {
     }
 
     @GetMapping("/get/setting")
-    public ResponseEntity<TripSummaryDto> getSetting(@RequestParam String username) {
+    public ResponseEntity<?> getSetting(@RequestParam String username) {
         try {
             TripSummaryDto tripSummary = settingService.getTripSummary(username);
             if (tripSummary == null) {
                 return ResponseEntity.noContent().build();
             }
             return ResponseEntity.ok(tripSummary);
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.status(400)
+                    .body(new ErrorDto(400, e.getMessage()));
         } catch (Exception e) {
-            return ResponseEntity.status(500).build();
+            return ResponseEntity.status(500)
+                    .body(new ErrorDto(500, "서버 오류: " + e.getMessage()));
         }
     }
 }
