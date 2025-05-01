@@ -18,15 +18,16 @@
           :class="activeButton === 'where' ? 'arrow-active' : 'arrow-inactive'"
         ></div>
 
-        <router-link to="/main/setting/details" class="nav-link">
+        <!-- 세부 설정 버튼: router-link 대신 div로 변경하여 클릭 제어 -->
+        <div class="nav-link">
           <div
             class="step"
             :class="activeButton === 'details' ? 'btn-active' : 'btn-inactive'"
-            @click="setActive('details')"
+            @click="existWhereInfo"
           >
             세부 설정!
           </div>
-        </router-link>
+        </div>
 
         <div
           class="step-arrow"
@@ -75,6 +76,12 @@
 
 <script setup>
 import { ref } from 'vue'
+import { useAuthStore } from '@/stores/auth'
+import { useRouter } from 'vue-router'
+import axios from 'axios'
+
+const authStore = useAuthStore()
+const router = useRouter()
 
 // 현재 활성화된 버튼을 관리하는 상태
 const activeButton = ref('where')
@@ -82,6 +89,26 @@ const activeButton = ref('where')
 // 버튼 활성화 상태 변경
 const setActive = (button) => {
   activeButton.value = button
+}
+
+const existWhereInfo = () => {
+  axios
+    .get('/api/get/where/info', {
+      params: { username: authStore.username },
+      headers: {
+        Authorization: `Bearer ${authStore.token}`,
+        'Content-Type': 'application/json'
+      }
+    })
+    .then((response) => {
+      if (response.data) {
+        // 장소가 설정된 경우 세부 설정 화면으로 이동
+        setActive('details')
+        router.push('/main/setting/details')
+      } else {
+        alert('장소를 설정하고 진행해주세요!')
+      }
+    })
 }
 </script>
 
@@ -91,6 +118,7 @@ const setActive = (button) => {
   align-items: center;
   justify-content: flex-start;
 }
+
 .step {
   display: flex;
   align-items: center;
