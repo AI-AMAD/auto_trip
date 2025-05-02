@@ -74,11 +74,6 @@ const selectedActivities = computed(() => {
   return activities
 })
 
-// 활동이 하나라도 선택되었는지 확인
-const hasActivities = computed(() => {
-  return !!props.tripData && selectedActivities.value.length > 0
-})
-
 // 여행계획짜기 버튼 클릭
 const planTrip = () => {
   alert('여행 계획을 준비 중입니다!') // TODO: 실제 로직 연결
