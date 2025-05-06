@@ -1,5 +1,6 @@
 package com.amad.autotrip.service;
 
+import com.amad.autotrip.dto.NaverImageResponseDto;
 import com.amad.autotrip.dto.NaverSearchResponseDto;
 import com.amad.autotrip.mybatis.PlanMapper;
 import org.springframework.beans.factory.annotation.Value;
@@ -42,6 +43,22 @@ public class PlanService {
                 .header("X-Naver-Client-Secret", clientSecret)
                 .retrieve()
                 .bodyToMono(NaverSearchResponseDto.class);
+
+        return response.block(); // 동기 처리
+    }
+
+    // 네이버 이미지 검색 API
+    public NaverImageResponseDto naverSearchImage(String place) {
+        Mono<NaverImageResponseDto> response = webClient.get()
+                .uri(uriBuilder -> uriBuilder
+                        .path("/v1/search/image")
+                        .queryParam("query", place)
+                        .queryParam("sort", "sim")
+                        .build())
+                .header("X-Naver-Client-Id", clientId)
+                .header("X-Naver-Client-Secret", clientSecret)
+                .retrieve()
+                .bodyToMono(NaverImageResponseDto.class);
 
         return response.block(); // 동기 처리
     }
