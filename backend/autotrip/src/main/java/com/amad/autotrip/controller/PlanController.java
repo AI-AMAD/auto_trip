@@ -1,5 +1,6 @@
 package com.amad.autotrip.controller;
 
+import com.amad.autotrip.dto.NaverImageResponseDto;
 import com.amad.autotrip.dto.NaverSearchResponseDto;
 import com.amad.autotrip.service.PlanService;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -20,5 +21,11 @@ public class PlanController {
     @GetMapping("/naver/search")
     public NaverSearchResponseDto naverSearch(@RequestParam String place) {
         return planService.naverSearch(place);
+    }
+
+
+    @GetMapping("/naver/search/image")
+    public NaverImageResponseDto naverSearchImage(@RequestParam String place) {
+        return planService.naverSearchImage(place);
     }
 }

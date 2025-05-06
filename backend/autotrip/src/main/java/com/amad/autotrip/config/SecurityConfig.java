@@ -66,7 +66,8 @@ public class SecurityConfig {
                                 "/connectiontest",
                                 "/api/signup",
                                 "/api/auth/kakao/callback",
-                                "/api/naver/search"
+                                "/api/naver/search",
+                                "/api/naver/search/image"
                         ).permitAll()
                         // .requestMatchers(PathRequest.toH2Console()).permitAll()
                         .anyRequest().authenticated()
