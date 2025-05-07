@@ -1,12 +1,9 @@
 package com.amad.autotrip.controller;
 
-import com.amad.autotrip.dto.NaverImageResponseDto;
-import com.amad.autotrip.dto.NaverSearchResponseDto;
+import com.amad.autotrip.dto.*;
 import com.amad.autotrip.service.PlanService;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/api")
@@ -27,5 +24,16 @@ public class PlanController {
     @GetMapping("/naver/search/image")
     public NaverImageResponseDto naverSearchImage(@RequestParam String place) {
         return planService.naverSearchImage(place);
+    }
+
+    @PostMapping("/auto/plan")
+    public ResponseEntity<?> autoPlan(@RequestBody TripSummaryDto TripSummaryDto) {
+        try {
+            // userSetting 정보 배열에 담기
+
+
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(new ErrorDto(500, "서버 오류: " + e.getMessage()));
+        }
     }
 }
