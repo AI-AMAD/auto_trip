@@ -41,6 +41,9 @@
 
 <script setup>
 import { computed, watch } from 'vue'
+import { useAuthStore } from '@/stores/auth'
+
+const authStore = useAuthStore()
 
 const props = defineProps({
   tripData: Object
@@ -76,7 +79,18 @@ const selectedActivities = computed(() => {
 
 // 여행계획짜기 버튼 클릭
 const planTrip = () => {
-  alert('여행 계획을 준비 중입니다!') // TODO: 실제 로직 연결
+  const TripSummaryDto = {
+    username: authStore.username,
+    place: props.tripData.place,
+    startYmd: props.tripData.startYmd,
+    endYmd: props.tripData.endYmd,
+    activity: props.tripData.activity,
+    museum: props.tripData.museum,
+    cafe: props.tripData.cafe,
+    tourAtt: props.tripData.tourAtt
+  }
+  console.log('안찍히나?? ', TripSummaryDto)
+  alert('TripSummaryDto-->: ', TripSummaryDto) // TODO: 실제 로직 연결
 }
 </script>
 

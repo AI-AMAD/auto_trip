@@ -16,6 +16,7 @@ public class NaverSearchResponseDto {
     private int display;
     private List<Item> items;
 
+
     @Getter
     @Setter
     @NoArgsConstructor

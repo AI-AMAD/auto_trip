@@ -1,12 +1,15 @@
 package com.amad.autotrip.controller;
 
-import com.amad.autotrip.dto.NaverImageResponseDto;
-import com.amad.autotrip.dto.NaverSearchResponseDto;
+import com.amad.autotrip.dto.*;
 import com.amad.autotrip.service.PlanService;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+import reactor.core.publisher.Mono;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api")
@@ -18,14 +21,43 @@ public class PlanController {
         this.planService = planService;
     }
 
-    @GetMapping("/naver/search")
-    public NaverSearchResponseDto naverSearch(@RequestParam String place) {
-        return planService.naverSearch(place);
-    }
+    @PostMapping("/auto/plan")
+    public Mono<ResponseEntity<Object>> autoPlan(@RequestBody TripSummaryDto tripSummaryDto) {
+        try {
+            // userSetting 정보 배열에 담기
+            List<String> settings = new ArrayList<>();
 
+            String username = tripSummaryDto.getUsername();
+            String place = tripSummaryDto.getPlace();
 
-    @GetMapping("/naver/search/image")
-    public NaverImageResponseDto naverSearchImage(@RequestParam String place) {
-        return planService.naverSearchImage(place);
+            // Boolean 값을 체크하여 true인 경우 리스트에 추가
+            if (tripSummaryDto.isActivity()) {
+                settings.add("레포츠");
+            }
+            if (tripSummaryDto.isMuseum()) {
+                settings.add("박물관");
+            }
+            if (tripSummaryDto.isCafe()) {
+                settings.add("카페");
+            }
+            if (tripSummaryDto.isTourAtt()) {
+                settings.add("관광");
+            }
+
+            // setting에 맞는 여행 장소 검색 및 이미지 가져오기
+            return planService.naverSearch(place, settings)
+                    .flatMap(results -> Mono.just(ResponseEntity.ok((Object) results))) // 성공 시: List<PlaceWithImage>를 Object로 캐스팅
+                    .onErrorResume(e -> {
+                        Map<String, String> errorResponse = new HashMap<>();
+                        errorResponse.put("error", "서버 오류");
+                        errorResponse.put("message", e.getMessage());
+                        return Mono.just(ResponseEntity.badRequest().body((Object) errorResponse)); // 에러 시: Map을 Object로 캐스팅
+                    });
+        } catch (Exception e) {
+            Map<String, String> errorResponse = new HashMap<>();
+            errorResponse.put("error", "요청 처리 오류");
+            errorResponse.put("message", e.getMessage());
+            return Mono.just(ResponseEntity.badRequest().body((Object) errorResponse));
+        }
     }
 }
