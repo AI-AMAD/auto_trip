@@ -43,6 +43,9 @@ public class PlanController {
             if (tripSummaryDto.isTourAtt()) {
                 settings.add("관광");
             }
+            
+            // 맛집은 무조건 추가
+            settings.add("맛집");
 
             // setting에 맞는 여행 장소 검색 및 이미지 가져오기
             return planService.naverSearch(place, settings)

@@ -37,6 +37,7 @@ public class PlanService {
     static {
         CATEGORY_MAPPING.put("관광", "명소");
         CATEGORY_MAPPING.put("레포츠", "스포츠");
+        CATEGORY_MAPPING.put("맛집", "음식");
         // 필요시 추가 매핑 가능, 예: CATEGORY_MAPPING.put("박물관", "미술관");
     }
 
@@ -72,6 +73,7 @@ public class PlanService {
                                 response.getItems().forEach(item -> log.info("장소: {}, 카테고리: {}", item.getTitle(), item.getCategory()));
                                 return Flux.fromIterable(response.getItems());
                             })
+                            // 검색 결과가 카테고리에 맞는지 필터링
                             .filter(item -> settings.stream().anyMatch(cat -> {
                                 String filterCategory = CATEGORY_MAPPING.getOrDefault(cat, cat);
                                 return item.getCategory().contains(filterCategory);
