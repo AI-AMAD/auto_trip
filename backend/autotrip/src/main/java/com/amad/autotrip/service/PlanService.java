@@ -114,4 +114,99 @@ public class PlanService {
                 .retrieve()
                 .bodyToMono(NaverImageResponseDto.class);
     }
+
+
+    // 일정 배치 및 DB 저장
+    public Mono<Long> createAndSaveTripPlan(TripSummaryDto tripSummaryDto, List<PlaceWithImage> places) {
+        // 1. TripPlan 생성
+        TripPlan tripPlan = new TripPlan();
+        tripPlan.setUsername(tripSummaryDto.getUsername());
+        tripPlan.setLocation(tripSummaryDto.getPlace());
+        tripPlan.setStartDate(tripSummaryDto.getStartDate());
+        tripPlan.setEndDate(tripSummaryDto.getEndDate());
+
+        List<String> settings = new ArrayList<>();
+        if (tripSummaryDto.isActivity()) settings.add("레포츠");
+        if (tripSummaryDto.isMuseum()) settings.add("박물관");
+        if (tripSummaryDto.isCafe()) settings.add("카페");
+        if (tripSummaryDto.isTourAtt()) settings.add("관광");
+        settings.add("맛집");
+        tripPlan.setSettings(String.join(",", settings));
+
+        // 2. TripPlan 저장
+        planMapper.insertTripPlan(tripPlan);
+        Long tripId = tripPlan.getTripId();
+
+        // 3. 일정 배치
+        Map<String, List<TripSchedule>> scheduleByDate = arrangeSchedule(tripId, tripSummaryDto.getStartDate(),
+                tripSummaryDto.getEndDate(), places, settings);
+
+        // 4. TripSchedule 저장
+        scheduleByDate.values().forEach(schedules ->
+                schedules.forEach(planMapper::insertTripSchedule));
+
+        return Mono.just(tripId);
+    }
+
+    // 일정 배치 로직
+    private Map<String, List<TripSchedule>> arrangeSchedule(Long tripId, String startDate, String endDate,
+                                                            List<PlaceWithImage> places, List<String> settings) {
+        Map<String, List<TripSchedule>> scheduleByDate = new HashMap<>();
+        scheduleByDate.put(startDate, new ArrayList<>());
+        scheduleByDate.put(endDate, new ArrayList<>());
+
+        // 사용된 장소 추적
+        Set<String> usedPlaces = new HashSet<>();
+
+        // 첫째 날: 명소 → 카페 → 맛집 → 박물관
+        int order = 1;
+        for (String category : Arrays.asList("관광", "카페", "맛집", "박물관")) {
+            if (settings.contains(category)) {
+                for (PlaceWithImage place : places) {
+                    String filterCategory = CATEGORY_MAPPING.getOrDefault(category, category);
+                    if (place.getItem().getCategory().contains(filterCategory) &&
+                            !usedPlaces.contains(place.getItem().getTitle())) {
+                        TripSchedule schedule = new TripSchedule();
+                        schedule.setTripId(tripId);
+                        schedule.setDate(startDate);
+                        schedule.setActivityOrder(order++);
+                        schedule.setActivityType(category);
+                        schedule.setActivityName(place.getItem().getTitle().replaceAll("<[^>]+>", ""));
+                        schedule.setActivityAddress(place.getItem().getAddress());
+                        schedule.setActivityImageUrl(place.getImageUrl());
+                        scheduleByDate.get(startDate).add(schedule);
+                        usedPlaces.add(place.getItem().getTitle());
+                        break;
+                    }
+                }
+            }
+        }
+
+        // 둘째 날: 박물관 → 명소 → 카페
+        order = 1;
+        for (String category : Arrays.asList("박물관", "관광", "카페")) {
+            if (settings.contains(category)) {
+                for (PlaceWithImage place : places) {
+                    String filterCategory = CATEGORY_MAPPING.getOrDefault(category,cault
+                    if (place.getItem().getCategory().contains(filterCategory) &&
+                            !usedPlaces.contains(place.getItem().getTitle())) {
+                        TripSchedule schedule = new TripSchedule();
+                        schedule.setTripId(tripId);
+                        schedule.setDate(endDate);
+                        schedule.setActivityOrder(order++);
+                        schedule.setActivityType(category);
+                        schedule.setActivityName(place.getItem().getTitle().replaceAll("<[^>]+>", ""));
+                        schedule.setActivityAddress(place.getItem().getAddress());
+                        schedule.setActivityImageUrl(place.getImageUrl());
+                        scheduleByDate.get(endDate).add(schedule);
+                        usedPlaces.add(place.getItem().getTitle());
+                        break;
+                    }
+                }
+            }
+        }
+
+        return scheduleByDate;
+    }
+
 }
