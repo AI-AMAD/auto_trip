@@ -1,4 +1,32 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.amad.autotrip.mybatis.PlanMapper">
+    <insert id="insertTripPlan" parameterType="com.amad.autotrip.dto.TripPlan" useGeneratedKeys="true"
+            keyProperty="tripId">
+        INSERT INTO trip_plan (username, place, start_ymd, end_ymd, settings)
+        VALUES (#{username}, #{location}, #{startYmd}, #{endYmd}, #{settings})
+    </insert>
 
+    <insert id="insertTripSchedule" parameterType="com.amad.autotrip.dto.TripSchedule">
+        INSERT INTO trip_schedule (trip_id, start_ymd, end_ymd, activity_order, activity_type, activity_name,
+                                   activity_address,
+                                   activity_image_url)
+        VALUES (#{tripId}, #{startYmd}, #{endYmd}, #{activityOrder}, #{activityType}, #{activityName},
+                #{activityAddress},
+                #{activityImageUrl})
+    </insert>
+
+    <select id="findSchedulesByTripId" parameterType="long" resultType="com.amad.autotrip.dto.TripSchedule">
+        SELECT schedule_id,
+               trip_id,
+               start_ymd,
+               end_ymd,
+               activity_order,
+               activity_type,
+               activity_name,
+               activity_address,
+               activity_image_url
+        FROM trip_schedule
+        WHERE trip_id = #{tripId}
+        ORDER BY start_ymd, activity_order
+    </select>
 </mapper>
