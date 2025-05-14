@@ -5,6 +5,7 @@ import com.amad.autotrip.mybatis.PlanMapper;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
@@ -112,20 +113,15 @@ public class PlanService {
 
 
     // 일정 배치 및 DB 저장
-    public Mono<Long> createAndSaveTripPlan(TripSummaryDto tripSummaryDto, List<PlaceWithImage> places) {
+    @Transactional
+    public Mono<Long> createAndSaveTripPlan(TripSummaryDto tripSummaryDto, List<PlaceWithImage> places, List<String> settings) {
         // 1. TripPlan 생성
         TripPlanDto tripPlan = new TripPlanDto();
+
         tripPlan.setUsername(tripSummaryDto.getUsername());
         tripPlan.setPlace(tripSummaryDto.getPlace());
         tripPlan.setStartYmd(tripSummaryDto.getStartYmd());
         tripPlan.setEndYmd(tripSummaryDto.getEndYmd());
-
-        List<String> settings = new ArrayList<>();
-        if (tripSummaryDto.isActivity()) settings.add("레포츠");
-        if (tripSummaryDto.isMuseum()) settings.add("박물관");
-        if (tripSummaryDto.isCafe()) settings.add("카페");
-        if (tripSummaryDto.isTourAtt()) settings.add("관광");
-        settings.add("맛집");
         tripPlan.setSettings(String.join(",", settings));
 
         // 2. TripPlan 저장
@@ -153,50 +149,54 @@ public class PlanService {
         // 사용된 장소 추적
         Set<String> usedPlaces = new HashSet<>();
 
-        // 첫째 날: 명소 → 카페 → 맛집 → 박물관
+        // 첫째 날: settings 순서대로 일정 배치
         int order = 1;
-        for (String category : Arrays.asList("관광", "카페", "맛집", "박물관")) {
-            if (settings.contains(category)) {
-                for (PlaceWithImage place : places) {
-                    String filterCategory = CATEGORY_MAPPING.getOrDefault(category, category);
-                    if (place.getPlace().getCategory().contains(filterCategory) &&
-                            !usedPlaces.contains(place.getPlace().getTitle())) {
-                        TripScheduleDto schedule = new TripScheduleDto();
-                        schedule.setTripId(tripId);
-                        schedule.setStartYmd(startDate);
-                        schedule.setActivityOrder(order++);
-                        schedule.setActivityType(category);
-                        schedule.setActivityName(place.getPlace().getTitle().replaceAll("<[^>]+>", ""));
-                        schedule.setActivityAddress(place.getPlace().getAddress());
-                        schedule.setActivityImageUrl(place.getImageUrl());
-                        scheduleByDate.get(startDate).add(schedule);
-                        usedPlaces.add(place.getPlace().getTitle());
-                        break;
-                    }
+        for (String category : settings) {
+            for (PlaceWithImage place : places) {
+                String filterCategory = CATEGORY_MAPPING.getOrDefault(category, category);
+                if (place.getPlace().getCategory().contains(filterCategory) &&
+                        !usedPlaces.contains(place.getPlace().getTitle())) {
+                    TripScheduleDto schedule = new TripScheduleDto();
+                    schedule.setTripId(tripId);
+                    schedule.setStartYmd(startDate);
+                    schedule.setEndYmd(endDate);
+                    schedule.setActivityOrder(order++);
+                    schedule.setActivityType(category);
+                    schedule.setActivityName(place.getPlace().getTitle().replaceAll("<[^>]+>", ""));
+                    schedule.setActivityAddress(place.getPlace().getAddress());
+                    schedule.setActivityImageUrl(place.getImageUrl());
+                    scheduleByDate.get(startDate).add(schedule);
+                    log.info("첫째 날 일정: startYmd={}, endYmd={}, category={}, activity={}",
+                            startDate, endDate, category, schedule.getActivityName());
+                    usedPlaces.add(place.getPlace().getTitle());
+                    break;
                 }
             }
         }
 
-        // 둘째 날: 박물관 → 명소 → 카페
+        // 둘째 날: settings를 역순으로 배치 (또는 다른 순서로 조정 가능)
         order = 1;
-        for (String category : Arrays.asList("박물관", "관광", "카페")) {
-            if (settings.contains(category)) {
-                for (PlaceWithImage place : places) {
-                    String filterCategory = CATEGORY_MAPPING.getOrDefault(category, category);
-                    if (place.getPlace().getCategory().contains(filterCategory) &&
-                            !usedPlaces.contains(place.getPlace().getTitle())) {
-                        TripScheduleDto schedule = new TripScheduleDto();
-                        schedule.setTripId(tripId);
-                        schedule.setEndYmd(endDate);
-                        schedule.setActivityOrder(order++);
-                        schedule.setActivityType(category);
-                        schedule.setActivityName(place.getPlace().getTitle().replaceAll("<[^>]+>", ""));
-                        schedule.setActivityAddress(place.getPlace().getAddress());
-                        schedule.setActivityImageUrl(place.getImageUrl());
-                        scheduleByDate.get(endDate).add(schedule);
-                        usedPlaces.add(place.getPlace().getTitle());
-                        break;
-                    }
+        List<String> reversedSettings = new ArrayList<>(settings);
+        Collections.reverse(reversedSettings); // settings 역순
+        for (String category : reversedSettings) {
+            for (PlaceWithImage place : places) {
+                String filterCategory = CATEGORY_MAPPING.getOrDefault(category, category);
+                if (place.getPlace().getCategory().contains(filterCategory) &&
+                        !usedPlaces.contains(place.getPlace().getTitle())) {
+                    TripScheduleDto schedule = new TripScheduleDto();
+                    schedule.setTripId(tripId);
+                    schedule.setStartYmd(startDate);
+                    schedule.setEndYmd(endDate);
+                    schedule.setActivityOrder(order++);
+                    schedule.setActivityType(category);
+                    schedule.setActivityName(place.getPlace().getTitle().replaceAll("<[^>]+>", ""));
+                    schedule.setActivityAddress(place.getPlace().getAddress());
+                    schedule.setActivityImageUrl(place.getImageUrl());
+                    scheduleByDate.get(endDate).add(schedule);
+                    log.info("둘째 날 일정: startYmd={}, endYmd={}, category={}, activity={}",
+                            startDate, endDate, category, schedule.getActivityName());
+                    usedPlaces.add(place.getPlace().getTitle());
+                    break;
                 }
             }
         }
