@@ -22,7 +22,7 @@ public class PlanController {
     }
 
     @PostMapping("/auto/plan")
-    public Mono<ResponseEntity<Object>> autoPlan(@RequestBody TripSummaryDto tripSummaryDto) {
+    public Mono<ResponseEntity<Map<String, Object>>> autoPlan(@RequestBody TripSummaryDto tripSummaryDto) {
         try {
             // userSetting 정보 배열에 담기
             List<String> settings = new ArrayList<>();
@@ -44,20 +44,28 @@ public class PlanController {
                 settings.add("관광");
             }
 
+            // 맛집은 무조건 추가
+            settings.add("맛집");
+
             // setting에 맞는 여행 장소 검색 및 이미지 가져오기
             return planService.naverSearch(place, settings)
-                    .flatMap(results -> Mono.just(ResponseEntity.ok((Object) results))) // 성공 시: List<PlaceWithImage>를 Object로 캐스팅
+                    .flatMap(places -> planService.createAndSaveTripPlan(tripSummaryDto, places, settings)
+                            .flatMap(tripId -> {
+                                Map<String, Object> successResponse = new HashMap<>();
+                                successResponse.put("tripId", tripId);
+                                return Mono.just(ResponseEntity.ok(successResponse));
+                            }))
                     .onErrorResume(e -> {
-                        Map<String, String> errorResponse = new HashMap<>();
+                        Map<String, Object> errorResponse = new HashMap<>();
                         errorResponse.put("error", "서버 오류");
                         errorResponse.put("message", e.getMessage());
-                        return Mono.just(ResponseEntity.badRequest().body((Object) errorResponse)); // 에러 시: Map을 Object로 캐스팅
+                        return Mono.just(ResponseEntity.badRequest().body(errorResponse));
                     });
         } catch (Exception e) {
-            Map<String, String> errorResponse = new HashMap<>();
+            Map<String, Object> errorResponse = new HashMap<>();
             errorResponse.put("error", "요청 처리 오류");
             errorResponse.put("message", e.getMessage());
-            return Mono.just(ResponseEntity.badRequest().body((Object) errorResponse));
+            return Mono.just(ResponseEntity.badRequest().body(errorResponse));
         }
     }
 }
