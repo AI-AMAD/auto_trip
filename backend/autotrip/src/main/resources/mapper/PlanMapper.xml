@@ -4,6 +4,10 @@
             keyProperty="tripId">
         INSERT INTO trip_plan (username, place, start_ymd, end_ymd, settings)
         VALUES (#{username}, #{place}, #{startYmd}, #{endYmd}, #{settings})
+        ON DUPLICATE KEY UPDATE place     = VALUES(place),
+                                start_ymd = VALUES(start_ymd),
+                                end_ymd   = VALUES(end_ymd),
+                                settings  = VALUES(settings)
     </insert>
 
     <insert id="insertTripSchedule" parameterType="com.amad.autotrip.dto.TripScheduleDto">

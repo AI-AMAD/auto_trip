@@ -8,8 +8,8 @@ import lombok.Setter;
 public class TripScheduleDto {
     private Long scheduleId;
     private Long tripId;
-    private String startYmd;
-    private String endYmd;
+    private String startYmd = "";
+    private String endYmd = "";
     private int activityOrder;
     private String activityType;
     private String activityName;

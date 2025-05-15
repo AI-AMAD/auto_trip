@@ -77,7 +77,7 @@ public class PlanService {
                             .doOnNext(item -> log.info("필터링된 장소: {}, 카테고리: {}", item.getTitle(), item.getCategory()));
                 }, 1) // 순차 처리
                 .delayElements(Duration.ofMillis(200)) // 네이버 API 초당 호출 한도 초과로 인한 각 요청 간 200ms 딜레이
-                .distinct(item -> item.getAddress())
+                .distinct(item -> item.getAddress()) // 중복 장소 제거
                 .concatMap(item -> {
                     String cleanTitle = item.getTitle().replaceAll("<[^>]+>", "");
                     log.info("이미지 검색: {}", cleanTitle);
@@ -159,15 +159,14 @@ public class PlanService {
                     TripScheduleDto schedule = new TripScheduleDto();
                     schedule.setTripId(tripId);
                     schedule.setStartYmd(startDate);
-                    schedule.setEndYmd(endDate);
                     schedule.setActivityOrder(order++);
                     schedule.setActivityType(category);
                     schedule.setActivityName(place.getPlace().getTitle().replaceAll("<[^>]+>", ""));
                     schedule.setActivityAddress(place.getPlace().getAddress());
                     schedule.setActivityImageUrl(place.getImageUrl());
                     scheduleByDate.get(startDate).add(schedule);
-                    log.info("첫째 날 일정: startYmd={}, endYmd={}, category={}, activity={}",
-                            startDate, endDate, category, schedule.getActivityName());
+                    log.info("첫째 날 일정: startYmd={}, category={}, activity={}",
+                            startDate, category, schedule.getActivityName());
                     usedPlaces.add(place.getPlace().getTitle());
                     break;
                 }
@@ -185,7 +184,6 @@ public class PlanService {
                         !usedPlaces.contains(place.getPlace().getTitle())) {
                     TripScheduleDto schedule = new TripScheduleDto();
                     schedule.setTripId(tripId);
-                    schedule.setStartYmd(startDate);
                     schedule.setEndYmd(endDate);
                     schedule.setActivityOrder(order++);
                     schedule.setActivityType(category);
@@ -193,8 +191,8 @@ public class PlanService {
                     schedule.setActivityAddress(place.getPlace().getAddress());
                     schedule.setActivityImageUrl(place.getImageUrl());
                     scheduleByDate.get(endDate).add(schedule);
-                    log.info("둘째 날 일정: startYmd={}, endYmd={}, category={}, activity={}",
-                            startDate, endDate, category, schedule.getActivityName());
+                    log.info("둘째 날 일정: endYmd={}, category={}, activity={}",
+                            endDate, category, schedule.getActivityName());
                     usedPlaces.add(place.getPlace().getTitle());
                     break;
                 }
