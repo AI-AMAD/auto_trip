@@ -43,10 +43,12 @@ public class PlanService {
     }
 
     // 네이버 검색 API로 장소 검색 및 이미지 URL 가져오기
-    public Mono<List<PlaceWithImage>> naverSearch(String place, List<String> settings) {
+    public Mono<List<PlaceWithImage>> naverSearch(String username, String place, List<String> settings) {
         if (settings == null || settings.isEmpty()) {
             return Mono.just(new ArrayList<>());
         }
+
+        log.info("{}님의 auto_trip START --------------------", username);
 
         // settings에 따라 여러 쿼리로 검색
         return Flux.fromIterable(settings)
@@ -93,7 +95,6 @@ public class PlanService {
                 .collectList()
                 .doOnSuccess(list -> {
                     log.info("최종 결과: {}개 장소", list.size());
-                    log.info("--------------------------");
                 });
     }
 
@@ -115,7 +116,7 @@ public class PlanService {
     // 일정 배치 및 DB 저장
     @Transactional
     public Mono<Long> createAndSaveTripPlan(TripSummaryDto tripSummaryDto, List<PlaceWithImage> places, List<String> settings) {
-        // 1. TripPlan 생성
+        // TripPlan 생성
         TripPlanDto tripPlan = new TripPlanDto();
 
         tripPlan.setUsername(tripSummaryDto.getUsername());
@@ -124,17 +125,23 @@ public class PlanService {
         tripPlan.setEndYmd(tripSummaryDto.getEndYmd());
         tripPlan.setSettings(String.join(",", settings));
 
-        // 2. TripPlan 저장
+        // TripPlan 저장
         planMapper.insertTripPlan(tripPlan);
         Long tripId = tripPlan.getTripId();
 
-        // 3. 일정 배치
+        // 기존 TripSchedule 삭제
+        int deletedRows = planMapper.deleteTripSchedulesByTripId(tripId);
+        log.info("기존 스케줄 삭제 완료: tripId={}, deletedRows={}", tripId, deletedRows);
+
+        // 일정 배치
         Map<String, List<TripScheduleDto>> scheduleByDate = arrangeSchedule(tripId, tripSummaryDto.getStartYmd(),
                 tripSummaryDto.getEndYmd(), places, settings);
 
         // 4. TripSchedule 저장
         scheduleByDate.values().forEach(schedules ->
                 schedules.forEach(planMapper::insertTripSchedule));
+
+        log.info("{}님의 auto_trip END --------------------", tripSummaryDto.getUsername());
 
         return Mono.just(tripId);
     }

@@ -48,7 +48,7 @@ public class PlanController {
             settings.add("맛집");
 
             // setting에 맞는 여행 장소 검색 및 이미지 가져오기
-            return planService.naverSearch(place, settings)
+            return planService.naverSearch(username, place, settings)
                     .flatMap(places -> planService.createAndSaveTripPlan(tripSummaryDto, places, settings)
                             .flatMap(tripId -> {
                                 Map<String, Object> successResponse = new HashMap<>();

@@ -14,4 +14,6 @@ public interface PlanMapper {
     void insertTripSchedule(TripScheduleDto tripSchedule);
 
     List<TripScheduleDto> findSchedulesByTripId(Long tripId);
+
+    int deleteTripSchedulesByTripId(Long tripId);
 }
