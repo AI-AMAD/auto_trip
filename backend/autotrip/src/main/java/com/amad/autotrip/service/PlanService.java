@@ -34,6 +34,7 @@ public class PlanService {
         CATEGORY_MAPPING.put("관광", "명소");
         CATEGORY_MAPPING.put("레포츠", "스포츠");
         CATEGORY_MAPPING.put("맛집", "음식");
+        CATEGORY_MAPPING.put("박물관", "박물관");
         // 필요시 추가 매핑 가능, 예: CATEGORY_MAPPING.put("박물관", "미술관");
     }
 
@@ -156,9 +157,53 @@ public class PlanService {
         // 사용된 장소 추적
         Set<String> usedPlaces = new HashSet<>();
 
-        // 첫째 날: settings 순서대로 일정 배치
-        int order = 1;
+//        // 첫째 날: settings 순서대로 일정 배치
+//        int order = 1;
+//        for (String category : settings) {
+//            for (PlaceWithImage place : places) {
+//                String filterCategory = CATEGORY_MAPPING.getOrDefault(category, category);
+//                if (place.getPlace().getCategory().contains(filterCategory) &&
+//                        !usedPlaces.contains(place.getPlace().getTitle())) {
+//                    TripScheduleDto schedule = new TripScheduleDto();
+//                    schedule.setTripId(tripId);
+//                    schedule.setStartYmd(startDate);
+//                    schedule.setActivityOrder(order++);
+//                    schedule.setActivityType(category);
+//                    schedule.setActivityName(place.getPlace().getTitle().replaceAll("<[^>]+>", ""));
+//                    schedule.setActivityAddress(place.getPlace().getAddress());
+//                    schedule.setActivityImageUrl(place.getImageUrl());
+//                    scheduleByDate.get(startDate).add(schedule);
+//                    log.info("첫째 날 일정: startYmd={}, category={}, activity={}",
+//                            startDate, category, schedule.getActivityName());
+//                    usedPlaces.add(place.getPlace().getTitle());
+//                    break;
+//                }
+//            }
+//        }
+
+        // [ADDED] 새로운 첫째 날 로직
+        List<String> nonFoodCategories = new ArrayList<>();
         for (String category : settings) {
+            if (!category.equals("맛집") && !category.equals("카페")) {
+                nonFoodCategories.add(category);
+            }
+        }
+        List<String> firstDayCategories = new ArrayList<>();
+        if (!nonFoodCategories.isEmpty()) {
+            Collections.shuffle(nonFoodCategories);
+            firstDayCategories.add(nonFoodCategories.get(0));
+            nonFoodCategories.remove(0);
+        }
+        if (settings.contains("맛집")) {
+            firstDayCategories.add("맛집");
+        }
+        if (settings.contains("카페")) {
+            firstDayCategories.add("카페");
+        }
+        firstDayCategories.addAll(nonFoodCategories);
+
+        int order = 1;
+        for (String category : firstDayCategories) {
             for (PlaceWithImage place : places) {
                 String filterCategory = CATEGORY_MAPPING.getOrDefault(category, category);
                 if (place.getPlace().getCategory().contains(filterCategory) &&
@@ -180,11 +225,55 @@ public class PlanService {
             }
         }
 
-        // 둘째 날: settings를 역순으로 배치 (또는 다른 순서로 조정 가능)
+//        // 둘째 날: settings를 역순으로 배치 (또는 다른 순서로 조정 가능)
+//        order = 1;
+//        List<String> reversedSettings = new ArrayList<>(settings);
+//        Collections.reverse(reversedSettings); // settings 역순
+//        for (String category : reversedSettings) {
+//            for (PlaceWithImage place : places) {
+//                String filterCategory = CATEGORY_MAPPING.getOrDefault(category, category);
+//                if (place.getPlace().getCategory().contains(filterCategory) &&
+//                        !usedPlaces.contains(place.getPlace().getTitle())) {
+//                    TripScheduleDto schedule = new TripScheduleDto();
+//                    schedule.setTripId(tripId);
+//                    schedule.setEndYmd(endDate);
+//                    schedule.setActivityOrder(order++);
+//                    schedule.setActivityType(category);
+//                    schedule.setActivityName(place.getPlace().getTitle().replaceAll("<[^>]+>", ""));
+//                    schedule.setActivityAddress(place.getPlace().getAddress());
+//                    schedule.setActivityImageUrl(place.getImageUrl());
+//                    scheduleByDate.get(endDate).add(schedule);
+//                    log.info("둘째 날 일정: endYmd={}, category={}, activity={}",
+//                            endDate, category, schedule.getActivityName());
+//                    usedPlaces.add(place.getPlace().getTitle());
+//                    break;
+//                }
+//            }
+//        }
+
+        // [ADDED] 새로운 둘째 날 로직
+        nonFoodCategories = new ArrayList<>();
+        for (String category : settings) {
+            if (!category.equals("맛집") && !category.equals("카페")) {
+                nonFoodCategories.add(category);
+            }
+        }
+        List<String> secondDayCategories = new ArrayList<>();
+        if (!nonFoodCategories.isEmpty()) {
+            Collections.shuffle(nonFoodCategories);
+            secondDayCategories.add(nonFoodCategories.get(0));
+            nonFoodCategories.remove(0);
+        }
+        if (settings.contains("맛집")) {
+            secondDayCategories.add("맛집");
+        }
+        if (settings.contains("카페")) {
+            secondDayCategories.add("카페");
+        }
+        secondDayCategories.addAll(nonFoodCategories);
+
         order = 1;
-        List<String> reversedSettings = new ArrayList<>(settings);
-        Collections.reverse(reversedSettings); // settings 역순
-        for (String category : reversedSettings) {
+        for (String category : secondDayCategories) {
             for (PlaceWithImage place : places) {
                 String filterCategory = CATEGORY_MAPPING.getOrDefault(category, category);
                 if (place.getPlace().getCategory().contains(filterCategory) &&
