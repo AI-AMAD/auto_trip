@@ -5,6 +5,7 @@ import com.amad.autotrip.mybatis.PlanMapper;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Flux;
@@ -115,7 +116,7 @@ public class PlanService {
 
 
     // 일정 배치 및 DB 저장
-    @Transactional
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
     public Mono<Long> createAndSaveTripPlan(TripSummaryDto tripSummaryDto, List<PlaceWithImage> places, List<String> settings) {
         // TripPlan 생성
         TripPlanDto tripPlan = new TripPlanDto();
@@ -127,8 +128,10 @@ public class PlanService {
         tripPlan.setSettings(String.join(",", settings));
 
         // TripPlan 저장
+        log.info("TripPlan 삽입 전: {}", tripPlan);
         planMapper.insertTripPlan(tripPlan);
         Long tripId = tripPlan.getTripId();
+        log.info("tripId------> {}", tripId);
 
         // 기존 TripSchedule 삭제
         int deletedRows = planMapper.deleteTripSchedulesByTripId(tripId);
@@ -157,31 +160,7 @@ public class PlanService {
         // 사용된 장소 추적
         Set<String> usedPlaces = new HashSet<>();
 
-//        // 첫째 날: settings 순서대로 일정 배치
-//        int order = 1;
-//        for (String category : settings) {
-//            for (PlaceWithImage place : places) {
-//                String filterCategory = CATEGORY_MAPPING.getOrDefault(category, category);
-//                if (place.getPlace().getCategory().contains(filterCategory) &&
-//                        !usedPlaces.contains(place.getPlace().getTitle())) {
-//                    TripScheduleDto schedule = new TripScheduleDto();
-//                    schedule.setTripId(tripId);
-//                    schedule.setStartYmd(startDate);
-//                    schedule.setActivityOrder(order++);
-//                    schedule.setActivityType(category);
-//                    schedule.setActivityName(place.getPlace().getTitle().replaceAll("<[^>]+>", ""));
-//                    schedule.setActivityAddress(place.getPlace().getAddress());
-//                    schedule.setActivityImageUrl(place.getImageUrl());
-//                    scheduleByDate.get(startDate).add(schedule);
-//                    log.info("첫째 날 일정: startYmd={}, category={}, activity={}",
-//                            startDate, category, schedule.getActivityName());
-//                    usedPlaces.add(place.getPlace().getTitle());
-//                    break;
-//                }
-//            }
-//        }
-
-        // [ADDED] 새로운 첫째 날 로직
+        // 첫째 날
         List<String> nonFoodCategories = new ArrayList<>();
         for (String category : settings) {
             if (!category.equals("맛집") && !category.equals("카페")) {
@@ -206,8 +185,11 @@ public class PlanService {
         for (String category : firstDayCategories) {
             for (PlaceWithImage place : places) {
                 String filterCategory = CATEGORY_MAPPING.getOrDefault(category, category);
-                if (place.getPlace().getCategory().contains(filterCategory) &&
-                        !usedPlaces.contains(place.getPlace().getTitle())) {
+                // [MODIFIED] 박물관은 정확히 "박물관" 포함, 관광은 "명소" 포함하도록 조건 분리
+                boolean isCategoryMatch = category.equals("박물관")
+                        ? place.getPlace().getCategory().contains("박물관")
+                        : place.getPlace().getCategory().contains(filterCategory);
+                if (isCategoryMatch && !usedPlaces.contains(place.getPlace().getTitle())) {
                     TripScheduleDto schedule = new TripScheduleDto();
                     schedule.setTripId(tripId);
                     schedule.setStartYmd(startDate);
@@ -225,33 +207,7 @@ public class PlanService {
             }
         }
 
-//        // 둘째 날: settings를 역순으로 배치 (또는 다른 순서로 조정 가능)
-//        order = 1;
-//        List<String> reversedSettings = new ArrayList<>(settings);
-//        Collections.reverse(reversedSettings); // settings 역순
-//        for (String category : reversedSettings) {
-//            for (PlaceWithImage place : places) {
-//                String filterCategory = CATEGORY_MAPPING.getOrDefault(category, category);
-//                if (place.getPlace().getCategory().contains(filterCategory) &&
-//                        !usedPlaces.contains(place.getPlace().getTitle())) {
-//                    TripScheduleDto schedule = new TripScheduleDto();
-//                    schedule.setTripId(tripId);
-//                    schedule.setEndYmd(endDate);
-//                    schedule.setActivityOrder(order++);
-//                    schedule.setActivityType(category);
-//                    schedule.setActivityName(place.getPlace().getTitle().replaceAll("<[^>]+>", ""));
-//                    schedule.setActivityAddress(place.getPlace().getAddress());
-//                    schedule.setActivityImageUrl(place.getImageUrl());
-//                    scheduleByDate.get(endDate).add(schedule);
-//                    log.info("둘째 날 일정: endYmd={}, category={}, activity={}",
-//                            endDate, category, schedule.getActivityName());
-//                    usedPlaces.add(place.getPlace().getTitle());
-//                    break;
-//                }
-//            }
-//        }
-
-        // [ADDED] 새로운 둘째 날 로직
+        // 둘째 날
         nonFoodCategories = new ArrayList<>();
         for (String category : settings) {
             if (!category.equals("맛집") && !category.equals("카페")) {
@@ -276,8 +232,11 @@ public class PlanService {
         for (String category : secondDayCategories) {
             for (PlaceWithImage place : places) {
                 String filterCategory = CATEGORY_MAPPING.getOrDefault(category, category);
-                if (place.getPlace().getCategory().contains(filterCategory) &&
-                        !usedPlaces.contains(place.getPlace().getTitle())) {
+                // [MODIFIED] 박물관은 정확히 "박물관" 포함, 관광은 "명소" 포함하도록 조건 분리
+                boolean isCategoryMatch = category.equals("박물관")
+                        ? place.getPlace().getCategory().contains("박물관")
+                        : place.getPlace().getCategory().contains(filterCategory);
+                if (isCategoryMatch && !usedPlaces.contains(place.getPlace().getTitle())) {
                     TripScheduleDto schedule = new TripScheduleDto();
                     schedule.setTripId(tripId);
                     schedule.setEndYmd(endDate);
