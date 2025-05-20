@@ -35,7 +35,6 @@ public class PlanService {
         CATEGORY_MAPPING.put("관광", "명소");
         CATEGORY_MAPPING.put("레포츠", "스포츠");
         CATEGORY_MAPPING.put("맛집", "음식");
-        CATEGORY_MAPPING.put("박물관", "박물관");
         // 필요시 추가 매핑 가능, 예: CATEGORY_MAPPING.put("박물관", "미술관");
     }
 
@@ -117,7 +116,7 @@ public class PlanService {
 
     // 일정 배치 및 DB 저장
     @Transactional(propagation = Propagation.REQUIRES_NEW)
-    public Mono<Long> createAndSaveTripPlan(TripSummaryDto tripSummaryDto, List<PlaceWithImage> places, List<String> settings) {
+    public Mono<Map<String, Object>> createAndSaveTripPlan(TripSummaryDto tripSummaryDto, List<PlaceWithImage> places, List<String> settings) {
         // TripPlan 생성
         TripPlanDto tripPlan = new TripPlanDto();
 
@@ -128,10 +127,17 @@ public class PlanService {
         tripPlan.setSettings(String.join(",", settings));
 
         // TripPlan 저장
-        log.info("TripPlan 삽입 전: {}", tripPlan);
         planMapper.insertTripPlan(tripPlan);
         Long tripId = tripPlan.getTripId();
-        log.info("tripId------> {}", tripId);
+
+        // tripId가 null인 경우 설정 저장 완료 메시지 반환
+        Map<String, Object> response = new HashMap<>();
+        if (tripId == null) {
+            log.warn("TripPlan 삽입 후 tripId가 null입니다. 일정 배치 로직을 건너뜁니다. TripPlan: {}", tripPlan);
+            response.put("message", "설정 저장이 완료되었습니다.");
+            response.put("tripId", null);
+            return Mono.just(response);
+        }
 
         // 기존 TripSchedule 삭제
         int deletedRows = planMapper.deleteTripSchedulesByTripId(tripId);
@@ -147,7 +153,9 @@ public class PlanService {
 
         log.info("{}님의 auto_trip END --------------------", tripSummaryDto.getUsername());
 
-        return Mono.just(tripId);
+        response.put("message", "일정 배치 및 저장이 완료되었습니다.");
+        response.put("tripId", tripId);
+        return Mono.just(response);
     }
 
     // 일정 배치 로직
@@ -156,21 +164,21 @@ public class PlanService {
         Map<String, List<TripScheduleDto>> scheduleByDate = new HashMap<>();
         scheduleByDate.put(startDate, new ArrayList<>());
         scheduleByDate.put(endDate, new ArrayList<>());
-
-        // 사용된 장소 추적
         Set<String> usedPlaces = new HashSet<>();
 
-        // 첫째 날
+        // 비음식 카테고리 분리
         List<String> nonFoodCategories = new ArrayList<>();
         for (String category : settings) {
             if (!category.equals("맛집") && !category.equals("카페")) {
                 nonFoodCategories.add(category);
             }
         }
+
+        // 첫째 날: 비음식 카테고리 중 랜덤 선택 -> 맛집 -> 카페 -> 나머지
         List<String> firstDayCategories = new ArrayList<>();
         if (!nonFoodCategories.isEmpty()) {
-            Collections.shuffle(nonFoodCategories);
-            firstDayCategories.add(nonFoodCategories.get(0));
+            Collections.shuffle(nonFoodCategories); // 랜덤 선택
+            firstDayCategories.add(nonFoodCategories.get(0)); // 첫 번째 활동
             nonFoodCategories.remove(0);
         }
         if (settings.contains("맛집")) {
@@ -179,17 +187,14 @@ public class PlanService {
         if (settings.contains("카페")) {
             firstDayCategories.add("카페");
         }
-        firstDayCategories.addAll(nonFoodCategories);
+        firstDayCategories.addAll(nonFoodCategories); // 나머지 비음식 카테고리 추가
 
         int order = 1;
         for (String category : firstDayCategories) {
             for (PlaceWithImage place : places) {
                 String filterCategory = CATEGORY_MAPPING.getOrDefault(category, category);
-                // [MODIFIED] 박물관은 정확히 "박물관" 포함, 관광은 "명소" 포함하도록 조건 분리
-                boolean isCategoryMatch = category.equals("박물관")
-                        ? place.getPlace().getCategory().contains("박물관")
-                        : place.getPlace().getCategory().contains(filterCategory);
-                if (isCategoryMatch && !usedPlaces.contains(place.getPlace().getTitle())) {
+                if (place.getPlace().getCategory().contains(filterCategory) &&
+                        !usedPlaces.contains(place.getPlace().getTitle())) {
                     TripScheduleDto schedule = new TripScheduleDto();
                     schedule.setTripId(tripId);
                     schedule.setStartYmd(startDate);
@@ -207,7 +212,7 @@ public class PlanService {
             }
         }
 
-        // 둘째 날
+        // 둘째 날: 동일 로직 적용 (랜덤성 부여)
         nonFoodCategories = new ArrayList<>();
         for (String category : settings) {
             if (!category.equals("맛집") && !category.equals("카페")) {
@@ -232,11 +237,8 @@ public class PlanService {
         for (String category : secondDayCategories) {
             for (PlaceWithImage place : places) {
                 String filterCategory = CATEGORY_MAPPING.getOrDefault(category, category);
-                // [MODIFIED] 박물관은 정확히 "박물관" 포함, 관광은 "명소" 포함하도록 조건 분리
-                boolean isCategoryMatch = category.equals("박물관")
-                        ? place.getPlace().getCategory().contains("박물관")
-                        : place.getPlace().getCategory().contains(filterCategory);
-                if (isCategoryMatch && !usedPlaces.contains(place.getPlace().getTitle())) {
+                if (place.getPlace().getCategory().contains(filterCategory) &&
+                        !usedPlaces.contains(place.getPlace().getTitle())) {
                     TripScheduleDto schedule = new TripScheduleDto();
                     schedule.setTripId(tripId);
                     schedule.setEndYmd(endDate);
@@ -253,7 +255,6 @@ public class PlanService {
                 }
             }
         }
-
         return scheduleByDate;
     }
 
