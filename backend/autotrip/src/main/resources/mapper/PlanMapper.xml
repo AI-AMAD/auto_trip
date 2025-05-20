@@ -33,4 +33,10 @@
         WHERE trip_id = #{tripId}
         ORDER BY start_ymd, activity_order
     </select>
+
+    <delete id="deleteTripSchedulesByTripId" parameterType="long">
+        DELETE
+        FROM trip_schedule
+        WHERE trip_id = #{tripId}
+    </delete>
 </mapper>

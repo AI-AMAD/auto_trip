@@ -5,6 +5,7 @@ import com.amad.autotrip.mybatis.PlanMapper;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Flux;
@@ -43,10 +44,12 @@ public class PlanService {
     }
 
     // 네이버 검색 API로 장소 검색 및 이미지 URL 가져오기
-    public Mono<List<PlaceWithImage>> naverSearch(String place, List<String> settings) {
+    public Mono<List<PlaceWithImage>> naverSearch(String username, String place, List<String> settings) {
         if (settings == null || settings.isEmpty()) {
             return Mono.just(new ArrayList<>());
         }
+
+        log.info("{}님의 auto_trip START --------------------", username);
 
         // settings에 따라 여러 쿼리로 검색
         return Flux.fromIterable(settings)
@@ -93,7 +96,6 @@ public class PlanService {
                 .collectList()
                 .doOnSuccess(list -> {
                     log.info("최종 결과: {}개 장소", list.size());
-                    log.info("--------------------------");
                 });
     }
 
@@ -113,9 +115,9 @@ public class PlanService {
 
 
     // 일정 배치 및 DB 저장
-    @Transactional
-    public Mono<Long> createAndSaveTripPlan(TripSummaryDto tripSummaryDto, List<PlaceWithImage> places, List<String> settings) {
-        // 1. TripPlan 생성
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
+    public Mono<Map<String, Object>> createAndSaveTripPlan(TripSummaryDto tripSummaryDto, List<PlaceWithImage> places, List<String> settings) {
+        // TripPlan 생성
         TripPlanDto tripPlan = new TripPlanDto();
 
         tripPlan.setUsername(tripSummaryDto.getUsername());
@@ -124,11 +126,24 @@ public class PlanService {
         tripPlan.setEndYmd(tripSummaryDto.getEndYmd());
         tripPlan.setSettings(String.join(",", settings));
 
-        // 2. TripPlan 저장
+        // TripPlan 저장
         planMapper.insertTripPlan(tripPlan);
         Long tripId = tripPlan.getTripId();
 
-        // 3. 일정 배치
+        // tripId가 null인 경우 설정 저장 완료 메시지 반환
+        Map<String, Object> response = new HashMap<>();
+        if (tripId == null) {
+            log.warn("TripPlan 삽입 후 tripId가 null입니다. 일정 배치 로직을 건너뜁니다. TripPlan: {}", tripPlan);
+            response.put("message", "설정 저장이 완료되었습니다.");
+            response.put("tripId", null);
+            return Mono.just(response);
+        }
+
+        // 기존 TripSchedule 삭제
+        int deletedRows = planMapper.deleteTripSchedulesByTripId(tripId);
+        log.info("기존 스케줄 삭제 완료: tripId={}, deletedRows={}", tripId, deletedRows);
+
+        // 일정 배치
         Map<String, List<TripScheduleDto>> scheduleByDate = arrangeSchedule(tripId, tripSummaryDto.getStartYmd(),
                 tripSummaryDto.getEndYmd(), places, settings);
 
@@ -136,7 +151,11 @@ public class PlanService {
         scheduleByDate.values().forEach(schedules ->
                 schedules.forEach(planMapper::insertTripSchedule));
 
-        return Mono.just(tripId);
+        log.info("{}님의 auto_trip END --------------------", tripSummaryDto.getUsername());
+
+        response.put("message", "일정 배치 및 저장이 완료되었습니다.");
+        response.put("tripId", tripId);
+        return Mono.just(response);
     }
 
     // 일정 배치 로직
@@ -145,13 +164,33 @@ public class PlanService {
         Map<String, List<TripScheduleDto>> scheduleByDate = new HashMap<>();
         scheduleByDate.put(startDate, new ArrayList<>());
         scheduleByDate.put(endDate, new ArrayList<>());
-
-        // 사용된 장소 추적
         Set<String> usedPlaces = new HashSet<>();
 
-        // 첫째 날: settings 순서대로 일정 배치
-        int order = 1;
+        // 비음식 카테고리 분리
+        List<String> nonFoodCategories = new ArrayList<>();
         for (String category : settings) {
+            if (!category.equals("맛집") && !category.equals("카페")) {
+                nonFoodCategories.add(category);
+            }
+        }
+
+        // 첫째 날: 비음식 카테고리 중 랜덤 선택 -> 맛집 -> 카페 -> 나머지
+        List<String> firstDayCategories = new ArrayList<>();
+        if (!nonFoodCategories.isEmpty()) {
+            Collections.shuffle(nonFoodCategories); // 랜덤 선택
+            firstDayCategories.add(nonFoodCategories.get(0)); // 첫 번째 활동
+            nonFoodCategories.remove(0);
+        }
+        if (settings.contains("맛집")) {
+            firstDayCategories.add("맛집");
+        }
+        if (settings.contains("카페")) {
+            firstDayCategories.add("카페");
+        }
+        firstDayCategories.addAll(nonFoodCategories); // 나머지 비음식 카테고리 추가
+
+        int order = 1;
+        for (String category : firstDayCategories) {
             for (PlaceWithImage place : places) {
                 String filterCategory = CATEGORY_MAPPING.getOrDefault(category, category);
                 if (place.getPlace().getCategory().contains(filterCategory) &&
@@ -173,11 +212,29 @@ public class PlanService {
             }
         }
 
-        // 둘째 날: settings를 역순으로 배치 (또는 다른 순서로 조정 가능)
+        // 둘째 날: 동일 로직 적용 (랜덤성 부여)
+        nonFoodCategories = new ArrayList<>();
+        for (String category : settings) {
+            if (!category.equals("맛집") && !category.equals("카페")) {
+                nonFoodCategories.add(category);
+            }
+        }
+        List<String> secondDayCategories = new ArrayList<>();
+        if (!nonFoodCategories.isEmpty()) {
+            Collections.shuffle(nonFoodCategories);
+            secondDayCategories.add(nonFoodCategories.get(0));
+            nonFoodCategories.remove(0);
+        }
+        if (settings.contains("맛집")) {
+            secondDayCategories.add("맛집");
+        }
+        if (settings.contains("카페")) {
+            secondDayCategories.add("카페");
+        }
+        secondDayCategories.addAll(nonFoodCategories);
+
         order = 1;
-        List<String> reversedSettings = new ArrayList<>(settings);
-        Collections.reverse(reversedSettings); // settings 역순
-        for (String category : reversedSettings) {
+        for (String category : secondDayCategories) {
             for (PlaceWithImage place : places) {
                 String filterCategory = CATEGORY_MAPPING.getOrDefault(category, category);
                 if (place.getPlace().getCategory().contains(filterCategory) &&
@@ -198,7 +255,6 @@ public class PlanService {
                 }
             }
         }
-
         return scheduleByDate;
     }
 
