@@ -31,9 +31,19 @@
             </tbody>
           </table>
           <div class="d-flex justify-content-end">
-            <!--            <button class="btn btn-primary" @click="planTrip">여행계획짜기</button>-->
-            <button class="btn btn-primary" @click="planTrip" :disabled="isPlanning">
-              {{ isPlanning ? '계획 생성 중...' : '여행계획짜기' }}
+            <button
+              class="btn"
+              :class="{ 'btn-primary': !isPlanning, 'btn-warning': isPlanning }"
+              @click="planTrip"
+              :disabled="isPlanning"
+            >
+              <span
+                v-if="isPlanning"
+                class="spinner-border spinner-border-sm mr-2"
+                role="status"
+                aria-hidden="true"
+              ></span>
+              {{ isPlanning ? '여행 계획 생성 중...' : '여행계획짜기' }}
             </button>
           </div>
         </div>
@@ -53,7 +63,7 @@ const props = defineProps({
   tripData: Object
 })
 
-// planTrip 호출 중 로딩 상태 관리
+// 로딩 상태 관리
 const isPlanning = ref(false)
 
 // tripData 변경 감지 및 디버깅
@@ -139,8 +149,6 @@ const planTrip = async () => {
       }
     })
     alert('여행 계획이 성공적으로 생성되었습니다.')
-    // 필요 시 부모 컴포넌트의 tripData를 업데이트하려면 emit 사용
-    // 예: emit('update:tripData', response.data);
   } catch (error) {
     alert('여행 계획 생성에 실패했습니다: ' + (error.response?.data || error.message))
   } finally {
@@ -149,4 +157,15 @@ const planTrip = async () => {
 }
 </script>
 
-<style scoped lang="scss"></style>
+<style scoped>
+/* 버튼 전환 애니메이션 */
+.btn {
+  transition: background-color 0.3s ease, border-color 0.3s ease, color 0.3s ease;
+}
+
+/* 스피너와 텍스트 정렬 */
+.btn .spinner-border {
+  vertical-align: middle;
+  margin-right: 8px; /* Bootstrap의 mr-2와 동일 */
+}
+</style>
