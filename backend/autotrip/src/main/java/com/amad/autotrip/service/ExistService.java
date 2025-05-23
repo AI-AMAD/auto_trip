@@ -14,6 +14,10 @@ public class ExistService {
     }
 
     public boolean existWhereInfo(String username) {
-        return existMapper.ExistWhereInfo(username) > 0;
+        return existMapper.existWhereInfo(username) > 0;
+    }
+
+    public boolean existScheduleInfo(String username) {
+        return existMapper.existScheduleInfo(username) > 0;
     }
 }

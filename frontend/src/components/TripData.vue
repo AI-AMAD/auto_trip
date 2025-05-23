@@ -31,7 +31,20 @@
             </tbody>
           </table>
           <div class="d-flex justify-content-end">
-            <button class="btn btn-primary" @click="planTrip">여행계획짜기</button>
+            <button
+              class="btn"
+              :class="{ 'btn-primary': !isPlanning, 'btn-warning': isPlanning }"
+              @click="planTrip"
+              :disabled="isPlanning"
+            >
+              <span
+                v-if="isPlanning"
+                class="spinner-border spinner-border-sm mr-2"
+                role="status"
+                aria-hidden="true"
+              ></span>
+              {{ isPlanning ? '여행 계획 생성 중...' : '여행계획짜기' }}
+            </button>
           </div>
         </div>
       </div>
@@ -40,7 +53,7 @@
 </template>
 
 <script setup>
-import { computed, watch } from 'vue'
+import { ref, computed, watch } from 'vue'
 import { useAuthStore } from '@/stores/auth'
 import axios from 'axios'
 
@@ -49,6 +62,9 @@ const authStore = useAuthStore()
 const props = defineProps({
   tripData: Object
 })
+
+// 로딩 상태 관리
+const isPlanning = ref(false)
 
 // tripData 변경 감지 및 디버깅
 watch(
@@ -78,8 +94,41 @@ const selectedActivities = computed(() => {
   return activities
 })
 
+// // 여행계획짜기 버튼 클릭
+// const planTrip = () => {
+//   const tripSummaryDto = {
+//     username: authStore.username,
+//     place: props.tripData.place,
+//     startYmd: props.tripData.startYmd,
+//     endYmd: props.tripData.endYmd,
+//     activity: props.tripData.activity,
+//     museum: props.tripData.museum,
+//     cafe: props.tripData.cafe,
+//     tourAtt: props.tripData.tourAtt
+//   }
+//
+//   axios
+//     .post('/api/auto/plan', tripSummaryDto, {
+//       headers: {
+//         Authorization: `Bearer ${authStore.token}`,
+//         'Content-Type': 'application/json'
+//       }
+//     })
+//     .then(() => {
+//       alert('설정이 성공적으로 저장되었습니다.')
+//     })
+//     .catch((error) => {
+//       alert('설정 저장에 실패했습니다: ' + (error.response?.data || error.message))
+//     })
+// }
+
 // 여행계획짜기 버튼 클릭
-const planTrip = () => {
+const planTrip = async () => {
+  if (!authStore.username || !authStore.token) {
+    alert('로그인이 필요합니다.')
+    return
+  }
+
   const tripSummaryDto = {
     username: authStore.username,
     place: props.tripData.place,
@@ -91,20 +140,32 @@ const planTrip = () => {
     tourAtt: props.tripData.tourAtt
   }
 
-  axios
-    .post('/api/auto/plan', tripSummaryDto, {
+  isPlanning.value = true
+  try {
+    await axios.post('/api/auto/plan', tripSummaryDto, {
       headers: {
         Authorization: `Bearer ${authStore.token}`,
         'Content-Type': 'application/json'
       }
     })
-    .then(() => {
-      alert('설정이 성공적으로 저장되었습니다.')
-    })
-    .catch((error) => {
-      alert('설정 저장에 실패했습니다: ' + (error.response?.data || error.message))
-    })
+    alert('여행 계획이 성공적으로 생성되었습니다.')
+  } catch (error) {
+    alert('여행 계획 생성에 실패했습니다: ' + (error.response?.data || error.message))
+  } finally {
+    isPlanning.value = false
+  }
 }
 </script>
 
-<style scoped lang="scss"></style>
+<style scoped>
+/* 버튼 전환 애니메이션 */
+.btn {
+  transition: background-color 0.3s ease, border-color 0.3s ease, color 0.3s ease;
+}
+
+/* 스피너와 텍스트 정렬 */
+.btn .spinner-border {
+  vertical-align: middle;
+  margin-right: 8px; /* Bootstrap의 mr-2와 동일 */
+}
+</style>
