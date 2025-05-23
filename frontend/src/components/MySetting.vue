@@ -34,15 +34,26 @@
           :class="activeButton === 'details' ? 'arrow-active' : 'arrow-inactive'"
         ></div>
 
-        <router-link to="/main/setting/how" class="nav-link">
+        <!--        <router-link to="/main/setting/how" class="nav-link">-->
+        <!--          <div-->
+        <!--            class="step"-->
+        <!--            :class="activeButton === 'how' ? 'btn-active' : 'btn-inactive'"-->
+        <!--            @click="setActive('how')"-->
+        <!--          >-->
+        <!--            어떻게 갈까?-->
+        <!--          </div>-->
+        <!--        </router-link>-->
+
+        <!-- 어떻게 갈까? 버튼: router-link 대신 div로 변경 -->
+        <div class="nav-link">
           <div
             class="step"
             :class="activeButton === 'how' ? 'btn-active' : 'btn-inactive'"
-            @click="setActive('how')"
+            @click="existTripSchedule"
           >
             어떻게 갈까?
           </div>
-        </router-link>
+        </div>
 
         <div
           class="step-arrow"
@@ -107,6 +118,26 @@ const existWhereInfo = () => {
         router.push('/main/setting/details')
       } else {
         alert('장소를 설정하고 진행해주세요!')
+      }
+    })
+}
+
+// tripschedule 정보 확인
+const existTripSchedule = () => {
+  axios
+    .get('/api/get/tripschedule/info', {
+      params: { username: authStore.username },
+      headers: {
+        Authorization: `Bearer ${authStore.token}`,
+        'Content-Type': 'application/json'
+      }
+    })
+    .then((response) => {
+      if (response.data) {
+        setActive('how')
+        router.push('/main/setting/how')
+      } else {
+        alert('여행 계획을 설정하고 진행해주세요!')
       }
     })
 }

@@ -5,5 +5,7 @@ import org.apache.ibatis.annotations.Mapper;
 @Mapper
 public interface ExistMapper {
 
-    int ExistWhereInfo(String username);
+    int existWhereInfo(String username);
+
+    int existScheduleInfo(String username);
 }

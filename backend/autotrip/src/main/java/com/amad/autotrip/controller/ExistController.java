@@ -21,4 +21,9 @@ public class ExistController {
 
         return existService.existWhereInfo(username);
     }
+
+    @GetMapping("/get/tripschedule/info")
+    public Boolean getTripScheduleInfo(@RequestParam String username) {
+        return existService.existScheduleInfo(username);
+    }
 }

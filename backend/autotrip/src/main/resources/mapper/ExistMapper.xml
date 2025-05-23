@@ -1,9 +1,18 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.amad.autotrip.mybatis.ExistMapper">
 
-    <select id="ExistWhereInfo" parameterType="String" resultType="int">
+    <select id="existWhereInfo" parameterType="String" resultType="int">
         select COUNT(*)
         from travel_place
         where username = #{username}
     </select>
+
+    <select id="existScheduleInfo" parameterType="String" resultType="int">
+        select COUNT(ts.schedule_id)
+        from trip_plan tp
+                 left join trip_schedule ts
+                           on tp.trip_id = ts.trip_id
+        where username = #{username}
+    </select>
+
 </mapper>
