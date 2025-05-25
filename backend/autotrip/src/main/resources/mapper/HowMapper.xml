@@ -1,4 +1,55 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.amad.autotrip.mybatis.HowMapper">
+    <resultMap id="tripPlanResultMap" type="com.amad.autotrip.dto.ScheduleDto">
+        <id property="tripId" column="trip_id"/>
+        <result property="username" column="username"/>
+        <result property="place" column="place"/>
+        <result property="settings" column="settings"/>
+        <collection property="activities" ofType="com.amad.autotrip.dto.ActivityWithDateDto">
+            <result property="date" column="date"/>
+            <result property="dateType" column="date_type"/> <!-- 추가 -->
+            <result property="activityOrder" column="activity_order"/>
+            <result property="activityType" column="activity_type"/>
+            <result property="activityName" column="activity_name"/>
+            <result property="activityAddress" column="activity_address"/>
+            <result property="activityImageUrl" column="activity_image_url"/>
+        </collection>
+    </resultMap>
 
+    <select id="findTripPlanByUsername" parameterType="string" resultMap="tripPlanResultMap">
+        SELECT tp.trip_id,
+               tp.username,
+               tp.place,
+               tp.settings,
+               ts.start_ymd AS date,
+               'start'      AS date_type,
+               ts.activity_order,
+               ts.activity_type,
+               ts.activity_name,
+               ts.activity_address,
+               ts.activity_image_url
+        FROM trip_plan tp
+                 INNER JOIN trip_schedule ts ON tp.trip_id = ts.trip_id
+        WHERE tp.username = #{username}
+          AND ts.start_ymd IS NOT NULL
+          AND ts.start_ymd != ''
+        UNION ALL
+        SELECT tp.trip_id,
+               tp.username,
+               tp.place,
+               tp.settings,
+               ts.end_ymd AS date,
+               'end'      AS date_type,
+               ts.activity_order,
+               ts.activity_type,
+               ts.activity_name,
+               ts.activity_address,
+               ts.activity_image_url
+        FROM trip_plan tp
+                 INNER JOIN trip_schedule ts ON tp.trip_id = ts.trip_id
+        WHERE tp.username = #{username}
+          AND ts.end_ymd IS NOT NULL
+          AND ts.end_ymd != ''
+        ORDER BY date, activity_order;
+    </select>
 </mapper>
