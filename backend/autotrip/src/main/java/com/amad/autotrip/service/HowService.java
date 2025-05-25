@@ -31,22 +31,18 @@ public class HowService {
         Map<String, List<ActivityDto>> endYmd = new HashMap<>();
 
         if (dto.getActivities() != null) {
-            // activities를 startYmd와 endYmd로 분리
             dto.getActivities().forEach(activity -> {
-                Map<String, List<ActivityDto>> targetMap = activity.getDate().equals(dto.getActivities().stream()
-                        .filter(a -> a.getDate() != null)
-                        .findFirst()
-                        .map(ActivityWithDateDto::getDate)
-                        .orElse(null)) ? startYmd : endYmd;
-
-                List<ActivityDto> activityList = targetMap.computeIfAbsent(activity.getDate(), k -> new ArrayList<>());
-                activityList.add(ActivityDto.builder()
-                        .activityOrder(activity.getActivityOrder())
-                        .activityType(activity.getActivityType())
-                        .activityName(activity.getActivityName())
-                        .activityAddress(activity.getActivityAddress())
-                        .activityImageUrl(activity.getActivityImageUrl())
-                        .build());
+                if (activity.getDate() != null && activity.getDateType() != null) {
+                    Map<String, List<ActivityDto>> targetMap = "start".equals(activity.getDateType()) ? startYmd : endYmd;
+                    List<ActivityDto> activityList = targetMap.computeIfAbsent(activity.getDate(), k -> new ArrayList<>());
+                    activityList.add(ActivityDto.builder()
+                            .activityOrder(activity.getActivityOrder())
+                            .activityType(activity.getActivityType())
+                            .activityName(activity.getActivityName())
+                            .activityAddress(activity.getActivityAddress())
+                            .activityImageUrl(activity.getActivityImageUrl())
+                            .build());
+                }
             });
         }
 

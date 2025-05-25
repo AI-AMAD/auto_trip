@@ -1,5 +1,6 @@
 package com.amad.autotrip.dto;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.*;
 
 import java.util.List;
@@ -10,6 +11,7 @@ import java.util.Map;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
+@JsonInclude(JsonInclude.Include.NON_NULL) // NULL 값은 JSON에서 제외
 public class ScheduleDto {
     private Long tripId;
     private String username;
@@ -17,6 +19,5 @@ public class ScheduleDto {
     private String settings;
     private Map<String, List<ActivityDto>> startYmd;
     private Map<String, List<ActivityDto>> endYmd;
-    // MyBatis에서 임시로 List를 받기 위한 필드
-    private List<ActivityWithDateDto> activities;
+    private transient List<ActivityWithDateDto> activities; // JSON 직렬화에서 제외
 }
