@@ -33,7 +33,41 @@
 </template>
 
 <script setup>
-import { ref } from 'vue'
+import { ref, onMounted } from 'vue'
+import axios from 'axios'
+import { useAuthStore } from '@/stores/auth'
+
+const authStore = useAuthStore()
+// 컴포넌트 마운트 시 데이터 가져오기
+onMounted(() => {
+  fetchTripData()
+  console.log('tripScheduleData--------->: ', tripScheduleData)
+  console.log('이거 안찍히네 startYmd--------->: ', tripScheduleData.value[0].startYmd)
+})
+
+const tripScheduleData = ref()
+
+// 여행 스케줄 조회
+const fetchTripData = () => {
+  axios
+    .get(`/api/schedule/${authStore.username}`, {
+      headers: {
+        Authorization: `Bearer ${authStore.token}`,
+        'Content-Type': 'application/json'
+      }
+    })
+    .then((response) => {
+      if (response.data) {
+        tripScheduleData.value = response.data
+      } else {
+        tripScheduleData.value = null
+      }
+    })
+    .catch((error) => {
+      console.error('여행 정보 조회 실패:', error.response?.data || error.message)
+      tripScheduleData.value = null
+    })
+}
 
 // dates 배열의 각 date에 독립적인 items를 포함시킴
 const dates = ref([
