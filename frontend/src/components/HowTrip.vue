@@ -38,14 +38,29 @@ import axios from 'axios'
 import { useAuthStore } from '@/stores/auth'
 
 const authStore = useAuthStore()
+const tripScheduleData = ref([])
 // 컴포넌트 마운트 시 데이터 가져오기
 onMounted(() => {
   fetchTripData()
-  console.log('tripScheduleData--------->: ', tripScheduleData)
-  console.log('이거 안찍히네 startYmd--------->: ', tripScheduleData.value[0].startYmd)
-})
+  // 콘솔에 데이터 구조 확인
+  console.log('tripScheduleData:', tripScheduleData.value)
+  console.log('tripScheduleData----> :', tripScheduleData)
 
-const tripScheduleData = ref()
+  // 첫 번째 여행 데이터에 접근
+  console.log('First trip:', tripScheduleData.value[0])
+
+  // tripId, username, place, settings 확인
+  console.log('tripId: ', tripScheduleData.value[0]?.tripId)
+  console.log('username: ', tripScheduleData.value[0]?.username)
+  console.log('place: ', tripScheduleData.value[0]?.place)
+  console.log('settings: ', tripScheduleData.value[0]?.settings)
+  console.log('startYmd: ', tripScheduleData.value[0]?.startYmd)
+  console.log('endYmd: ', tripScheduleData.value[0]?.endYmd)
+
+  // startYmd와 endYmd의 활동들 확인
+  console.log('startYmd activities:', tripScheduleData.value[0]?.startYmd['20250620'])
+  console.log('endYmd activities:', tripScheduleData.value[0]?.endYmd['20250621'])
+})
 
 // 여행 스케줄 조회
 const fetchTripData = () => {
@@ -59,6 +74,23 @@ const fetchTripData = () => {
     .then((response) => {
       if (response.data) {
         tripScheduleData.value = response.data
+        console.log(
+          '-------------------------함수안으로 옮겨서 테스트--------------------------------'
+        )
+        // 첫 번째 여행 데이터에 접근
+        console.log('First trip:', tripScheduleData.value[0])
+
+        // tripId, username, place, settings 확인
+        console.log('tripId: ', tripScheduleData.value[0]?.tripId)
+        console.log('username: ', tripScheduleData.value[0]?.username)
+        console.log('place: ', tripScheduleData.value[0].place)
+        console.log('settings: ', tripScheduleData.value[0]?.settings)
+        console.log('startYmd: ', tripScheduleData.value[0]?.startYmd)
+        console.log('endYmd: ', tripScheduleData.value[0]?.endYmd)
+
+        // startYmd와 endYmd의 활동들 확인
+        console.log('startYmd activities:', tripScheduleData.value[0]?.startYmd['20250620'])
+        console.log('endYmd activities:', tripScheduleData.value[0]?.endYmd['20250621'])
       } else {
         tripScheduleData.value = null
       }
