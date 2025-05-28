@@ -30,6 +30,9 @@
   <div class="text-center mt-4">
     <button class="btn btn-success" @click="onSave">저장</button>
   </div>
+  <!--  <div class="text-center mt-4">-->
+  <!--    <p>{{ tripScheduleData.value[0]?.username }}</p>-->
+  <!--  </div>-->
 </template>
 
 <script setup>
@@ -39,66 +42,95 @@ import { useAuthStore } from '@/stores/auth'
 
 const authStore = useAuthStore()
 const tripScheduleData = ref([])
-// 컴포넌트 마운트 시 데이터 가져오기
-onMounted(() => {
-  fetchTripData()
-  // 콘솔에 데이터 구조 확인
-  console.log('tripScheduleData:', tripScheduleData.value)
-  console.log('tripScheduleData----> :', tripScheduleData)
 
-  // 첫 번째 여행 데이터에 접근
-  console.log('First trip:', tripScheduleData.value[0])
+// // 컴포넌트 마운트 시 데이터 가져오기
+// onMounted(() => {
+//   fetchTripData()
+//   console.log('onMounted 이후----------------------')
+//   console.log('username---> : ', tripScheduleData.value[0]?.username)
+// })
 
-  // tripId, username, place, settings 확인
-  console.log('tripId: ', tripScheduleData.value[0]?.tripId)
-  console.log('username: ', tripScheduleData.value[0]?.username)
-  console.log('place: ', tripScheduleData.value[0]?.place)
-  console.log('settings: ', tripScheduleData.value[0]?.settings)
-  console.log('startYmd: ', tripScheduleData.value[0]?.startYmd)
-  console.log('endYmd: ', tripScheduleData.value[0]?.endYmd)
-
-  // startYmd와 endYmd의 활동들 확인
-  console.log('startYmd activities:', tripScheduleData.value[0]?.startYmd['20250620'])
-  console.log('endYmd activities:', tripScheduleData.value[0]?.endYmd['20250621'])
+// async 적용 onMounted
+onMounted(async () => {
+  await fetchTripData() // 비동기 호출 완료 대기
+  console.log('onMounted 이후----------------------')
+  console.log('username---> : ', tripScheduleData.value[0]?.username)
 })
 
-// 여행 스케줄 조회
-const fetchTripData = () => {
-  axios
-    .get(`/api/schedule/${authStore.username}`, {
+// // 여행 스케줄 조회
+// const fetchTripData = () => {
+//   axios
+//     .get(`/api/schedule/${authStore.username}`, {
+//       headers: {
+//         Authorization: `Bearer ${authStore.token}`,
+//         'Content-Type': 'application/json'
+//       }
+//     })
+//     .then((response) => {
+//       if (response.data) {
+//         tripScheduleData.value = response.data
+//         console.log(
+//           '-------------------------함수안으로 옮겨서 테스트--------------------------------'
+//         )
+//
+//         const startYmd = Object.keys(tripScheduleData.value[0].startYmd)[0]
+//         const endYmd = Object.keys(tripScheduleData.value[0].endYmd)[0]
+//
+//         // 첫 번째 여행 데이터에 접근
+//         console.log('First trip:', tripScheduleData.value[0])
+//
+//         // tripId, username, place, settings 확인
+//         console.log('tripId: ', tripScheduleData.value[0]?.tripId)
+//         console.log('username: ', tripScheduleData.value[0]?.username)
+//         console.log('place: ', tripScheduleData.value[0]?.place)
+//         console.log('settings: ', tripScheduleData.value[0]?.settings)
+//         console.log('startYmd: ', startYmd)
+//         console.log('endYmd: ', endYmd)
+//
+//         // startYmd와 endYmd의 활동들 확인
+//         console.log('startYmd activities:', tripScheduleData.value[0]?.startYmd[startYmd])
+//         console.log('endYmd activities:', tripScheduleData.value[0]?.endYmd[endYmd])
+//       } else {
+//         tripScheduleData.value = null
+//       }
+//     })
+//     .catch((error) => {
+//       console.error('여행 정보 조회 실패:', error.response?.data || error.message)
+//       tripScheduleData.value = null
+//     })
+// }
+
+// async 적용
+const fetchTripData = async () => {
+  try {
+    const response = await axios.get(`/api/schedule/${authStore.username}`, {
       headers: {
         Authorization: `Bearer ${authStore.token}`,
         'Content-Type': 'application/json'
       }
     })
-    .then((response) => {
-      if (response.data) {
-        tripScheduleData.value = response.data
-        console.log(
-          '-------------------------함수안으로 옮겨서 테스트--------------------------------'
-        )
-        // 첫 번째 여행 데이터에 접근
-        console.log('First trip:', tripScheduleData.value[0])
-
-        // tripId, username, place, settings 확인
-        console.log('tripId: ', tripScheduleData.value[0]?.tripId)
-        console.log('username: ', tripScheduleData.value[0]?.username)
-        console.log('place: ', tripScheduleData.value[0].place)
-        console.log('settings: ', tripScheduleData.value[0]?.settings)
-        console.log('startYmd: ', tripScheduleData.value[0]?.startYmd)
-        console.log('endYmd: ', tripScheduleData.value[0]?.endYmd)
-
-        // startYmd와 endYmd의 활동들 확인
-        console.log('startYmd activities:', tripScheduleData.value[0]?.startYmd['20250620'])
-        console.log('endYmd activities:', tripScheduleData.value[0]?.endYmd['20250621'])
-      } else {
-        tripScheduleData.value = null
-      }
-    })
-    .catch((error) => {
-      console.error('여행 정보 조회 실패:', error.response?.data || error.message)
-      tripScheduleData.value = null
-    })
+    if (response.data) {
+      tripScheduleData.value = response.data
+      console.log(
+        '-------------------------fetchTripData 내 테스트--------------------------------'
+      )
+      const startYmd = Object.keys(tripScheduleData.value[0].startYmd)[0]
+      const endYmd = Object.keys(tripScheduleData.value[0].endYmd)[0]
+      console.log('tripId: ', tripScheduleData.value[0]?.tripId)
+      console.log('username: ', tripScheduleData.value[0]?.username)
+      console.log('place: ', tripScheduleData.value[0]?.place)
+      console.log('settings: ', tripScheduleData.value[0]?.settings)
+      console.log('startYmd: ', startYmd)
+      console.log('endYmd: ', endYmd)
+      console.log('startYmd activities:', tripScheduleData.value[0]?.startYmd[startYmd])
+      console.log('endYmd activities:', tripScheduleData.value[0]?.endYmd[endYmd])
+    } else {
+      tripScheduleData.value = []
+    }
+  } catch (error) {
+    console.error('여행 정보 조회 실패:', error.response?.data || error.message)
+    tripScheduleData.value = []
+  }
 }
 
 // dates 배열의 각 date에 독립적인 items를 포함시킴
