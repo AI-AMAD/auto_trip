@@ -30,9 +30,12 @@
   <div class="text-center mt-4">
     <button class="btn btn-success" @click="onSave">저장</button>
   </div>
-  <!--  <div class="text-center mt-4">-->
-  <!--    <p>{{ tripScheduleData.value[0]?.username }}</p>-->
-  <!--  </div>-->
+  <div class="text-center mt-4">
+    <p>{{ test }}</p>
+  </div>
+  <div class="text-center mt-4">
+    <p>{{ tripScheduleData[0] }}</p>
+  </div>
 </template>
 
 <script setup>
@@ -42,19 +45,14 @@ import { useAuthStore } from '@/stores/auth'
 
 const authStore = useAuthStore()
 const tripScheduleData = ref([])
-
-// // 컴포넌트 마운트 시 데이터 가져오기
-// onMounted(() => {
-//   fetchTripData()
-//   console.log('onMounted 이후----------------------')
-//   console.log('username---> : ', tripScheduleData.value[0]?.username)
-// })
+const test = '이건 보이나?'
 
 // async 적용 onMounted
 onMounted(async () => {
   await fetchTripData() // 비동기 호출 완료 대기
   console.log('onMounted 이후----------------------')
   console.log('username---> : ', tripScheduleData.value[0]?.username)
+  console.log('tripScheduleData에 뭐가 담겨있나보자----> : ', tripScheduleData.value)
 })
 
 // // 여행 스케줄 조회
@@ -113,6 +111,11 @@ const fetchTripData = async () => {
       tripScheduleData.value = response.data
       console.log(
         '-------------------------fetchTripData 내 테스트--------------------------------'
+      )
+
+      console.log(
+        '똑같은 데이터 메소드 내에서는?? 뭐가 담겨있나보자----> : ',
+        tripScheduleData.value
       )
       const startYmd = Object.keys(tripScheduleData.value[0].startYmd)[0]
       const endYmd = Object.keys(tripScheduleData.value[0].endYmd)[0]
