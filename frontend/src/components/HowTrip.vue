@@ -31,74 +31,53 @@
     <button class="btn btn-success" @click="onSave">저장</button>
   </div>
   <div class="text-center mt-4">
-    <p>{{ test }}</p>
-  </div>
-  <div class="text-center mt-4">
-    <p>{{ tripScheduleData[0] }}</p>
+    <p>{{ tripScheduleData[0]?.username }}</p>
+    <p>{{ tripScheduleData[0]?.place }}</p>
+    <p>{{ tripScheduleData[0]?.tripId }}</p>
+    <p>{{ tripScheduleData[0]?.startYmd }}</p>
+    <p>시작 날짜: {{ startYmdKey }}</p>
+    <p>시작 스케줄: {{ startYmdActivities }}</p>
   </div>
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue'
+import { ref, onMounted, computed } from 'vue'
 import axios from 'axios'
 import { useAuthStore } from '@/stores/auth'
 
 const authStore = useAuthStore()
 const tripScheduleData = ref([])
-const test = '이건 보이나?'
+
+const formatDate = (dateStr) => {
+  if (!dateStr) return ''
+  const year = dateStr.slice(0, 4)
+  const month = dateStr.slice(4, 6)
+  const day = dateStr.slice(6, 8)
+  return `${year}년 ${parseInt(month)}월 ${parseInt(day)}일`
+}
+
+const startYmdKey = computed(() => {
+  if (tripScheduleData.value.length > 0 && tripScheduleData.value[0].startYmd) {
+    const key = Object.keys(tripScheduleData.value[0].startYmd)[0]
+    return formatDate(key)
+  }
+  return ''
+})
+
+const startYmdActivities = computed(() => {
+  if (tripScheduleData.value.length > 0 && tripScheduleData.value[0].startYmd) {
+    const key = Object.keys(tripScheduleData.value[0].startYmd)[0]
+    return tripScheduleData.value[0].startYmd[key] || []
+  }
+  return []
+})
 
 // async 적용 onMounted
 onMounted(async () => {
   await fetchTripData() // 비동기 호출 완료 대기
-  console.log('onMounted 이후----------------------')
-  console.log('username---> : ', tripScheduleData.value[0]?.username)
-  console.log('tripScheduleData에 뭐가 담겨있나보자----> : ', tripScheduleData.value)
 })
 
-// // 여행 스케줄 조회
-// const fetchTripData = () => {
-//   axios
-//     .get(`/api/schedule/${authStore.username}`, {
-//       headers: {
-//         Authorization: `Bearer ${authStore.token}`,
-//         'Content-Type': 'application/json'
-//       }
-//     })
-//     .then((response) => {
-//       if (response.data) {
-//         tripScheduleData.value = response.data
-//         console.log(
-//           '-------------------------함수안으로 옮겨서 테스트--------------------------------'
-//         )
-//
-//         const startYmd = Object.keys(tripScheduleData.value[0].startYmd)[0]
-//         const endYmd = Object.keys(tripScheduleData.value[0].endYmd)[0]
-//
-//         // 첫 번째 여행 데이터에 접근
-//         console.log('First trip:', tripScheduleData.value[0])
-//
-//         // tripId, username, place, settings 확인
-//         console.log('tripId: ', tripScheduleData.value[0]?.tripId)
-//         console.log('username: ', tripScheduleData.value[0]?.username)
-//         console.log('place: ', tripScheduleData.value[0]?.place)
-//         console.log('settings: ', tripScheduleData.value[0]?.settings)
-//         console.log('startYmd: ', startYmd)
-//         console.log('endYmd: ', endYmd)
-//
-//         // startYmd와 endYmd의 활동들 확인
-//         console.log('startYmd activities:', tripScheduleData.value[0]?.startYmd[startYmd])
-//         console.log('endYmd activities:', tripScheduleData.value[0]?.endYmd[endYmd])
-//       } else {
-//         tripScheduleData.value = null
-//       }
-//     })
-//     .catch((error) => {
-//       console.error('여행 정보 조회 실패:', error.response?.data || error.message)
-//       tripScheduleData.value = null
-//     })
-// }
-
-// async 적용
+// 여행 스케줄 get
 const fetchTripData = async () => {
   try {
     const response = await axios.get(`/api/schedule/${authStore.username}`, {
@@ -113,20 +92,10 @@ const fetchTripData = async () => {
         '-------------------------fetchTripData 내 테스트--------------------------------'
       )
 
-      console.log(
-        '똑같은 데이터 메소드 내에서는?? 뭐가 담겨있나보자----> : ',
-        tripScheduleData.value
-      )
-      const startYmd = Object.keys(tripScheduleData.value[0].startYmd)[0]
-      const endYmd = Object.keys(tripScheduleData.value[0].endYmd)[0]
       console.log('tripId: ', tripScheduleData.value[0]?.tripId)
       console.log('username: ', tripScheduleData.value[0]?.username)
       console.log('place: ', tripScheduleData.value[0]?.place)
       console.log('settings: ', tripScheduleData.value[0]?.settings)
-      console.log('startYmd: ', startYmd)
-      console.log('endYmd: ', endYmd)
-      console.log('startYmd activities:', tripScheduleData.value[0]?.startYmd[startYmd])
-      console.log('endYmd activities:', tripScheduleData.value[0]?.endYmd[endYmd])
     } else {
       tripScheduleData.value = []
     }
