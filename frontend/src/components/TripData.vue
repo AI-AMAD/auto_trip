@@ -94,34 +94,6 @@ const selectedActivities = computed(() => {
   return activities
 })
 
-// // 여행계획짜기 버튼 클릭
-// const planTrip = () => {
-//   const tripSummaryDto = {
-//     username: authStore.username,
-//     place: props.tripData.place,
-//     startYmd: props.tripData.startYmd,
-//     endYmd: props.tripData.endYmd,
-//     activity: props.tripData.activity,
-//     museum: props.tripData.museum,
-//     cafe: props.tripData.cafe,
-//     tourAtt: props.tripData.tourAtt
-//   }
-//
-//   axios
-//     .post('/api/auto/plan', tripSummaryDto, {
-//       headers: {
-//         Authorization: `Bearer ${authStore.token}`,
-//         'Content-Type': 'application/json'
-//       }
-//     })
-//     .then(() => {
-//       alert('설정이 성공적으로 저장되었습니다.')
-//     })
-//     .catch((error) => {
-//       alert('설정 저장에 실패했습니다: ' + (error.response?.data || error.message))
-//     })
-// }
-
 // 여행계획짜기 버튼 클릭
 const planTrip = async () => {
   if (!authStore.username || !authStore.token) {
