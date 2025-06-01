@@ -21,15 +21,16 @@
       >
         <!-- 동적으로 activityImageUrl 사용 -->
         <img
-          :src="item.imgUrl || '@/assets/img/swiss.png'"
+          :src="item.imgUrl"
           class="card-img-top"
           alt="Activity Image"
+          @error="handleImageError"
         />
         <div class="card-body">
           <div class="card-text">
             <strong>{{ item.name }}</strong
             ><br />
-            <small>{{ item.address }}</small>
+            <small class="mb-2">{{ item.address }}</small>
             <button
               class="fade-button btn btn-sm btn-danger mt-1"
               @click="onFadeItem(scheduleIndex, index)"
@@ -53,20 +54,13 @@ import { ref, onMounted } from 'vue'
 import axios from 'axios'
 import { useAuthStore } from '@/stores/auth'
 
-const authStore = useAuthStore()
-const tripScheduleData = ref([])
-
-// 날짜 포맷팅 함수
-const formatDate = (dateStr) => {
-  if (!dateStr) return ''
-  const year = dateStr.slice(0, 4)
-  const month = dateStr.slice(4, 6)
-  const day = dateStr.slice(6, 8)
-  return `${year}년 ${parseInt(month)}월 ${parseInt(day)}일`
-}
+onMounted(async () => {
+  await fetchTripData()
+})
 
 // tripSchedule 배열 (서버 데이터를 가공하여 생성)
 const tripSchedule = ref([])
+const tripScheduleData = ref([])
 
 // 서버 데이터를 tripSchedule에 반영
 const updateTripSchedule = () => {
@@ -135,6 +129,8 @@ const updateTripSchedule = () => {
   tripSchedule.value = scheduleList
 }
 
+const authStore = useAuthStore()
+
 // 서버 데이터 가져오기
 const fetchTripData = async () => {
   try {
@@ -157,10 +153,6 @@ const fetchTripData = async () => {
     tripSchedule.value = []
   }
 }
-
-onMounted(async () => {
-  await fetchTripData()
-})
 
 const draggedItemIndex = ref(null)
 const draggedScheduleIndex = ref(null)
@@ -191,6 +183,23 @@ const onDrop = (targetScheduleIndex, targetIndex) => {
 const onFadeItem = (scheduleIndex, index) => {
   tripSchedule.value[scheduleIndex].items[index].isFaded =
     !tripSchedule.value[scheduleIndex].items[index].isFaded
+}
+
+// 대체 이미지 (프로젝트의 assets 폴더에 있는지 확인 필요)
+const defaultImage = new URL('@/assets/img/swiss.png', import.meta.url).href
+
+const handleImageError = (event) => {
+  console.log('이미지 로드 실패, 대체 이미지로 변경:', defaultImage)
+  event.target.src = defaultImage
+}
+
+// 날짜 포맷팅 함수
+const formatDate = (dateStr) => {
+  if (!dateStr) return ''
+  const year = dateStr.slice(0, 4)
+  const month = dateStr.slice(4, 6)
+  const day = dateStr.slice(6, 8)
+  return `${year}년 ${parseInt(month)}월 ${parseInt(day)}일`
 }
 
 const onSave = () => {
@@ -258,14 +267,14 @@ const onSave = () => {
   background-color: #b21f2d;
 }
 
-.arrow {
-  font-size: 24px;
-  color: #6c757d;
-  margin: 0 10px;
-}
-
 .custom-row-spacing {
   margin-bottom: 50px; /* 원하는 크기로 설정 */
+}
+
+.arrow {
+  font-size: 32px;
+  color: #6c757d;
+  margin: 0 20px;
 }
 
 .card-img-top {
