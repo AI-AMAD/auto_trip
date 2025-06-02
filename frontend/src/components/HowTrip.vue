@@ -1,46 +1,48 @@
 <template>
   <div
-    class="row custom-row-spacing"
+    class="custom-row-spacing"
     v-for="(schedule, scheduleIndex) in tripSchedule"
     :key="schedule.id"
   >
-    <span class="badge text-bg-secondary">{{ schedule.text }}</span>
-    <div
-      v-for="(item, index) in schedule.items"
-      :key="item.id"
-      class="col-3 d-flex align-items-center"
-    >
-      <div
-        class="draggable-item card h-100 d-flex align-items-center p-3"
-        style="max-width: 85%"
-        draggable="true"
-        @dragstart="onDragStart(scheduleIndex, index)"
-        @dragover.prevent
-        @drop="onDrop(scheduleIndex, index)"
-        :class="{ faded: item.isFaded }"
-      >
-        <!-- 동적으로 activityImageUrl 사용 -->
-        <img
-          :src="item.imgUrl"
-          class="card-img-top"
-          alt="Activity Image"
-          @error="handleImageError"
-        />
-        <div class="card-body">
-          <div class="card-text">
-            <strong>{{ item.name }}</strong
-            ><br />
-            <small class="mb-2">{{ item.address }}</small>
-            <button
-              class="fade-button btn btn-sm btn-danger mt-1"
-              @click="onFadeItem(scheduleIndex, index)"
-            >
-              X
-            </button>
+    <!-- 날짜를 왼쪽 정렬로 배치 -->
+    <div class="date-header text-start mb-3">
+      <span class="badge text-bg-secondary">{{ schedule.text }}</span>
+    </div>
+    <!-- 카드들을 수평으로 배치, 필요 시 줄바꿈 -->
+    <div class="d-flex flex-row flex-wrap align-items-center justify-content-start card-container">
+      <div v-for="(item, index) in schedule.items" :key="item.id" class="d-flex align-items-center">
+        <div
+          class="draggable-item card d-flex align-items-center p-3"
+          style="max-width: 90%"
+          draggable="true"
+          @dragstart="onDragStart(scheduleIndex, index)"
+          @dragover.prevent
+          @drop="onDrop(scheduleIndex, index)"
+          :class="{ faded: item.isFaded }"
+        >
+          <!-- 동적으로 activityImageUrl 사용 -->
+          <img
+            :src="item.imgUrl"
+            class="card-img-top"
+            alt="Activity Image"
+            @error="handleImageError"
+          />
+          <div class="card-body">
+            <div class="card-text">
+              <strong>{{ item.name }}</strong
+              ><br />
+              <small class="mb-2">{{ item.address }}</small>
+              <button
+                class="fade-button btn btn-sm btn-danger mt-1"
+                @click="onFadeItem(scheduleIndex, index)"
+              >
+                X
+              </button>
+            </div>
           </div>
         </div>
+        <div v-if="index < schedule.items.length - 1" class="arrow mx-2">→</div>
       </div>
-      <div v-if="index < schedule.items.length - 1" class="arrow ms-2">→</div>
     </div>
   </div>
   <div class="text-center mt-4">
@@ -242,52 +244,101 @@ const onSave = () => {
 
 <style scoped>
 .draggable-item {
-  background-color: #f3f3f3;
-  border: 1px solid #ddd;
-  border-radius: 8px;
+  background-color: #ffffff;
+  border: 1px solid #e0e0e0;
+  border-radius: 12px;
   cursor: grab;
-  transition: opacity 0.3s ease, background-color 0.3s ease;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  width: 250px;
+}
+
+.draggable-item:hover {
+  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+  transform: translateY(-2px);
 }
 
 .draggable-item:active {
   cursor: grabbing;
-  background-color: #e0e0e0;
+  background-color: #f8f9fa;
+  transform: translateY(0);
 }
 
 .draggable-item.faded {
   opacity: 0.5;
-  background-color: #f0f0f0;
+  background-color: #f5f5f5;
 }
 
 .fade-button {
   font-size: 14px;
+  border-radius: 50%;
+  padding: 0.25rem 0.5rem;
 }
 
 .fade-button:hover {
-  background-color: #b21f2d;
+  background-color: #dc3545;
+  transform: scale(1.1);
 }
 
 .custom-row-spacing {
-  margin-bottom: 50px; /* 원하는 크기로 설정 */
+  margin-bottom: 60px;
 }
 
 .arrow {
-  font-size: 32px;
+  font-size: 24px;
   color: #6c757d;
   margin: 0 20px;
 }
 
 .card-img-top {
-  max-height: 150px;
-  object-fit: cover;
+  width: 100%; /* 이미지 너비를 카드에 맞춤 */
+  max-height: 130px; /* 높이를 조금 늘려 조정 */
+  object-fit: contain; /* 이미지가 짤리지 않고 비율 유지하며 표시 */
+  border-top-left-radius: 12px;
+  border-top-right-radius: 12px;
+}
+
+.card-body {
+  padding: 0.75rem;
+}
+
+.card-text {
+  text-align: center;
 }
 
 .card-text strong {
-  font-size: 1.1rem;
+  font-size: 1rem;
+  font-weight: 600;
+  color: #333;
 }
 
 .card-text small {
-  font-size: 0.85rem;
+  font-size: 0.8rem;
   color: #6c757d;
+  display: block;
+  margin-top: 0.25rem;
+}
+
+.date-header {
+  margin-bottom: 1.5rem;
+}
+
+.badge {
+  font-size: 1.1rem;
+  padding: 0.5rem 1.5rem;
+  border-radius: 20px;
+  background-color: #6c757d;
+}
+
+.btn-success {
+  border-radius: 20px;
+  padding: 0.5rem 2rem;
+  font-weight: 500;
+}
+
+.card-container {
+  flex-wrap: wrap;
+  gap: 1rem;
+  padding: 0 1rem;
 }
 </style>
