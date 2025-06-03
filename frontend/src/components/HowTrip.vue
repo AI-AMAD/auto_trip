@@ -1,72 +1,94 @@
 <template>
   <div
-    class="row custom-row-spacing"
+    class="custom-row-spacing"
     v-for="(schedule, scheduleIndex) in tripSchedule"
     :key="schedule.id"
   >
-    <span class="badge text-bg-secondary">{{ schedule.text }}</span>
-    <div
-      v-for="(item, index) in schedule.items"
-      :key="item.id"
-      class="col-3 d-flex align-items-center"
-    >
-      <div
-        class="draggable-item card h-100 d-flex align-items-center p-3"
-        style="max-width: 85%"
-        draggable="true"
-        @dragstart="onDragStart(scheduleIndex, index)"
-        @dragover.prevent
-        @drop="onDrop(scheduleIndex, index)"
-        :class="{ faded: item.isFaded }"
-      >
-        <!-- 동적으로 activityImageUrl 사용 -->
-        <img
-          :src="item.imgUrl || '@/assets/img/swiss.png'"
-          class="card-img-top"
-          alt="Activity Image"
-        />
-        <div class="card-body">
-          <div class="card-text">
-            <strong>{{ item.name }}</strong
-            ><br />
-            <small>{{ item.address }}</small>
-            <button
-              class="fade-button btn btn-sm btn-danger mt-1"
-              @click="onFadeItem(scheduleIndex, index)"
-            >
-              X
-            </button>
+    <!-- 날짜를 왼쪽 정렬로 배치 -->
+    <div class="date-header text-start mb-3">
+      <span class="badge text-bg-secondary"> {{ schedule.date }} </span>
+    </div>
+    <!-- 카드들을 수평으로 배치, 필요 시 줄바꿈 -->
+    <div class="d-flex flex-row flex-wrap align-items-center justify-content-start card-container">
+      <div v-for="(item, index) in schedule.items" :key="item.id" class="d-flex align-items-center">
+        <div
+          class="draggable-item card d-flex align-items-center p-3 position-relative"
+          draggable="true"
+          @dragstart="onDragStart(scheduleIndex, index)"
+          @dragover.prevent
+          @drop="onDrop(scheduleIndex, index)"
+          :class="{ faded: item.isFaded }"
+        >
+          <!-- 동적으로 activityImageUrl 사용 -->
+          <img
+            :src="item.imgUrl"
+            class="card-img-top"
+            alt="Activity Image"
+            @error="handleImageError"
+          />
+          <div class="card-body">
+            <div class="card-text">
+              <strong>{{ item.name }}</strong
+              ><br />
+              <small class="address-text">{{ item.address }}</small>
+            </div>
           </div>
+          <button
+            class="fade-button btn btn-sm btn-danger position-absolute"
+            @click="onFadeItem(scheduleIndex, index)"
+            style="top: -13px; right: -13px"
+          >
+            X
+          </button>
         </div>
+        <div v-if="index < schedule.items.length - 1" class="arrow mx-2">→</div>
       </div>
-      <div v-if="index < schedule.items.length - 1" class="arrow ms-2">→</div>
     </div>
   </div>
-  <div class="text-center mt-4">
-    <button class="btn btn-success" @click="onSave">저장</button>
+  <div class="col d-flex justify-content-center mt-4 pb-3">
+    <SaveButton @save="saveData"></SaveButton>
   </div>
-  <div v-if="!tripSchedule.length" class="text-center mt-4">여행 일정이 없습니다.</div>
+  <div v-if="!tripSchedule.length" class="text-center mt-4 mb-5">여행 일정이 없습니다.</div>
 </template>
 
 <script setup>
 import { ref, onMounted } from 'vue'
+import SaveButton from '@/components/SaveButton.vue'
 import axios from 'axios'
 import { useAuthStore } from '@/stores/auth'
 
-const authStore = useAuthStore()
-const tripScheduleData = ref([])
-
-// 날짜 포맷팅 함수
-const formatDate = (dateStr) => {
-  if (!dateStr) return ''
-  const year = dateStr.slice(0, 4)
-  const month = dateStr.slice(4, 6)
-  const day = dateStr.slice(6, 8)
-  return `${year}년 ${parseInt(month)}월 ${parseInt(day)}일`
-}
+onMounted(async () => {
+  await fetchTripData()
+})
 
 // tripSchedule 배열 (서버 데이터를 가공하여 생성)
 const tripSchedule = ref([])
+const tripScheduleData = ref([])
+
+const authStore = useAuthStore()
+
+// 서버 데이터 가져오기
+const fetchTripData = async () => {
+  try {
+    const response = await axios.get(`/api/schedule/${authStore.username}`, {
+      headers: {
+        Authorization: `Bearer ${authStore.token}`,
+        'Content-Type': 'application/json'
+      }
+    })
+    if (response.data) {
+      tripScheduleData.value = response.data
+      updateTripSchedule() // 데이터를 가져온 후 tripSchedule 업데이트
+    } else {
+      tripScheduleData.value = []
+      tripSchedule.value = []
+    }
+  } catch (error) {
+    console.error('여행 정보 조회 실패:', error.response?.data || error.message)
+    tripScheduleData.value = []
+    tripSchedule.value = []
+  }
+}
 
 // 서버 데이터를 tripSchedule에 반영
 const updateTripSchedule = () => {
@@ -81,7 +103,7 @@ const updateTripSchedule = () => {
     const startKey = Object.keys(tripScheduleData.value[0].startYmd)[0]
     scheduleList.push({
       id: `schedule-1`,
-      text: formatDate(startKey),
+      date: formatDate(startKey),
       items: (tripScheduleData.value[0].startYmd[startKey] || []).map((activity, index) => ({
         id: `start-${index}`,
         name: activity.activityName,
@@ -101,7 +123,7 @@ const updateTripSchedule = () => {
     const endKey = Object.keys(tripScheduleData.value[0].endYmd)[0]
     scheduleList.push({
       id: `schedule-2`,
-      text: formatDate(endKey),
+      date: formatDate(endKey),
       items: (tripScheduleData.value[0].endYmd[endKey] || []).map((activity, index) => ({
         id: `end-${index}`,
         name: activity.activityName,
@@ -135,33 +157,6 @@ const updateTripSchedule = () => {
   tripSchedule.value = scheduleList
 }
 
-// 서버 데이터 가져오기
-const fetchTripData = async () => {
-  try {
-    const response = await axios.get(`/api/schedule/${authStore.username}`, {
-      headers: {
-        Authorization: `Bearer ${authStore.token}`,
-        'Content-Type': 'application/json'
-      }
-    })
-    if (response.data) {
-      tripScheduleData.value = response.data
-      updateTripSchedule() // 데이터를 가져온 후 tripSchedule 업데이트
-    } else {
-      tripScheduleData.value = []
-      tripSchedule.value = []
-    }
-  } catch (error) {
-    console.error('여행 정보 조회 실패:', error.response?.data || error.message)
-    tripScheduleData.value = []
-    tripSchedule.value = []
-  }
-}
-
-onMounted(async () => {
-  await fetchTripData()
-})
-
 const draggedItemIndex = ref(null)
 const draggedScheduleIndex = ref(null)
 
@@ -193,7 +188,24 @@ const onFadeItem = (scheduleIndex, index) => {
     !tripSchedule.value[scheduleIndex].items[index].isFaded
 }
 
-const onSave = () => {
+// 대체 이미지 (프로젝트의 assets 폴더에 있는지 확인 필요)
+const defaultImage = new URL('@/assets/img/swiss.png', import.meta.url).href
+
+const handleImageError = (event) => {
+  console.log('이미지 로드 실패, 대체 이미지로 변경:', defaultImage)
+  event.target.src = defaultImage
+}
+
+// 날짜 포맷팅 함수
+const formatDate = (dateStr) => {
+  if (!dateStr) return ''
+  const year = dateStr.slice(0, 4)
+  const month = dateStr.slice(4, 6)
+  const day = dateStr.slice(6, 8)
+  return `${year}년 ${parseInt(month)}월 ${parseInt(day)}일`
+}
+
+const saveData = () => {
   // 페이드된 항목 제거
   tripSchedule.value.forEach((schedule) => {
     schedule.items = schedule.items.filter((item) => !item.isFaded)
@@ -233,52 +245,147 @@ const onSave = () => {
 
 <style scoped>
 .draggable-item {
-  background-color: #f3f3f3;
-  border: 1px solid #ddd;
-  border-radius: 8px;
+  background-color: #ffffff;
+  border: 1px solid #e0e0e0;
+  border-radius: 12px;
   cursor: grab;
-  transition: opacity 0.3s ease, background-color 0.3s ease;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  width: 250px; /* 고정 너비 */
+  height: 320px; /* 고정 높이 */
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  position: relative;
+}
+
+.draggable-item:hover {
+  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+  transform: translateY(-2px);
 }
 
 .draggable-item:active {
   cursor: grabbing;
-  background-color: #e0e0e0;
+  background-color: #f8f9fa;
+  transform: translateY(0);
 }
 
 .draggable-item.faded {
   opacity: 0.5;
-  background-color: #f0f0f0;
+  background-color: #f5f5f5;
 }
 
 .fade-button {
-  font-size: 14px;
+  font-size: 16px;
+  border-radius: 50%;
+  padding: 0.25rem 0.5rem;
+  width: 30px; /* 버튼 너비 고정 */
+  height: 30px; /* 버튼 높이 고정 */
+  position: absolute;
 }
 
 .fade-button:hover {
-  background-color: #b21f2d;
-}
-
-.arrow {
-  font-size: 24px;
-  color: #6c757d;
-  margin: 0 10px;
+  background-color: #dc3545;
+  transform: scale(1.1);
 }
 
 .custom-row-spacing {
-  margin-bottom: 50px; /* 원하는 크기로 설정 */
+  margin-bottom: 60px;
+}
+
+.arrow {
+  font-size: 33px;
+  color: #6c757d;
+  margin: 0 1rem;
 }
 
 .card-img-top {
-  max-height: 150px;
-  object-fit: cover;
+  width: 100%;
+  height: 150px; /* 고정 높이 */
+  object-fit: cover; /* 이미지가 영역을 채우도록 */
+  border-radius: 12px;
+}
+
+.card-body {
+  padding: 0.75rem;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  flex-grow: 1;
+  min-height: 140px;
+}
+
+.card-text {
+  text-align: center;
+  flex-grow: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
 }
 
 .card-text strong {
-  font-size: 1.1rem;
+  font-size: 1.3rem;
+  font-weight: 600;
+  color: #333;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
-.card-text small {
-  font-size: 0.85rem;
+.address-text {
+  font-size: 0.9rem;
   color: #6c757d;
+  display: block;
+  margin-top: 0.25rem;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  display: -webkit-box;
+  -webkit-line-clamp: 3; /* 최대 3줄 허용 */
+  -webkit-box-orient: vertical;
+}
+
+.date-header {
+  margin-bottom: 1.5rem;
+}
+
+.badge {
+  font-size: 1rem;
+  padding: 0.4rem 1.2rem;
+  border-radius: 20px;
+  background-color: #99ccff;
+}
+
+.card-container {
+  flex-wrap: wrap;
+  gap: 2rem;
+  padding: 0 1rem;
+}
+
+@media (max-width: 768px) {
+  .draggable-item {
+    width: 200px;
+    height: 270px;
+  }
+
+  .card-img-top {
+    height: 120px;
+  }
+
+  .card-body {
+    min-height: 120px;
+  }
+
+  .badge {
+    font-size: 0.75rem;
+    padding: 0.3rem 1rem;
+  }
+
+  .fade-button {
+    width: 32px;
+    height: 32px;
+    font-size: 14px;
+    top: -8px;
+    right: -8px;
+  }
 }
 </style>
