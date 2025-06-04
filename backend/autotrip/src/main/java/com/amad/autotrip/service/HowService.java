@@ -1,7 +1,6 @@
 package com.amad.autotrip.service;
 
 import com.amad.autotrip.dto.ActivityDto;
-import com.amad.autotrip.dto.ActivityWithDateDto;
 import com.amad.autotrip.dto.ScheduleDto;
 import com.amad.autotrip.mybatis.HowMapper;
 import org.springframework.stereotype.Service;
@@ -36,6 +35,7 @@ public class HowService {
                     Map<String, List<ActivityDto>> targetMap = "start".equals(activity.getDateType()) ? startYmd : endYmd;
                     List<ActivityDto> activityList = targetMap.computeIfAbsent(activity.getDate(), k -> new ArrayList<>());
                     activityList.add(ActivityDto.builder()
+                            .scheduleId(activity.getScheduleId())
                             .activityOrder(activity.getActivityOrder())
                             .activityType(activity.getActivityType())
                             .activityName(activity.getActivityName())
