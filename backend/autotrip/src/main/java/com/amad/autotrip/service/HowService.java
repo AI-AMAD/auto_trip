@@ -2,8 +2,11 @@ package com.amad.autotrip.service;
 
 import com.amad.autotrip.dto.ActivityDto;
 import com.amad.autotrip.dto.ScheduleDto;
+import com.amad.autotrip.dto.TripScheduleDto;
 import com.amad.autotrip.mybatis.HowMapper;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -11,6 +14,7 @@ import java.util.Map;
 import java.util.HashMap;
 import java.util.stream.Collectors;
 
+@Slf4j
 @Service
 public class HowService {
 
@@ -54,5 +58,25 @@ public class HowService {
                 .startYmd(startYmd)
                 .endYmd(endYmd)
                 .build();
+    }
+
+    public List<TripScheduleDto> getTripScheduleByTripId(String username, Long tripId) {
+        return howMapper.findTripScheduleByTripId(username, tripId);
+    }
+
+    @Transactional
+    public void deleteSchedules(String username, Long tripId, List<Long> scheduleIds) {
+        log.info("이거 호출 된건가?");
+        howMapper.deleteSchedules(username, tripId, scheduleIds);
+    }
+
+    @Transactional
+    public void createSchedules(String username, List<TripScheduleDto> schedules) {
+        howMapper.insertSchedules(schedules);
+    }
+
+    @Transactional
+    public void updateSchedules(String username, List<TripScheduleDto> schedules) {
+        howMapper.updateSchedules(schedules);
     }
 }

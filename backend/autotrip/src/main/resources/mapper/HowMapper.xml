@@ -55,4 +55,76 @@
           AND ts.end_ymd != ''
         ORDER BY date, activity_order;
     </select>
+
+    <select id="findTripScheduleByTripId" parameterType="map" resultType="com.amad.autotrip.dto.TripScheduleDto">
+        SELECT schedule_id,
+               trip_id,
+               start_ymd,
+               end_ymd,
+               activity_order,
+               activity_type,
+               activity_name,
+               activity_address,
+               activity_image_url
+        FROM trip_schedule ts
+        WHERE ts.trip_id = #{tripId}
+          AND EXISTS (SELECT 1
+                      FROM trip_plan tp
+                      WHERE tp.trip_id = ts.trip_id
+                        AND tp.username = #{username})
+        ORDER BY activity_order
+    </select>
+
+    <delete id="deleteSchedules">
+        DELETE FROM trip_schedule
+        WHERE trip_id = #{tripId}
+        AND schedule_id IN
+        <foreach collection="scheduleIds" item="id" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+        AND EXISTS (
+        SELECT 1 FROM trip_plan tp
+        WHERE tp.trip_id = #{tripId}
+        AND tp.username = #{username}
+        )
+    </delete>
+
+    <insert id="insertSchedules" parameterType="list">
+        INSERT INTO trip_schedule (
+        trip_id,
+        start_ymd,
+        end_ymd,
+        activity_order,
+        activity_type,
+        activity_name,
+        activity_address,
+        activity_image_url
+        ) VALUES
+        <foreach collection="list" item="schedule" separator=",">
+            (
+            #{schedule.tripId},
+            #{schedule.startYmd},
+            #{schedule.endYmd},
+            #{schedule.activityOrder},
+            #{schedule.activityType},
+            #{schedule.activityName},
+            #{schedule.activityAddress},
+            #{schedule.activityImageUrl}
+            )
+        </foreach>
+    </insert>
+
+    <update id="updateSchedules" parameterType="list">
+        <foreach collection="list" item="schedule" separator=";">
+            UPDATE trip_schedule
+            SET start_ymd = #{schedule.startYmd},
+            end_ymd = #{schedule.endYmd},
+            activity_order = #{schedule.activityOrder},
+            activity_type = #{schedule.activityType},
+            activity_name = #{schedule.activityName},
+            activity_address = #{schedule.activityAddress},
+            activity_image_url = #{schedule.activityImageUrl}
+            WHERE schedule_id = #{schedule.scheduleId}
+        </foreach>
+    </update>
 </mapper>
