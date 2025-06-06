@@ -60,23 +60,13 @@ public class HowService {
                 .build();
     }
 
-    public List<TripScheduleDto> getTripScheduleByTripId(String username, Long tripId) {
-        return howMapper.findTripScheduleByTripId(username, tripId);
-    }
-
     @Transactional
-    public void deleteSchedules(String username, Long tripId, List<Long> scheduleIds) {
-        log.info("이거 호출 된건가?");
-        howMapper.deleteSchedules(username, tripId, scheduleIds);
+    public void deleteSchedules(String username, Long tripId) {
+        howMapper.deleteSchedules(username, tripId);
     }
 
     @Transactional
     public void createSchedules(String username, List<TripScheduleDto> schedules) {
         howMapper.insertSchedules(schedules);
-    }
-
-    @Transactional
-    public void updateSchedules(String username, List<TripScheduleDto> schedules) {
-        howMapper.updateSchedules(schedules);
     }
 }

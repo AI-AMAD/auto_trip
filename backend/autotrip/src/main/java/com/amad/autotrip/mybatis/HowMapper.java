@@ -11,11 +11,7 @@ import java.util.Map;
 public interface HowMapper {
     List<ScheduleDto> findTripPlanByUsername(String username);
 
-    List<TripScheduleDto> findTripScheduleByTripId(String username, Long tripId);
-
-    void deleteSchedules(String username, Long tripId, List<Long> scheduleIds);
+    void deleteSchedules(String username, Long tripId);
 
     void insertSchedules(List<TripScheduleDto> schedules);
-
-    void updateSchedules(List<TripScheduleDto> schedules);
 }

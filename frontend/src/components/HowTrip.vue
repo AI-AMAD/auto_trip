@@ -65,6 +65,7 @@ const showToast = ref(false)
 
 onMounted(async () => {
   await fetchTripData()
+  console.log('onMounted때 tripSchedule.value-----> : ', tripSchedule.value)
   showToast.value = true
   setTimeout(() => {
     showToast.value = false
@@ -148,26 +149,6 @@ const updateTripSchedule = () => {
     })
   }
 
-  // 미래 확장: 추가 날짜 (dailyActivities) 처리
-  /*
-  if (tripScheduleData.value[0].dailyActivities) {
-    tripScheduleData.value[0].dailyActivities.forEach((day, index) => {
-      const dayKey = Object.keys(day)[0];
-      scheduleList.push({
-        id: `schedule-${index + 3}`,
-        text: formatDate(dayKey),
-        items: (day[dayKey] || []).map((activity, idx) => ({
-          id: `day${index}-${idx}`,
-          name: activity.activityName,
-          address: activity.activityAddress,
-          imgUrl: activity.activityImageUrl,
-          isFaded: false
-        }))
-      });
-    });
-  }
-  */
-
   tripSchedule.value = scheduleList
 }
 
@@ -175,11 +156,13 @@ const draggedItemIndex = ref(null)
 const draggedScheduleIndex = ref(null)
 
 const onDragStart = (scheduleIndex, index) => {
+  console.log('onDragStart 실행')
   draggedScheduleIndex.value = scheduleIndex
   draggedItemIndex.value = index
 }
 
 const onDrop = (targetScheduleIndex, targetIndex) => {
+  console.log('onDrop 실행')
   const sourceScheduleIndex = draggedScheduleIndex.value
   const sourceIndex = draggedItemIndex.value
 
@@ -198,6 +181,8 @@ const onDrop = (targetScheduleIndex, targetIndex) => {
 }
 
 const onFadeItem = (scheduleIndex, index) => {
+  console.log('onFadeItem 실행')
+  console.log('tripSchedule.value----->: ', tripSchedule.value)
   tripSchedule.value[scheduleIndex].items[index].isFaded =
     !tripSchedule.value[scheduleIndex].items[index].isFaded
 }
@@ -206,11 +191,10 @@ const onFadeItem = (scheduleIndex, index) => {
 const defaultImage = new URL('@/assets/img/swiss.png', import.meta.url).href
 
 const handleImageError = (event) => {
-  console.log('이미지 로드 실패, 대체 이미지로 변경:', defaultImage)
   event.target.src = defaultImage
 }
 
-// 날짜 포맷팅 함수
+// 날짜 포맷팅 함수 '20250706' -> 2025년 07월 06일
 const formatDate = (dateStr) => {
   if (!dateStr) return ''
   const year = dateStr.slice(0, 4)
@@ -219,162 +203,73 @@ const formatDate = (dateStr) => {
   return `${year}년 ${parseInt(month)}월 ${parseInt(day)}일`
 }
 
-// 기존 스케줄 데이터 가져오기
-const fetchExistingSchedules = async (tripId) => {
-  try {
-    const response = await axios.get(`/api/schedule/${authStore.username}/${tripId}`, {
-      headers: {
-        Authorization: `Bearer ${authStore.token}`,
-        'Content-Type': 'application/json'
-      }
-    })
-    return response.data // [{schedule_id, trip_id, start_ymd, end_ymd, activity_order, activity_type, ...}, ...]
-  } catch (error) {
-    console.error('기존 스케줄 조회 실패:', error.response?.data || error.message)
-    return []
+// 서버 저장 형식으로 날짜 변환 2025년07월06일 -> '20250706'
+const parseDate = (dateStr) => {
+  if (!dateStr || typeof dateStr !== 'string') {
+    console.error('유효하지 않은 dateStr:', dateStr)
+    return null
   }
+  const parts = dateStr.split(' ')
+  if (parts.length === 3) {
+    const year = parts[0].replace('년', '')
+    const month = parts[1].replace('월', '').padStart(2, '0')
+    const day = parts[2].replace('일', '').padStart(2, '0')
+    return `${year}${month}${day}` // "20250624" 형식 반환
+  }
+  console.error('잘못된 날짜 형식:', dateStr)
+  return null
 }
 
 // 변경 사항 저장
 const saveData = async () => {
-  console.log('아예 saveData 함수에 들어오지 않는건가?? 이거 왜 안찍히지??')
   // 페이드된 항목 제거
   tripSchedule.value.forEach((schedule) => {
     schedule.items = schedule.items.filter((item) => !item.isFaded)
   })
 
-  console.log('1번 위치 tripSchedule------> : ', tripSchedule.value)
-
   // 클라이언트 데이터를 서버 형식으로 변환
   const updatedSchedules = []
   tripSchedule.value.forEach((schedule, scheduleIndex) => {
-    const date = schedule.date.replace(/[^0-9]/g, '')
+    const date = parseDate(schedule.date)
     schedule.items.forEach((item, index) => {
       updatedSchedules.push({
-        scheduleId: item.scheduleId || null, // 새 항목은 schedule_id가 없음
         tripId: tripScheduleData.value[0].tripId,
-        startYmd: scheduleIndex === 0 ? date : null,
-        endYmd: scheduleIndex === 1 ? date : null,
+        startYmd: scheduleIndex === 0 ? date : '',
+        endYmd: scheduleIndex === 1 ? date : '',
         activityOrder: index + 1,
-        activityType: item.activityType,
-        activityName: item.name,
-        activityAddress: item.address,
-        activityImageUrl: item.imgUrl
+        activityType: item.activityType || '',
+        activityName: item.name || '',
+        activityAddress: item.address || '',
+        activityImageUrl: item.imgUrl || ''
       })
     })
   })
 
-  console.log('2번 위치 tripSchedule------> : ', tripSchedule.value)
+  console.log('updatedSchedules:', JSON.stringify(updatedSchedules, null, 2))
 
-  // 기존 데이터 가져오기
-  const existingSchedules = await fetchExistingSchedules(tripScheduleData.value[0].tripId)
-
-  console.log('existingSchedules----> : ', existingSchedules)
-  // 변경 사항 식별
-  const toInsert = []
-  const toUpdate = []
-  let toDelete = existingSchedules.map((s) => s.scheduleId).filter((id) => id !== null)
-
-  console.log('3번 위치 toDelete------> : ', toDelete)
-
-  updatedSchedules.forEach((newItem) => {
-    const existing = existingSchedules.find((s) => s.scheduleId === newItem.scheduleId)
-
-    if (existing) {
-      // 수정된 경우
-      toDelete = toDelete.filter((id) => id !== existing.scheduleId)
-      if (
-        existing.startYmd !== newItem.startYmd ||
-        existing.endYmd !== newItem.endYmd ||
-        existing.activityOrder !== newItem.activityOrder ||
-        existing.activityType !== newItem.activityType ||
-        existing.activityName !== newItem.activityName ||
-        existing.activityAddress !== newItem.activityAddress ||
-        existing.activityImageUrl !== newItem.activityImageUrl
-      ) {
-        toUpdate.push(newItem)
-      }
-    } else {
-      // 추가된 경우
-      toInsert.push(newItem)
-    }
-  })
-
-  console.log('4번 위치 toDelete------> : ', toDelete)
-  console.log('4번 위치 toUpdate------> : ', toUpdate)
   // 서버 요청
   try {
-    // 삭제
-    if (toDelete.length > 0) {
-      await axios.delete(
-        `/api/schedule/${authStore.username}/${tripScheduleData.value[0].tripId}`,
-        {
-          data: { scheduleIds: toDelete },
-          headers: {
-            Authorization: `Bearer ${authStore.token}`,
-            'Content-Type': 'application/json'
-          }
-        }
-      )
-    }
+    // 기존 일정 삭제
+    await axios.delete(`/api/schedule/${authStore.username}/${tripScheduleData.value[0].tripId}`, {
+      headers: {
+        Authorization: `Bearer ${authStore.token}`,
+        'Content-Type': 'application/json'
+      }
+    })
 
-    // 추가
-    if (toInsert.length > 0) {
-      await axios.post(`/api/schedule/${authStore.username}`, toInsert, {
-        headers: {
-          Authorization: `Bearer ${authStore.token}`,
-          'Content-Type': 'application/json'
-        }
-      })
-    }
-
-    // 수정
-    if (toUpdate.length > 0) {
-      console.log('이 안으로 들어오긴했는데??')
-      console.log('toUpdate ---->: ', toUpdate)
-      await axios.put(`/api/schedule/${authStore.username}`, toUpdate, {
-        headers: {
-          Authorization: `Bearer ${authStore.token}`,
-          'Content-Type': 'application/json'
-        }
-      })
-    }
+    // 새로운 일정 삽입
+    await axios.post(`/api/schedule/${authStore.username}`, updatedSchedules, {
+      headers: {
+        Authorization: `Bearer ${authStore.token}`,
+        'Content-Type': 'application/json'
+      }
+    })
 
     console.log('저장 성공')
     await fetchTripData() // 최신 데이터로 갱신
   } catch (error) {
     console.error('저장 실패:', error.response?.data || error.message)
   }
-
-  // 서버로 저장 (예시)
-  /*
-  axios.post(`/api/schedule/${authStore.username}`, {
-    tripId: tripScheduleData.value[0]?.tripId,
-    startYmd: {
-      [tripSchedule.value[0]?.text.replace(/[^0-9]/g, '')]: tripSchedule.value[0]?.items.map(item => ({
-        activityName: item.name,
-        activityAddress: item.address,
-        activityImageUrl: item.imgUrl
-      }))
-    },
-    endYmd: {
-      [tripSchedule.value[1]?.text.replace(/[^0-9]/g, '')]: tripSchedule.value[1]?.items.map(item => ({
-        activityName: item.name,
-        activityAddress: item.address,
-        activityImageUrl: item.imgUrl
-      }))
-    }
-  }, {
-    headers: {
-      Authorization: `Bearer ${authStore.token}`,
-      'Content-Type': 'application/json'
-    }
-  }).then(response => {
-    console.log('저장 성공:', response.data);
-  }).catch(error => {
-    console.error('저장 실패:', error.response?.data || error.message);
-  });
-  */
 }
 </script>
 
