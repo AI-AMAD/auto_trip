@@ -40,6 +40,8 @@
           >
             X
           </button>
+          <!-- 드래그앤드롭 문구 툴팁 -->
+          <div class="drag-tooltip position-absolute">drag & drop !!!</div>
         </div>
         <div v-if="index < schedule.items.length - 1" class="arrow mx-2">→</div>
       </div>
@@ -49,6 +51,8 @@
     <SaveButton @save="saveData"></SaveButton>
   </div>
   <div v-if="!tripSchedule.length" class="text-center mt-4 mb-5">여행 일정이 없습니다.</div>
+  <!-- 토스트 메시지 -->
+  <div v-if="showToast" class="toast-message">드래그앤 드롭으로 여행 일정을 수정하세요</div>
 </template>
 
 <script setup>
@@ -57,8 +61,15 @@ import SaveButton from '@/components/SaveButton.vue'
 import axios from 'axios'
 import { useAuthStore } from '@/stores/auth'
 
+const showToast = ref(false)
+
 onMounted(async () => {
   await fetchTripData()
+  console.log('onMounted때 tripSchedule.value-----> : ', tripSchedule.value)
+  showToast.value = true
+  setTimeout(() => {
+    showToast.value = false
+  }, 3000)
 })
 
 // tripSchedule 배열 (서버 데이터를 가공하여 생성)
@@ -106,6 +117,8 @@ const updateTripSchedule = () => {
       date: formatDate(startKey),
       items: (tripScheduleData.value[0].startYmd[startKey] || []).map((activity, index) => ({
         id: `start-${index}`,
+        scheduleId: activity.scheduleId, // scheduleId 추가
+        activityType: activity.activityType, // activityType 추가
         name: activity.activityName,
         address: activity.activityAddress,
         imgUrl: activity.activityImageUrl,
@@ -126,6 +139,8 @@ const updateTripSchedule = () => {
       date: formatDate(endKey),
       items: (tripScheduleData.value[0].endYmd[endKey] || []).map((activity, index) => ({
         id: `end-${index}`,
+        scheduleId: activity.scheduleId, // scheduleId 추가
+        activityType: activity.activityType, // activityType 추가
         name: activity.activityName,
         address: activity.activityAddress,
         imgUrl: activity.activityImageUrl,
@@ -134,26 +149,6 @@ const updateTripSchedule = () => {
     })
   }
 
-  // 미래 확장: 추가 날짜 (dailyActivities) 처리
-  /*
-  if (tripScheduleData.value[0].dailyActivities) {
-    tripScheduleData.value[0].dailyActivities.forEach((day, index) => {
-      const dayKey = Object.keys(day)[0];
-      scheduleList.push({
-        id: `schedule-${index + 3}`,
-        text: formatDate(dayKey),
-        items: (day[dayKey] || []).map((activity, idx) => ({
-          id: `day${index}-${idx}`,
-          name: activity.activityName,
-          address: activity.activityAddress,
-          imgUrl: activity.activityImageUrl,
-          isFaded: false
-        }))
-      });
-    });
-  }
-  */
-
   tripSchedule.value = scheduleList
 }
 
@@ -161,11 +156,13 @@ const draggedItemIndex = ref(null)
 const draggedScheduleIndex = ref(null)
 
 const onDragStart = (scheduleIndex, index) => {
+  console.log('onDragStart 실행')
   draggedScheduleIndex.value = scheduleIndex
   draggedItemIndex.value = index
 }
 
 const onDrop = (targetScheduleIndex, targetIndex) => {
+  console.log('onDrop 실행')
   const sourceScheduleIndex = draggedScheduleIndex.value
   const sourceIndex = draggedItemIndex.value
 
@@ -184,6 +181,8 @@ const onDrop = (targetScheduleIndex, targetIndex) => {
 }
 
 const onFadeItem = (scheduleIndex, index) => {
+  console.log('onFadeItem 실행')
+  console.log('tripSchedule.value----->: ', tripSchedule.value)
   tripSchedule.value[scheduleIndex].items[index].isFaded =
     !tripSchedule.value[scheduleIndex].items[index].isFaded
 }
@@ -192,11 +191,10 @@ const onFadeItem = (scheduleIndex, index) => {
 const defaultImage = new URL('@/assets/img/swiss.png', import.meta.url).href
 
 const handleImageError = (event) => {
-  console.log('이미지 로드 실패, 대체 이미지로 변경:', defaultImage)
   event.target.src = defaultImage
 }
 
-// 날짜 포맷팅 함수
+// 날짜 포맷팅 함수 '20250706' -> 2025년 07월 06일
 const formatDate = (dateStr) => {
   if (!dateStr) return ''
   const year = dateStr.slice(0, 4)
@@ -205,41 +203,73 @@ const formatDate = (dateStr) => {
   return `${year}년 ${parseInt(month)}월 ${parseInt(day)}일`
 }
 
-const saveData = () => {
+// 서버 저장 형식으로 날짜 변환 2025년07월06일 -> '20250706'
+const parseDate = (dateStr) => {
+  if (!dateStr || typeof dateStr !== 'string') {
+    console.error('유효하지 않은 dateStr:', dateStr)
+    return null
+  }
+  const parts = dateStr.split(' ')
+  if (parts.length === 3) {
+    const year = parts[0].replace('년', '')
+    const month = parts[1].replace('월', '').padStart(2, '0')
+    const day = parts[2].replace('일', '').padStart(2, '0')
+    return `${year}${month}${day}` // "20250624" 형식 반환
+  }
+  console.error('잘못된 날짜 형식:', dateStr)
+  return null
+}
+
+// 변경 사항 저장
+const saveData = async () => {
   // 페이드된 항목 제거
   tripSchedule.value.forEach((schedule) => {
     schedule.items = schedule.items.filter((item) => !item.isFaded)
   })
 
-  // 서버로 저장 (예시)
-  /*
-  axios.post(`/api/schedule/${authStore.username}`, {
-    tripId: tripScheduleData.value[0]?.tripId,
-    startYmd: {
-      [tripSchedule.value[0]?.text.replace(/[^0-9]/g, '')]: tripSchedule.value[0]?.items.map(item => ({
-        activityName: item.name,
-        activityAddress: item.address,
-        activityImageUrl: item.imgUrl
-      }))
-    },
-    endYmd: {
-      [tripSchedule.value[1]?.text.replace(/[^0-9]/g, '')]: tripSchedule.value[1]?.items.map(item => ({
-        activityName: item.name,
-        activityAddress: item.address,
-        activityImageUrl: item.imgUrl
-      }))
-    }
-  }, {
-    headers: {
-      Authorization: `Bearer ${authStore.token}`,
-      'Content-Type': 'application/json'
-    }
-  }).then(response => {
-    console.log('저장 성공:', response.data);
-  }).catch(error => {
-    console.error('저장 실패:', error.response?.data || error.message);
-  });
-  */
+  // 클라이언트 데이터를 서버 형식으로 변환
+  const updatedSchedules = []
+  tripSchedule.value.forEach((schedule, scheduleIndex) => {
+    const date = parseDate(schedule.date)
+    schedule.items.forEach((item, index) => {
+      updatedSchedules.push({
+        tripId: tripScheduleData.value[0].tripId,
+        startYmd: scheduleIndex === 0 ? date : '',
+        endYmd: scheduleIndex === 1 ? date : '',
+        activityOrder: index + 1,
+        activityType: item.activityType || '',
+        activityName: item.name || '',
+        activityAddress: item.address || '',
+        activityImageUrl: item.imgUrl || ''
+      })
+    })
+  })
+
+  console.log('updatedSchedules:', JSON.stringify(updatedSchedules, null, 2))
+
+  // 서버 요청
+  try {
+    // 기존 일정 삭제
+    await axios.delete(`/api/schedule/${authStore.username}/${tripScheduleData.value[0].tripId}`, {
+      headers: {
+        Authorization: `Bearer ${authStore.token}`,
+        'Content-Type': 'application/json'
+      }
+    })
+
+    // 새로운 일정 삽입
+    await axios.post(`/api/schedule/${authStore.username}`, updatedSchedules, {
+      headers: {
+        Authorization: `Bearer ${authStore.token}`,
+        'Content-Type': 'application/json'
+      }
+    })
+
+    console.log('저장 성공')
+    await fetchTripData() // 최신 데이터로 갱신
+  } catch (error) {
+    console.error('저장 실패:', error.response?.data || error.message)
+  }
 }
 </script>
 
@@ -262,6 +292,84 @@ const saveData = () => {
 .draggable-item:hover {
   box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
   transform: translateY(-2px);
+  animation: shake 0.5s ease-in-out infinite; /* 흔들림 애니메이션 추가 */
+}
+
+/* 드래그앤드롭 툴팁 스타일 */
+.drag-tooltip {
+  position: absolute;
+  top: 10px;
+  left: 50%;
+  transform: translateX(-50%);
+  background-color: rgba(0, 0, 0, 0.75);
+  color: #ffffff;
+  font-size: 0.75rem;
+  padding: 0.25rem 0.5rem;
+  border-radius: 4px;
+  opacity: 0;
+  z-index: 10;
+  pointer-events: none; /* 툴팁 클릭 방지 */
+  white-space: nowrap;
+}
+
+/* 카드 호버 시 툴팁 애니메이션 */
+.draggable-item:hover .drag-tooltip {
+  animation: fadeInOut 2s ease-in-out infinite;
+}
+
+/* 툴팁 페이드인/아웃 애니메이션 정의 */
+@keyframes fadeInOut {
+  0% {
+    opacity: 0;
+    transform: translateX(-50%) translateY(0);
+  }
+  20% {
+    opacity: 1;
+    transform: translateX(-50%) translateY(-5px);
+  }
+  80% {
+    opacity: 1;
+    transform: translateX(-50%) translateY(-5px);
+  }
+  100% {
+    opacity: 0;
+    transform: translateX(-50%) translateY(0);
+  }
+}
+
+/* 토스트 메시지 스타일 */
+.toast-message {
+  position: fixed;
+  top: 10vh;
+  left: 40%;
+  transform: translateX(-50%);
+  background-color: rgba(0, 0, 0, 0.8);
+  color: #ffffff;
+  padding: 0.75rem 1.5rem;
+  border-radius: 4px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+  z-index: 1000;
+  animation: toastFade 3s ease-out forwards, shake 0.5s ease-in-out infinite; /* 흔들림 효과 추가 */
+}
+
+/* 토스트 애니메이션 */
+@keyframes toastFade {
+  0% {
+    opacity: 0;
+    transform: translateX(-50%) translateY(-10px);
+  }
+  10% {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
+  }
+  90% {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
+  }
+  100% {
+    opacity: 0;
+    transform: translateX(-50%) translateY(-10px);
+  }
 }
 
 .draggable-item:active {
@@ -287,6 +395,25 @@ const saveData = () => {
 .fade-button:hover {
   background-color: #dc3545;
   transform: scale(1.1);
+}
+
+/* 흔들림 애니메이션 정의 */
+@keyframes shake {
+  0% {
+    transform: translateY(-2px) rotate(0deg);
+  }
+  25% {
+    transform: translateY(-2px) rotate(1deg);
+  }
+  50% {
+    transform: translateY(-2px) rotate(0deg);
+  }
+  75% {
+    transform: translateY(-2px) rotate(-1deg);
+  }
+  100% {
+    transform: translateY(-2px) rotate(0deg);
+  }
 }
 
 .custom-row-spacing {

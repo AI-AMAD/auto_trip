@@ -8,6 +8,7 @@ import lombok.*;
 @AllArgsConstructor
 @Builder
 public class ActivityDto {
+    private Long scheduleId;
     private Integer activityOrder;
     private String activityType;
     private String activityName;

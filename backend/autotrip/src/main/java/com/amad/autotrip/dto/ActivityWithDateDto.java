@@ -8,6 +8,7 @@ import lombok.*;
 @AllArgsConstructor
 @Builder
 public class ActivityWithDateDto {
+    private Long scheduleId;
     private String date; // start_ymd 또는 end_ymd
     private String dateType; // "start" 또는 "end" <- 추가
     private Integer activityOrder;

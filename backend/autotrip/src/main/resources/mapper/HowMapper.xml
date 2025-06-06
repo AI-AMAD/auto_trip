@@ -6,8 +6,9 @@
         <result property="place" column="place"/>
         <result property="settings" column="settings"/>
         <collection property="activities" ofType="com.amad.autotrip.dto.ActivityWithDateDto">
+            <result property="scheduleId" column="schedule_id"/>
             <result property="date" column="date"/>
-            <result property="dateType" column="date_type"/> <!-- 추가 -->
+            <result property="dateType" column="date_type"/>
             <result property="activityOrder" column="activity_order"/>
             <result property="activityType" column="activity_type"/>
             <result property="activityName" column="activity_name"/>
@@ -17,7 +18,8 @@
     </resultMap>
 
     <select id="findTripPlanByUsername" parameterType="string" resultMap="tripPlanResultMap">
-        SELECT tp.trip_id,
+        SELECT ts.schedule_id,
+               tp.trip_id,
                tp.username,
                tp.place,
                tp.settings,
@@ -34,7 +36,8 @@
           AND ts.start_ymd IS NOT NULL
           AND ts.start_ymd != ''
         UNION ALL
-        SELECT tp.trip_id,
+        SELECT ts.schedule_id,
+               tp.trip_id,
                tp.username,
                tp.place,
                tp.settings,
@@ -52,4 +55,39 @@
           AND ts.end_ymd != ''
         ORDER BY date, activity_order;
     </select>
+  
+    <delete id="deleteSchedules">
+        DELETE
+        FROM trip_schedule
+        WHERE trip_id = #{tripId}
+          AND EXISTS (SELECT 1
+                      FROM trip_plan tp
+                      WHERE tp.trip_id = #{tripId}
+                        AND tp.username = #{username})
+    </delete>
+
+    <insert id="insertSchedules" parameterType="list">
+        INSERT INTO trip_schedule (
+        trip_id,
+        start_ymd,
+        end_ymd,
+        activity_order,
+        activity_type,
+        activity_name,
+        activity_address,
+        activity_image_url
+        ) VALUES
+        <foreach collection="list" item="schedule" separator=",">
+            (
+            #{schedule.tripId},
+            #{schedule.startYmd},
+            #{schedule.endYmd},
+            #{schedule.activityOrder},
+            #{schedule.activityType},
+            #{schedule.activityName},
+            #{schedule.activityAddress},
+            #{schedule.activityImageUrl}
+            )
+        </foreach>
+    </insert>
 </mapper>

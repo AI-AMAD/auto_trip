@@ -1,10 +1,12 @@
 package com.amad.autotrip.service;
 
 import com.amad.autotrip.dto.ActivityDto;
-import com.amad.autotrip.dto.ActivityWithDateDto;
 import com.amad.autotrip.dto.ScheduleDto;
+import com.amad.autotrip.dto.TripScheduleDto;
 import com.amad.autotrip.mybatis.HowMapper;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -12,6 +14,7 @@ import java.util.Map;
 import java.util.HashMap;
 import java.util.stream.Collectors;
 
+@Slf4j
 @Service
 public class HowService {
 
@@ -36,6 +39,7 @@ public class HowService {
                     Map<String, List<ActivityDto>> targetMap = "start".equals(activity.getDateType()) ? startYmd : endYmd;
                     List<ActivityDto> activityList = targetMap.computeIfAbsent(activity.getDate(), k -> new ArrayList<>());
                     activityList.add(ActivityDto.builder()
+                            .scheduleId(activity.getScheduleId())
                             .activityOrder(activity.getActivityOrder())
                             .activityType(activity.getActivityType())
                             .activityName(activity.getActivityName())
@@ -54,5 +58,15 @@ public class HowService {
                 .startYmd(startYmd)
                 .endYmd(endYmd)
                 .build();
+    }
+
+    @Transactional
+    public void deleteSchedules(String username, Long tripId) {
+        howMapper.deleteSchedules(username, tripId);
+    }
+
+    @Transactional
+    public void createSchedules(String username, List<TripScheduleDto> schedules) {
+        howMapper.insertSchedules(schedules);
     }
 }
