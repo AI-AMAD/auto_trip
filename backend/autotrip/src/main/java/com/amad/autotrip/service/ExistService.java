@@ -20,4 +20,8 @@ public class ExistService {
     public boolean existScheduleInfo(String username) {
         return existMapper.existScheduleInfo(username) > 0;
     }
+
+    public boolean existFinalInfo(String username) {
+        return existMapper.existFinalInfo(username) > 0;
+    }
 }

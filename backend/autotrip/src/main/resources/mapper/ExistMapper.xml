@@ -15,4 +15,11 @@
         where username = #{username}
     </select>
 
+    <select id="existFinalInfo" parameterType="String" resultType="int">
+        select tp.final_yn
+        from trip_plan tp
+        where username = #{username}
+
+    </select>
+
 </mapper>

@@ -14,4 +14,6 @@ public interface HowMapper {
     void deleteSchedules(String username, Long tripId);
 
     void insertSchedules(List<TripScheduleDto> schedules);
+
+    void updateFinalYn(Long tripId);
 }

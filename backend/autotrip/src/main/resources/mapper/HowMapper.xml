@@ -55,7 +55,7 @@
           AND ts.end_ymd != ''
         ORDER BY date, activity_order;
     </select>
-  
+
     <delete id="deleteSchedules">
         DELETE
         FROM trip_schedule
@@ -90,4 +90,10 @@
             )
         </foreach>
     </insert>
+
+    <update id="updateFinalYn">
+        UPDATE trip_plan
+        SET final_yn = 1
+        where trip_id = #{tripId}
+    </update>
 </mapper>

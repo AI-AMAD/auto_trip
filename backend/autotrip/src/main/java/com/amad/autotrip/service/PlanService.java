@@ -125,6 +125,7 @@ public class PlanService {
         tripPlan.setStartYmd(tripSummaryDto.getStartYmd());
         tripPlan.setEndYmd(tripSummaryDto.getEndYmd());
         tripPlan.setSettings(String.join(",", settings));
+        tripPlan.setFinalYn(false);
 
         // TripPlan 저장
         planMapper.insertTripPlan(tripPlan);

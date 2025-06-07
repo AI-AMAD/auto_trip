@@ -69,4 +69,9 @@ public class HowService {
     public void createSchedules(String username, List<TripScheduleDto> schedules) {
         howMapper.insertSchedules(schedules);
     }
+
+    @Transactional
+    public void updateFinalYn(Long tripId) {
+        howMapper.updateFinalYn(tripId);
+    }
 }
