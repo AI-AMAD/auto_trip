@@ -34,17 +34,6 @@
           :class="activeButton === 'details' ? 'arrow-active' : 'arrow-inactive'"
         ></div>
 
-        <!--        <router-link to="/main/setting/how" class="nav-link">-->
-        <!--          <div-->
-        <!--            class="step"-->
-        <!--            :class="activeButton === 'how' ? 'btn-active' : 'btn-inactive'"-->
-        <!--            @click="setActive('how')"-->
-        <!--          >-->
-        <!--            어떻게 갈까?-->
-        <!--          </div>-->
-        <!--        </router-link>-->
-
-        <!-- 어떻게 갈까? 버튼: router-link 대신 div로 변경 -->
         <div class="nav-link">
           <div
             class="step"
@@ -60,15 +49,15 @@
           :class="activeButton === 'how' ? 'arrow-active' : 'arrow-inactive'"
         ></div>
 
-        <router-link to="/main/setting/hotel" class="nav-link">
+        <div class="nav-link">
           <div
             class="step"
             :class="activeButton === 'hotel' ? 'btn-active' : 'btn-inactive'"
-            @click="setActive('hotel')"
+            @click="existFinalSchedule"
           >
             숙소는?
           </div>
-        </router-link>
+        </div>
       </div>
     </div>
   </div>
@@ -86,13 +75,14 @@
 </template>
 
 <script setup>
-import { ref } from 'vue'
+import { ref, watch } from 'vue'
 import { useAuthStore } from '@/stores/auth'
-import { useRouter } from 'vue-router'
+import { useRouter, useRoute } from 'vue-router'
 import axios from 'axios'
 
 const authStore = useAuthStore()
 const router = useRouter()
+const route = useRoute()
 
 // 현재 활성화된 버튼을 관리하는 상태
 const activeButton = ref('where')
@@ -101,6 +91,17 @@ const activeButton = ref('where')
 const setActive = (button) => {
   activeButton.value = button
 }
+
+// 라우트 쿼리 파라미터를 감지해서 activeButton 업데이트
+watch(
+  () => route.query.active,
+  (newActive) => {
+    if (newActive) {
+      activeButton.value = newActive
+    }
+  },
+  { immediate: true } // 페이지 로드 시 즉시 실행
+)
 
 const existWhereInfo = () => {
   axios
@@ -138,6 +139,26 @@ const existTripSchedule = () => {
         router.push('/main/setting/how')
       } else {
         alert('여행 계획을 설정하고 진행해주세요!')
+      }
+    })
+}
+
+// schedule 최종 확정 여부 확인
+const existFinalSchedule = () => {
+  axios
+    .get('/api/get/final/info', {
+      params: { username: authStore.username },
+      headers: {
+        Authorization: `Bearer ${authStore.token}`,
+        'Content-Type': 'application/json'
+      }
+    })
+    .then((response) => {
+      if (response.data) {
+        setActive('hotel')
+        router.push('/main/setting/hotel')
+      } else {
+        alert('여행 계획을 최종 저장 후 진행해주세요!')
       }
     })
 }

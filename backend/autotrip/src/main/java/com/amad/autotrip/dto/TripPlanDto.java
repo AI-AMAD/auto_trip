@@ -12,4 +12,5 @@ public class TripPlanDto {
     private String startYmd;
     private String endYmd;
     private String settings;
+    private boolean finalYn = false;
 }

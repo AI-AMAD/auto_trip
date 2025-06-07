@@ -60,8 +60,10 @@ import { ref, onMounted } from 'vue'
 import SaveButton from '@/components/SaveButton.vue'
 import axios from 'axios'
 import { useAuthStore } from '@/stores/auth'
+import { useRouter } from 'vue-router'
 
 const showToast = ref(false)
+const router = useRouter()
 
 onMounted(async () => {
   await fetchTripData()
@@ -222,6 +224,10 @@ const parseDate = (dateStr) => {
 
 // 변경 사항 저장
 const saveData = async () => {
+  // 확인 팝업
+  const isConfirmed = window.confirm('여행계획을 최종적으로 저장하시겠습니까?')
+  if (!isConfirmed) return
+
   // 페이드된 항목 제거
   tripSchedule.value.forEach((schedule) => {
     schedule.items = schedule.items.filter((item) => !item.isFaded)
@@ -258,14 +264,26 @@ const saveData = async () => {
     })
 
     // 새로운 일정 삽입
-    await axios.post(`/api/schedule/${authStore.username}`, updatedSchedules, {
-      headers: {
-        Authorization: `Bearer ${authStore.token}`,
-        'Content-Type': 'application/json'
-      }
-    })
+    await axios
+      .post(
+        `/api/schedule/${authStore.username}/${tripScheduleData.value[0].tripId}`,
+        updatedSchedules,
+        {
+          headers: {
+            Authorization: `Bearer ${authStore.token}`,
+            'Content-Type': 'application/json'
+          }
+        }
+      )
+      .then(() => {
+        alert('설정이 성공적으로 저장되었습니다.')
+        fetchTripData()
+        router.push({ path: '/main/setting/hotel', query: { active: 'hotel' } })
+      })
+      .catch((error) => {
+        alert('설정 저장에 실패했습니다: ' + (error.response?.data || error.message))
+      })
 
-    console.log('저장 성공')
     await fetchTripData() // 최신 데이터로 갱신
   } catch (error) {
     console.error('저장 실패:', error.response?.data || error.message)

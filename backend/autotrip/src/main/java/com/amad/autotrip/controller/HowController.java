@@ -24,16 +24,27 @@ public class HowController {
     public List<ScheduleDto> getTripSchedule(@PathVariable String username) {
         return howService.getTripPlanByUsername(username);
     }
-   
+
     @DeleteMapping("/schedule/{username}/{tripId}")
-    public ResponseEntity<Void> deleteSchedules(@PathVariable String username, @PathVariable Long tripId) {
-        howService.deleteSchedules(username, tripId);
-        return ResponseEntity.ok().build();
+    public ResponseEntity<String> deleteSchedules(@PathVariable String username, @PathVariable Long tripId) {
+        try {
+            howService.deleteSchedules(username, tripId);
+            return ResponseEntity.ok().build();
+        } catch (Exception e) {
+            log.error("스케줄 삭제 중 오류 발생: {}", e.getMessage());
+            return ResponseEntity.badRequest().body("스케줄 삭제에 실패했습니다: " + e.getMessage());
+        }
     }
 
-    @PostMapping("/schedule/{username}")
-    public ResponseEntity<Void> createSchedules(@PathVariable String username, @RequestBody List<TripScheduleDto> schedules) {
-        howService.createSchedules(username, schedules);
-        return ResponseEntity.ok().build();
+    @PostMapping("/schedule/{username}/{tripId}")
+    public ResponseEntity<String> createSchedules(@PathVariable String username, @PathVariable Long tripId, @RequestBody List<TripScheduleDto> schedules) {
+        try {
+            howService.createSchedules(username, schedules); // 스케줄 생성 시도
+            howService.updateFinalYn(tripId); // 성공 시 final_yn 업데이트
+            return ResponseEntity.ok("스케줄이 성공적으로 생성되었습니다.");
+        } catch (Exception e) {
+            log.error("스케줄 생성 중 오류 발생: {}", e.getMessage());
+            return ResponseEntity.badRequest().body("스케줄 생성에 실패했습니다: " + e.getMessage());
+        }
     }
 }

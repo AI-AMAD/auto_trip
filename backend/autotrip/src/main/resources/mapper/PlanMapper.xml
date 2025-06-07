@@ -2,12 +2,13 @@
 <mapper namespace="com.amad.autotrip.mybatis.PlanMapper">
     <insert id="insertTripPlan" parameterType="com.amad.autotrip.dto.TripPlanDto" useGeneratedKeys="true"
             keyProperty="tripId">
-        INSERT INTO trip_plan (username, place, start_ymd, end_ymd, settings)
-        VALUES (#{username}, #{place}, #{startYmd}, #{endYmd}, #{settings})
+        INSERT INTO trip_plan (username, place, start_ymd, end_ymd, settings, final_yn)
+        VALUES (#{username}, #{place}, #{startYmd}, #{endYmd}, #{settings}, #{finalYn})
         ON DUPLICATE KEY UPDATE place     = VALUES(place),
                                 start_ymd = VALUES(start_ymd),
                                 end_ymd   = VALUES(end_ymd),
-                                settings  = VALUES(settings)
+                                settings  = VALUES(settings),
+                                final_yn  = VALUES(final_yn)
     </insert>
 
     <insert id="insertTripSchedule" parameterType="com.amad.autotrip.dto.TripScheduleDto">

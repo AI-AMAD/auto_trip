@@ -26,4 +26,9 @@ public class ExistController {
     public Boolean getTripScheduleInfo(@RequestParam String username) {
         return existService.existScheduleInfo(username);
     }
+
+    @GetMapping("/get/final/info")
+    public Boolean getFinalInfo(@RequestParam String username) {
+        return existService.existFinalInfo(username);
+    }
 }

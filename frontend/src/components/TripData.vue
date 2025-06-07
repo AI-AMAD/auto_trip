@@ -56,8 +56,10 @@
 import { ref, computed, watch } from 'vue'
 import { useAuthStore } from '@/stores/auth'
 import axios from 'axios'
+import { useRouter } from 'vue-router'
 
 const authStore = useAuthStore()
+const router = useRouter()
 
 const props = defineProps({
   tripData: Object
@@ -121,6 +123,7 @@ const planTrip = async () => {
       }
     })
     alert('여행 계획이 성공적으로 생성되었습니다.')
+    router.push({ path: '/main/setting/how', query: { active: 'how' } })
   } catch (error) {
     alert('여행 계획 생성에 실패했습니다: ' + (error.response?.data || error.message))
   } finally {

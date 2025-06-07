@@ -51,8 +51,10 @@ import SaveButton from '@/components/SaveButton.vue'
 import { ref, onMounted } from 'vue'
 import { useAuthStore } from '@/stores/auth'
 import axios from 'axios'
+import { useRouter } from 'vue-router'
 
 const authStore = useAuthStore()
+const router = useRouter()
 
 let map
 const inputLocation = ref('')
@@ -165,6 +167,7 @@ const saveData = () => {
       inputLocation.value = ''
       searchedLocation.value = ''
       map.setCenter(new window.naver.maps.LatLng(37.5670135, 126.978374))
+      router.push({ path: '/main/setting/details', query: { active: 'details' } })
     })
     .catch((error) => {
       console.error('저장 실패:', error)
