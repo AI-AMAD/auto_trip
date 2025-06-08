@@ -28,7 +28,7 @@
             width="100"
             height="100"
           />
-          <span class="d-block mt-2 text-gray-600 small">{{ nickname }}</span>
+          <span class="d-block mt-2 nickname-text">{{ nickname }}</span>
           <button @click="logout" class="btn btn-sm btn-danger mt-2">로그아웃</button>
         </li>
 
@@ -118,5 +118,11 @@ onMounted(() => {
 
 .sidebar-brand-text {
   font-size: 1.3rem;
+}
+
+.nickname-text {
+  color: #000000; /* 검정색 */
+  font-weight: 500; /* 약간 두꺼운 글씨 (500~600은 중간 굵기, 700은 bold) */
+  font-size: 1.15rem; /* 필요에 따라 크기 조정 (기본값 또는 small 대체) */
 }
 </style>

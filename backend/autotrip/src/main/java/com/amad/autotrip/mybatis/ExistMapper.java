@@ -10,4 +10,6 @@ public interface ExistMapper {
     int existScheduleInfo(String username);
 
     int existFinalInfo(String username);
+
+    int existUsername(String username);
 }

@@ -29,6 +29,11 @@ public class ExistController {
 
     @GetMapping("/get/final/info")
     public Boolean getFinalInfo(@RequestParam String username) {
-        return existService.existFinalInfo(username);
+        int result = existService.existUsername(username);
+        if (result == 0) {
+            return false;
+        } else {
+            return existService.existFinalInfo(username);
+        }
     }
 }

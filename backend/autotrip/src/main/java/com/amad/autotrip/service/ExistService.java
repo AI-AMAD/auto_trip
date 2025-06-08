@@ -24,4 +24,8 @@ public class ExistService {
     public boolean existFinalInfo(String username) {
         return existMapper.existFinalInfo(username) > 0;
     }
+
+    public int existUsername(String username) {
+        return existMapper.existUsername(username);
+    }
 }

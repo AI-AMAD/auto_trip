@@ -42,19 +42,21 @@
                         </div>
                       </div>
                       <button type="submit" class="btn btn-primary btn-user btn-block">
-                        Login
+                        로그인
                       </button>
                       <hr />
                       <button @click="kakaoLogin" class="btn btn-warning btn-user btn-block">
-                        <i class="fab fa-google fa-fw"></i> Login with Kakao
+                        <i class="fab fa-google fa-fw"></i> 카카오 로그인
                       </button>
                     </form>
                     <hr />
                     <div class="text-center">
-                      <a class="small" href="forgot-password.html">Forgot Password?</a>
+                      <a class="small" href="forgot-password.html"
+                        >비밀번호가 기억나지 않으실때는?</a
+                      >
                     </div>
                     <div class="text-center">
-                      <router-link to="/signup" class="small">Create an Account!</router-link>
+                      <router-link to="/signup" class="small">회원가입은 여기에서!</router-link>
                     </div>
                   </div>
                 </div>
