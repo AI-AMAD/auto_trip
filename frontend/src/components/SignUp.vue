@@ -66,15 +66,13 @@
                     회원 가입
                   </button>
                   <hr />
-                  <a href="index.html" class="btn btn-warning btn-user btn-block">
+                  <button @click="kakaoLogin" class="btn btn-warning btn-user btn-block">
                     <i class="fab fa-google fa-fw"></i> Kakao로 가입하기
-                  </a>
+                  </button>
                 </form>
                 <hr />
                 <div class="text-center">
-                  <a class="small" href="forgot-password.html"
-                    >비밀번호가 기억이 나지 않으실때는?</a
-                  >
+                  <a class="small" href="forgot-password.html">비밀번호가 기억나지 않으실때는?</a>
                 </div>
                 <div class="text-center">
                   <router-link to="/" class="small"
@@ -126,6 +124,17 @@ const register = async () => {
       alert('회원가입 중 오류가 발생했습니다.')
     }
   }
+}
+
+const kakaoLogin = () => {
+  const clientId = import.meta.env.VITE_KAKAO_CLIENT_ID
+  const redirectUri = import.meta.env.VITE_KAKAO_REDIRECT_URI
+  console.log('clientId------>: ', clientId)
+  console.log('redirectUri-------->: ', redirectUri)
+  const kakaoAuthUrl = `https://kauth.kakao.com/oauth/authorize?client_id=${clientId}&redirect_uri=${redirectUri}&response_type=code`
+
+  // 브라우저를 카카오 로그인 페이지로 리다이렉트
+  window.location.href = kakaoAuthUrl
 }
 </script>
 

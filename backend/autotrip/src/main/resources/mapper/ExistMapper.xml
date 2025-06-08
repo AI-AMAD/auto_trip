@@ -22,4 +22,10 @@
 
     </select>
 
+    <select id="existUsername" parameterType="String" resultType="int">
+        select count(*)
+        from trip_plan
+        where username = #{username}
+    </select>
+
 </mapper>
