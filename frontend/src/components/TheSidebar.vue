@@ -39,11 +39,14 @@
         <div class="sidebar-heading">Addons</div>
 
         <!-- Nav Item - Charts -->
-        <li class="nav-item">
+        <li class="nav-item position-relative">
           <router-link to="/main/setting/where" class="nav-link">
             <i class="fas fa-fw fa-chart-area"></i>
             <span>여행 계획</span></router-link
           >
+          <div v-if="route.path === '/main/manual'" class="arrow-container">
+            <img src="../assets/img/newarrow.png" class="arrow" alt="화살표" />
+          </div>
         </li>
         <!-- Nav Item - Charts -->
         <li class="nav-item">
@@ -75,11 +78,12 @@
 
 <script setup>
 import { onMounted } from 'vue'
-import { useRouter } from 'vue-router'
+import { useRouter, useRoute } from 'vue-router'
 import { useAuthStore } from '@/stores/auth'
 
 const authStore = useAuthStore()
 const router = useRouter()
+const route = useRoute()
 
 // Pinia에서 상태를 직접 사용
 const nickname = authStore.nickname
@@ -124,5 +128,40 @@ onMounted(() => {
   color: #000000; /* 검정색 */
   font-weight: 500; /* 약간 두꺼운 글씨 (500~600은 중간 굵기, 700은 bold) */
   font-size: 1.15rem; /* 필요에 따라 크기 조정 (기본값 또는 small 대체) */
+}
+
+.arrow-container {
+  position: absolute;
+  left: 60%; /* 화살표 위치를 조정하려면 이 값을 수정 (예: -25px, -35px) */
+  top: 50%;
+  z-index: 100;
+  transform: translateY(-50%);
+}
+
+.arrow {
+  width: 135%; /* 화살표 넓이를 조정하려면 이 값을 수정 (예: 25px, 35px) */
+  height: auto; /* 높이는 자동으로 비율에 맞춰 조정 */
+  animation: blinkFade 3.5s forwards; /* 깜빡이는 애니메이션 적용 */
+}
+
+@keyframes blinkFade {
+  0% {
+    opacity: 0;
+  }
+  20% {
+    opacity: 1;
+  }
+  40% {
+    opacity: 0;
+  }
+  60% {
+    opacity: 1;
+  }
+  80% {
+    opacity: 0;
+  }
+  100% {
+    opacity: 0;
+  }
 }
 </style>
