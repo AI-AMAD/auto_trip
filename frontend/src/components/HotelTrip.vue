@@ -8,9 +8,11 @@
             <thead>
               <!-- 첫 번째 헤더 행: 2개의 열로 나누기 -->
               <tr>
-                <th colspan="3" style="vertical-align: middle">1월1일 마지막 일정</th>
+                <th colspan="3" style="vertical-align: middle">{{ scheduleDate }}</th>
                 <th colspan="3">
-                  <img src="@/assets/img/swiss.png" class="img-fluid" style="max-width: 40%" />
+                  <img :src="scheduleImage" class="img-fluid" style="max-width: 40%" />
+                  {{ place }}
+                  {{ address }}
                 </th>
               </tr>
             </thead>
@@ -62,12 +64,63 @@
   </div>
 </template>
 
-<script setup></script>
+<script setup>
+import { onMounted, ref } from 'vue'
+import { useAuthStore } from '@/stores/auth'
+import axios from 'axios'
+
+const scheduleDate = ref('')
+const scheduleImage = ref('')
+const place = ref('')
+const address = ref('')
+
+const authStore = useAuthStore()
+
+onMounted(() => {
+  if (authStore.username && authStore.token) {
+    fetchTripData()
+  }
+})
+
+const fetchTripData = async () => {
+  try {
+    await axios
+      .get('/api/get/lastplace', {
+        params: { username: authStore.username },
+        headers: {
+          Authorization: `Bearer ${authStore.token}`,
+          'Content-Type': 'application/json'
+        }
+      })
+      .then((response) => {
+        // start_ymd를 포맷팅하여 scheduleDate 업데이트
+        scheduleDate.value = format(response.data.startYmd)
+        place.value = response.data.activityName
+        address.value = response.data.activityAddress
+
+        // activity_image_url을 사용하여 이미지 업데이트
+        if (response.data.activityImageUrl) {
+          scheduleImage.value = response.data.activityImageUrl
+        }
+      })
+  } catch (error) {
+    console.error('일정 데이터를 가져오는 중 오류 발생:', error)
+  }
+}
+
+const format = (startYmd) => {
+  const year = startYmd.slice(0, 4)
+  const month = parseInt(startYmd.slice(4, 6))
+  const day = parseInt(startYmd.slice(6, 8))
+  return `${year}년 ${month}월 ${day}일 마지막 일정`
+}
+</script>
 
 <style scoped>
 table {
   table-layout: fixed; /* 테이블 셀 크기를 균등하게 유지 */
 }
+
 th,
 td {
   text-align: center;
