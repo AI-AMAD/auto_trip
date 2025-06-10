@@ -13,7 +13,7 @@
     </insert>
 
     <select id="findSettingByUsername" parameterType="String" resultType="com.amad.autotrip.dto.TripSummaryDto">
-        select T1.username
+        SELECT T1.username
              , T1.place
              , T2.start_ymd
              , T2.end_ymd
@@ -21,9 +21,9 @@
              , T2.museum
              , T2.cafe
              , T2.tour_att
-        from travel_place T1
-                 left outer join setting T2
-                                 on T1.username = T2.username
-        where T2.username = #{username}
+        FROM travel_place T1
+                 LEFT OUTER JOIN setting T2
+                                 ON T1.username = T2.username
+        WHERE T2.username = #{username}
     </select>
 </mapper>

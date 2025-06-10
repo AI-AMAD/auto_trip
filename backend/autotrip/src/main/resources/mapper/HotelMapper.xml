@@ -1,0 +1,21 @@
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.amad.autotrip.mybatis.HotelMapper">
+    <select id="getLastPlace" parameterType="string" resultType="com.amad.autotrip.dto.TripScheduleDto">
+        SELECT ts.schedule_id,
+               tp.trip_id,
+               tp.username,
+               tp.start_ymd,
+               ts.activity_order,
+               ts.activity_name,
+               ts.activity_type,
+               ts.activity_address,
+               ts.activity_image_url
+        FROM trip_plan tp
+                 INNER JOIN trip_schedule ts on tp.trip_id = ts.trip_id
+        WHERE tp.username = #{username}
+          AND ts.start_ymd IS NOT NULL
+          AND ts.start_ymd != ''
+        ORDER BY ts.activity_order DESC
+        LIMIT 1;
+    </select>
+</mapper>

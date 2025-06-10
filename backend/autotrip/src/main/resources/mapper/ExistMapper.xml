@@ -2,30 +2,30 @@
 <mapper namespace="com.amad.autotrip.mybatis.ExistMapper">
 
     <select id="existWhereInfo" parameterType="String" resultType="int">
-        select COUNT(*)
-        from travel_place
-        where username = #{username}
+        SELECT COUNT(*)
+        FROM travel_place
+        WHERE username = #{username}
     </select>
 
     <select id="existScheduleInfo" parameterType="String" resultType="int">
-        select COUNT(ts.schedule_id)
-        from trip_plan tp
-                 left join trip_schedule ts
-                           on tp.trip_id = ts.trip_id
-        where username = #{username}
+        SELECT COUNT(ts.schedule_id)
+        FROM trip_plan tp
+                 LEFT JOIN trip_schedule ts
+                           ON tp.trip_id = ts.trip_id
+        WHERE username = #{username}
     </select>
 
     <select id="existFinalInfo" parameterType="String" resultType="int">
-        select tp.final_yn
-        from trip_plan tp
-        where username = #{username}
+        SELECT tp.final_yn
+        FROM trip_plan tp
+        WHERE username = #{username}
 
     </select>
 
     <select id="existUsername" parameterType="String" resultType="int">
-        select count(*)
-        from trip_plan
-        where username = #{username}
+        SELECT count(*)
+        FROM trip_plan
+        WHERE username = #{username}
     </select>
 
 </mapper>
