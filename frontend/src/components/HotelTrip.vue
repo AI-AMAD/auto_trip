@@ -4,22 +4,25 @@
       <div class="card shadow mb-4">
         <div class="card-body">
           <!-- 여기에 내용 -->
+          <!-- 여기에 내용 -->
           <table class="table table-bordered">
             <thead>
               <!-- 첫 번째 헤더 행: 2개의 열로 나누기 -->
-              <tr>
-                <th colspan="3" style="vertical-align: middle">{{ scheduleDate }}</th>
-                <th colspan="3">
-                  <img :src="scheduleImage" class="img-fluid" style="max-width: 40%" />
-                  {{ place }}
-                  {{ address }}
+              <tr class="header-row">
+                <th colspan="3" class="date-text header-cell">{{ scheduleDate }}</th>
+                <th colspan="3" class="header-cell">
+                  <div class="d-flex flex-column align-items-center">
+                    <img :src="scheduleImage" class="img-fluid schedule-image" />
+                    <div class="place-text">{{ place }}</div>
+                    <div class="address-text">{{ address }}</div>
+                  </div>
                 </th>
               </tr>
             </thead>
             <tbody>
               <!-- 두 번째 행: 통합된 셀 -->
               <tr>
-                <td colspan="6" class="text-center" style="height: 70px">
+                <td colspan="6" class="text-center select-hotel-cell">
                   원하는 숙소를 선택 해주세요
                 </td>
               </tr>
@@ -59,6 +62,9 @@
         </div>
         <!-- 내용 끝 -->
         <!-- col div 닫는 곳 -->
+        <div class="col d-flex justify-content-center mt-4 pb-3">
+          <SaveButton @save="saveData"></SaveButton>
+        </div>
       </div>
     </div>
   </div>
@@ -66,6 +72,7 @@
 
 <script setup>
 import { onMounted, ref } from 'vue'
+import SaveButton from '@/components/SaveButton.vue'
 import { useAuthStore } from '@/stores/auth'
 import axios from 'axios'
 
@@ -119,12 +126,52 @@ const format = (startYmd) => {
 <style scoped>
 table {
   table-layout: fixed; /* 테이블 셀 크기를 균등하게 유지 */
+  width: 100%;
 }
 
 th,
 td {
   text-align: center;
   vertical-align: middle;
+}
+
+.card-body {
+  padding: 1.5rem; /* card-body 패딩 증가 */
+}
+
+.header-row {
+  min-height: 150px; /* 첫 번째 행 최소 높이 */
+}
+
+.header-cell {
+  vertical-align: middle;
+  padding: 20px; /* 헤더 셀 패딩 */
+}
+
+.schedule-image {
+  max-width: 60%;
+  margin-bottom: 10px;
+  object-fit: contain; /* 이미지 비율 유지 */
+}
+
+.select-hotel-cell {
+  height: 70px; /* 두 번째 행 높이 */
+}
+
+.date-text {
+  font-size: 1.2rem; /* scheduleDate 글자 크기 */
+  font-weight: bold; /* 가독성 위해 굵게 */
+}
+
+.place-text {
+  font-size: 1.5rem;
+  font-weight: bold;
+  margin-bottom: 5px;
+}
+
+.address-text {
+  font-size: 0.9rem;
+  color: #6c757d;
 }
 
 .radio-label {
