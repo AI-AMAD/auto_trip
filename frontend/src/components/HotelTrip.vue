@@ -23,39 +23,75 @@
               <!-- 두 번째 행: 통합된 셀 -->
               <tr>
                 <td colspan="6" class="text-center select-hotel-cell">
-                  원하는 숙소를 선택 해주세요
+                  <button class="btn btn-primary" @click="searchHotels">가까운 숙소 찾기</button>
                 </td>
               </tr>
-              <!-- 세 번째 행: 3개의 열로 나누기 (각각 1/3 너비) -->
-              <tr>
+              <!-- 세 번째 행: 데이터 존재 할 때 렌더링 -->
+              <tr v-if="hotels.length > 0">
                 <td colspan="2">
-                  <img src="@/assets/img/hotel1.png" class="img-fluid" style="max-width: 90%" />
+                  <img
+                    :src="hotels[0]?.image || '@/assets/img/hotel1.png'"
+                    class="img-fluid"
+                    style="max-width: 90%"
+                  />
                 </td>
                 <td colspan="2">
-                  <img src="@/assets/img/hotel2.png" class="img-fluid" style="max-width: 90%" />
+                  <img
+                    :src="hotels[1]?.image || '@/assets/img/hotel2.png'"
+                    class="img-fluid"
+                    style="max-width: 90%"
+                  />
                 </td>
                 <td colspan="2">
-                  <img src="@/assets/img/hotel3.png" class="img-fluid" style="max-width: 90%" />
-                </td>
-              </tr>
-              <tr>
-                <td colspan="2">
-                  <input type="radio" id="radio1" name="hotel" value="1" />
-                  <label for="radio1" class="radio-label">숙소 1</label>
-                </td>
-                <td colspan="2">
-                  <input type="radio" id="radio2" name="hotel" value="2" />
-                  <label for="radio2" class="radio-label">숙소 2</label>
-                </td>
-                <td colspan="2">
-                  <input type="radio" id="radio3" name="hotel" value="3" />
-                  <label for="radio3" class="radio-label">숙소 3</label>
+                  <img
+                    :src="hotels[2]?.image || '@/assets/img/hotel3.png'"
+                    class="img-fluid"
+                    style="max-width: 90%"
+                  />
                 </td>
               </tr>
-              <tr>
-                <td colspan="2">마지막 장소 -> 이동시간:</td>
-                <td colspan="2">마지막 장소 -> 이동시간:</td>
-                <td colspan="2">마지막 장소 -> 이동시간:</td>
+              <tr v-if="hotels.length > 0">
+                <td colspan="2">
+                  <input
+                    type="radio"
+                    :id="'radio1'"
+                    name="hotel"
+                    value="1"
+                    v-model="selectedHotel"
+                  />
+                  <label :for="'radio1'" class="radio-label">{{
+                    hotels[0]?.name || '숙소 1'
+                  }}</label>
+                </td>
+                <td colspan="2">
+                  <input
+                    type="radio"
+                    :id="'radio2'"
+                    name="hotel"
+                    value="2"
+                    v-model="selectedHotel"
+                  />
+                  <label :for="'radio2'" class="radio-label">{{
+                    hotels[1]?.name || '숙소 2'
+                  }}</label>
+                </td>
+                <td colspan="2">
+                  <input
+                    type="radio"
+                    :id="'radio3'"
+                    name="hotel"
+                    value="3"
+                    v-model="selectedHotel"
+                  />
+                  <label :for="'radio3'" class="radio-label">{{
+                    hotels[2]?.name || '숙소 3'
+                  }}</label>
+                </td>
+              </tr>
+              <tr v-if="hotels.length > 0">
+                <td colspan="2">마지막 장소 -> 이동시간: {{ hotels[0]?.travelTime || '' }}</td>
+                <td colspan="2">마지막 장소 -> 이동시간: {{ hotels[1]?.travelTime || '' }}</td>
+                <td colspan="2">마지막 장소 -> 이동시간: {{ hotels[2]?.travelTime || '' }}</td>
               </tr>
             </tbody>
           </table>
@@ -80,6 +116,8 @@ const scheduleDate = ref('')
 const scheduleImage = ref('')
 const place = ref('')
 const address = ref('')
+const hotels = ref([])
+const selectedHotel = ref('')
 
 const authStore = useAuthStore()
 
@@ -121,6 +159,25 @@ const format = (startYmd) => {
   const day = parseInt(startYmd.slice(6, 8))
   return `${year}년 ${month}월 ${day}일 마지막 일정`
 }
+
+const searchHotels = async () => {
+  try {
+    const response = await axios.get('/api/get/nearby-hotels', {
+      params: {
+        username: authStore.username,
+        address: address.value // 현재 장소의 주소를 기준으로 호텔 검색
+      },
+      headers: {
+        Authorization: `Bearer ${authStore.token}`,
+        'Content-Type': 'application/json'
+      }
+    })
+    hotels.value = response.data.hotels || [] // 백엔드에서 반환된 호텔 데이터 저장
+  } catch (error) {
+    console.error('호텔 데이터를 가져오는 중 오류 발생:', error)
+    hotels.value = [] // 에러 시 빈 배열로 초기화
+  }
+}
 </script>
 
 <style scoped>
@@ -140,18 +197,19 @@ td {
 }
 
 .header-row {
-  min-height: 150px; /* 첫 번째 행 최소 높이 */
+  min-height: 60px; /* 첫 번째 행 최소 높이 */
 }
 
 .header-cell {
   vertical-align: middle;
-  padding: 20px; /* 헤더 셀 패딩 */
+  padding: 15px; /* 헤더 셀 패딩 */
 }
 
 .schedule-image {
-  max-width: 60%;
-  margin-bottom: 10px;
-  object-fit: contain; /* 이미지 비율 유지 */
+  max-width: 180px;
+  max-height: 180px;
+  margin-bottom: 8px;
+  object-fit: contain;
 }
 
 .select-hotel-cell {
