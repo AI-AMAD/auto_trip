@@ -3,10 +3,9 @@ package com.amad.autotrip.controller;
 
 import com.amad.autotrip.dto.TripScheduleDto;
 import com.amad.autotrip.service.HotelService;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+import reactor.core.publisher.Mono;
 
 @RestController
 @RequestMapping("/api")
@@ -21,5 +20,10 @@ public class HotelController {
     @GetMapping("/get/lastplace")
     public TripScheduleDto getLastPlace(@RequestParam String username) {
         return hotelService.getLastPlace(username);
+    }
+
+    @PostMapping("/get/nearby-hotels")
+    public Mono<ResponseEntity> searchHotels(@RequestBody) {
+
     }
 }
