@@ -52,7 +52,7 @@
         <li class="nav-item">
           <router-link to="/main/plan" class="nav-link">
             <i class="fas fa-fw fa-chart-area"></i>
-            <span>일정 보기</span></router-link
+            <span>여행 일정</span></router-link
           >
         </li>
       </ul>
