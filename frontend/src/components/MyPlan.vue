@@ -1,22 +1,29 @@
 <template>
-  <div class="my-5">
-    <h1 class="text-center mb-4">나의 여행 다이어리</h1>
-
+  <div class="my-4">
     <!-- 여행 개요 -->
-    <section class="mb-5">
+    <section class="mb-5 mx-0">
       <h2 class="card-title text-start">여행 개요</h2>
-      <div class="overview-card card shadow-sm mb-4">
-        <div class="card-body d-flex justify-content-between align-items-center">
-          <p class="card-text mb-0"><strong>장소:</strong> {{ tripOverview.location }}</p>
-          <p class="card-text mb-0">
-            <strong>날짜:</strong> {{ tripOverview.startYmd }} ~ {{ tripOverview.endYmd }}
-          </p>
+      <div
+        class="card-container d-flex flex-row flex-wrap align-items-center justify-content-start"
+      >
+        <div class="overview-card card shadow-sm mb-4">
+          <div class="card-body">
+            <div class="card-text">
+              <span><strong>장소:</strong> {{ tripOverview.location }}</span>
+            </div>
+            <div class="card-text">
+              <span
+                ><strong>날짜:</strong> {{ tripOverview.startYmd }} ~
+                {{ tripOverview.endYmd }}</span
+              >
+            </div>
+          </div>
         </div>
       </div>
     </section>
 
     <!-- 여행 장소 섹션 -->
-    <section class="mb-5">
+    <section class="mb-5 mx-0">
       <h2 class="mb-3">여행 장소</h2>
       <div
         class="custom-row-spacing"
@@ -57,22 +64,37 @@
     </section>
 
     <!-- 호텔 섹션 -->
-    <section class="mb-5">
+    <section class="mb-5 mx-0">
       <h2 class="mb-3">호텔</h2>
-      <div class="row">
-        <div v-for="hotel in hotels" :key="hotel.id" class="col-md-6 mb-4">
-          <div class="card h-100 shadow-sm">
+      <div
+        class="card-container d-flex flex-row flex-wrap align-items-center justify-content-start"
+      >
+        <div v-for="hotel in hotels" :key="hotel.id" class="d-flex align-items-center">
+          <div class="card d-flex align-items-center p-3 position-relative">
+            <img
+              :src="hotel.image || 'https://via.placeholder.com/300x200?text=호텔'"
+              class="card-img-top"
+              :alt="hotel.name"
+              @error="handleImageError"
+            />
             <div class="card-body">
-              <h5 class="card-title">{{ hotel.name }}</h5>
-              <p class="card-text">{{ hotel.address }}</p>
-              <p class="text-muted">체크인: {{ hotel.checkIn }} | 체크아웃: {{ hotel.checkOut }}</p>
-              <a :href="hotel.website" class="btn btn-primary btn-sm" target="_blank"
+              <div class="card-text">
+                <strong>{{ hotel.name }}</strong
+                ><br />
+                <small class="address-text">{{ hotel.address }}</small
+                ><br />
+                <small class="text-muted"
+                  >체크인: {{ hotel.checkIn }} | 체크아웃: {{ hotel.checkOut }}</small
+                >
+              </div>
+              <a :href="hotel.website" class="btn btn-primary btn-sm mt-2" target="_blank"
                 >예약 사이트</a
               >
             </div>
           </div>
         </div>
       </div>
+      <div v-if="!hotels.length" class="text-center mt-4 mb-5">호텔 정보가 없습니다.</div>
     </section>
   </div>
 </template>
@@ -93,6 +115,34 @@ const places = ref([
     description: '서울의 대표적인 고궁으로, 조선 시대의 역사를 느낄 수 있는 곳.',
     date: '20250621',
     image: 'https://via.placeholder.com/300x200?text=경복궁'
+  },
+  {
+    id: 2,
+    name: '계양 타워',
+    description: '계양구 타워 입니다.',
+    date: '20250621',
+    image: 'https://via.placeholder.com/300x200?text=남산타워'
+  },
+  {
+    id: 3,
+    name: '병방 타워',
+    description: '병방동 타워 입니다.',
+    date: '20250621',
+    image: 'https://via.placeholder.com/300x200?text=남산타워'
+  },
+  {
+    id: 4,
+    name: '용종로 타워',
+    description: '용종로 타워 입니다.',
+    date: '20250621',
+    image: 'https://via.placeholder.com/300x200?text=남산타워'
+  },
+  {
+    id: 5,
+    name: '방통대',
+    description: '배움의 끈이 짧다면 방통대로~',
+    date: '20250621',
+    image: 'https://via.placeholder.com/300x200?text=남산타워'
   },
   {
     id: 2,
@@ -117,15 +167,8 @@ const hotels = ref([
     address: '서울 중구 동호로 249',
     checkIn: '20250621',
     checkOut: '20250623',
-    website: 'https://www.shilla.net'
-  },
-  {
-    id: 2,
-    name: '롯데호텔',
-    address: '서울 중구 을지로 30',
-    checkIn: '20250623',
-    checkOut: '20250625',
-    website: 'https://www.lottehotel.com'
+    website: 'https://www.shilla.net',
+    image: 'https://via.placeholder.com/300x200?text=신라호텔'
   }
 ])
 
@@ -159,19 +202,37 @@ const formatDate = (dateStr) => {
 <style scoped>
 /* 여행 개요 카드 스타일 */
 .overview-card {
-  width: 100%; /* 너비를 화면에 맞게 100%로 설정 */
-  max-width: none; /* 기존 너비 제한 제거 */
-  height: auto; /* 높이는 콘텐츠에 따라 자동 조정 */
-  margin: 0; /* 좌측 정렬 유지 */
+  width: 25% !important;
+  min-height: 120px;
+  max-height: 150px;
+  background-color: #ffffff;
+  border: 1px solid #e0e0e0;
+  border-radius: 12px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  transition: all 0.3s ease;
 }
 
-/* 카드 내부 콘텐츠 스타일 */
+.overview-card:hover {
+  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+  transform: translateY(-2px);
+}
+
 .overview-card .card-body {
-  padding: 1rem;
-  min-height: 60px; /* 높이를 줄여 가로로 긴 형태로 */
+  padding: 1.5rem;
+  height: 100%;
+  display: flex;
+  flex-direction: column; /* 세로 방향으로 정렬 */
+  align-items: flex-start; /* 좌측 정렬 */
 }
 
-/* 여행 장소 카드 스타일 */
+.overview-card .card-text {
+  text-align: left;
+  font-size: 1.1rem;
+  color: #333;
+  margin-bottom: 0.5rem;
+}
+
+/* 여행 장소 및 호텔 카드 스타일 */
 .card {
   background-color: #ffffff;
   border: 1px solid #e0e0e0;
@@ -187,7 +248,7 @@ const formatDate = (dateStr) => {
 }
 
 .card:hover {
-  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.1);
   transform: translateY(-2px);
 }
 
@@ -257,7 +318,6 @@ const formatDate = (dateStr) => {
   gap: 2rem;
   justify-content: flex-start;
   width: 100%;
-  margin-left: 0;
   padding: 0 1rem;
 }
 
@@ -273,6 +333,16 @@ h2 {
 }
 
 @media (max-width: 768px) {
+  .overview-card {
+    width: 100% !important;
+    min-height: 100px;
+    max-height: 130px;
+  }
+
+  .overview-card .card-text {
+    font-size: 1rem;
+  }
+
   .card {
     width: 200px;
     height: 270px;
@@ -289,10 +359,6 @@ h2 {
   .badge {
     font-size: 0.75rem;
     padding: 0.3rem 1rem;
-  }
-
-  .overview-card {
-    max-width: 100%;
   }
 }
 </style>
