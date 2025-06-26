@@ -1,7 +1,5 @@
 <template>
-  <div class="my-5">
-    <h1 class="text-center mb-4">나의 여행 다이어리</h1>
-
+  <div class="my-4">
     <!-- 여행 개요 -->
     <section class="mb-5 mx-0">
       <h2 class="card-title text-start">여행 개요</h2>
@@ -9,11 +7,16 @@
         class="card-container d-flex flex-row flex-wrap align-items-center justify-content-start"
       >
         <div class="overview-card card shadow-sm mb-4">
-          <div class="card-body d-flex justify-content-between align-items-center">
-            <p class="card-text mb-0"><strong>장소:</strong> {{ tripOverview.location }}</p>
-            <p class="card-text mb-0">
-              <strong>날짜:</strong> {{ tripOverview.startYmd }} ~ {{ tripOverview.endYmd }}
-            </p>
+          <div class="card-body">
+            <div class="card-text">
+              <span><strong>장소:</strong> {{ tripOverview.location }}</span>
+            </div>
+            <div class="card-text">
+              <span
+                ><strong>날짜:</strong> {{ tripOverview.startYmd }} ~
+                {{ tripOverview.endYmd }}</span
+              >
+            </div>
           </div>
         </div>
       </div>
@@ -199,7 +202,7 @@ const formatDate = (dateStr) => {
 <style scoped>
 /* 여행 개요 카드 스타일 */
 .overview-card {
-  width: 40% !important;
+  width: 25% !important;
   min-height: 120px;
   max-height: 150px;
   background-color: #ffffff;
@@ -217,12 +220,16 @@ const formatDate = (dateStr) => {
 .overview-card .card-body {
   padding: 1.5rem;
   height: 100%;
+  display: flex;
+  flex-direction: column; /* 세로 방향으로 정렬 */
+  align-items: flex-start; /* 좌측 정렬 */
 }
 
 .overview-card .card-text {
   text-align: left;
   font-size: 1.1rem;
   color: #333;
+  margin-bottom: 0.5rem;
 }
 
 /* 여행 장소 및 호텔 카드 스타일 */
