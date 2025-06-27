@@ -5,7 +5,7 @@
     :key="schedule.id"
   >
     <!-- 날짜를 왼쪽 정렬로 배치 -->
-    <div class="date-header text-start mb-3">
+    <div class="date-header text-start mb-4">
       <span class="badge text-bg-secondary"> {{ schedule.date }} </span>
     </div>
     <!-- 카드들을 수평으로 배치, 필요 시 줄바꿈 -->
@@ -19,6 +19,14 @@
           @drop="onDrop(scheduleIndex, index)"
           :class="{ faded: item.isFaded }"
         >
+          <!-- 새로고침 버튼 (좌측 상단 외부) -->
+          <button
+            class="refresh-button position-absolute"
+            @click="onRefreshItem(scheduleIndex, index, item.activityType)"
+            :disabled="item.isRefreshing"
+          >
+            <i class="fas fa-sync-alt" :class="{ 'fa-spin': item.isRefreshing }"></i>
+          </button>
           <!-- 동적으로 activityImageUrl 사용 -->
           <img
             :src="item.imgUrl"
@@ -32,11 +40,18 @@
               ><br />
               <small class="address-text">{{ item.address }}</small>
             </div>
+            <!-- 변경하기 버튼 -->
+            <button
+              v-if="item.showChangeButton"
+              class="change-button btn btn-sm btn-primary"
+              @click="onChangeItem(scheduleIndex, index)"
+            >
+              변경하기
+            </button>
           </div>
           <button
             class="fade-button btn btn-sm btn-danger position-absolute"
             @click="onFadeItem(scheduleIndex, index)"
-            style="top: -13px; right: -13px"
           >
             X
           </button>
@@ -189,6 +204,27 @@ const onFadeItem = (scheduleIndex, index) => {
     !tripSchedule.value[scheduleIndex].items[index].isFaded
 }
 
+const onRefreshItem = async (scheduleIndex, index, activityType) => {
+  const item = tripSchedule.value[scheduleIndex].items[index]
+  if (item.isRefreshing) return
+  item.isRefreshing = true
+  item.showChangeButton = true // 새로고침 시 변경하기 버튼 표시
+  try {
+    // API 호출 시뮬레이션 (실제 API로 대체 가능)
+    await new Promise((resolve) => setTimeout(resolve, 1000))
+    console.log(`Refreshed item at schedule ${scheduleIndex}, index ${index}, type ${activityType}`)
+  } catch (error) {
+    console.error('새로고침 실패:', error)
+  } finally {
+    item.isRefreshing = false
+  }
+}
+
+const onChangeItem = (scheduleIndex, index) => {
+  // 변경하기 버튼 클릭 시 버튼 숨김
+  tripSchedule.value[scheduleIndex].items[index].showChangeButton = false
+}
+
 // 대체 이미지 (프로젝트의 assets 폴더에 있는지 확인 필요)
 const defaultImage = new URL('@/assets/img/swiss.png', import.meta.url).href
 
@@ -335,6 +371,36 @@ const saveData = async () => {
   animation: fadeInOut 2s ease-in-out infinite;
 }
 
+/* 새로고침 버튼 스타일 */
+.refresh-button {
+  background-color: #ffd700; /* 노란색 */
+  border: none;
+  color: #333;
+  font-size: 16px;
+  border-radius: 50%;
+  padding: 0.25rem 0.5rem;
+  width: 30px;
+  height: 30px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+  transition: transform 0.3s ease;
+  position: absolute;
+  top: -13px;
+  left: -13px;
+  z-index: 10;
+}
+
+.refresh-button:hover {
+  transform: scale(1.1);
+}
+
+.refresh-button:disabled {
+  background-color: #ccc;
+  cursor: not-allowed;
+}
+
 /* 툴팁 페이드인/아웃 애니메이션 정의 */
 @keyframes fadeInOut {
   0% {
@@ -408,6 +474,8 @@ const saveData = async () => {
   width: 30px; /* 버튼 너비 고정 */
   height: 30px; /* 버튼 높이 고정 */
   position: absolute;
+  top: -13px;
+  right: -13px;
 }
 
 .fade-button:hover {
