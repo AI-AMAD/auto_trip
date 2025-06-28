@@ -43,7 +43,7 @@
             <!-- 변경하기 버튼 -->
             <button
               v-if="item.showChangeButton"
-              class="change-button btn btn-sm btn-primary"
+              class="change-button btn btn-sm"
               @click="onChangeItem(scheduleIndex, index)"
             >
               변경하기
@@ -399,6 +399,26 @@ const saveData = async () => {
 .refresh-button:disabled {
   background-color: #ccc;
   cursor: not-allowed;
+}
+
+.change-button {
+  background-color: #ffd700;
+  color: #333;
+  border: none;
+  padding: 0.25rem 0.75rem;
+  width: 80px;
+  font-size: 0.85rem;
+  border-radius: 4px;
+  transition: background-color 0.3s ease, transform 0.3s ease;
+  display: block;
+  margin: 0 auto;
+  margin-top: auto;
+  margin-bottom: 0.5rem;
+}
+
+.change-button:hover {
+  background-color: #ffca28;
+  transform: scale(1.05);
 }
 
 /* 툴팁 페이드인/아웃 애니메이션 정의 */
