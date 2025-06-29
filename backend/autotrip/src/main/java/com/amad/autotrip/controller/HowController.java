@@ -1,7 +1,6 @@
 package com.amad.autotrip.controller;
 
-import com.amad.autotrip.dto.ScheduleDto;
-import com.amad.autotrip.dto.TripScheduleDto;
+import com.amad.autotrip.dto.*;
 import com.amad.autotrip.service.HowService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
@@ -47,4 +46,22 @@ public class HowController {
             return ResponseEntity.badRequest().body("스케줄 생성에 실패했습니다: " + e.getMessage());
         }
     }
+
+    @PostMapping("/refresh/trip-place")
+    public ResponseEntity<List<PlaceWithImage>> refreshTripPlace(@RequestBody RefreshRequestDto refreshRequestDto) {
+        try {
+            String place = refreshRequestDto.getPlace();
+            String activityType = refreshRequestDto.getActivityType();
+            List<ExcludedPlaceDto> excludedPlaces = refreshRequestDto.getExcludedPlaces();
+
+            log.info("Received place: {}, activityType: {}", place, activityType);  // 디버깅용 로그
+
+            List<PlaceWithImage> newPlaces = howService.searchNewPlaces(place, activityType, excludedPlaces);
+            return ResponseEntity.ok(newPlaces);
+        } catch (Exception e) {
+            log.error("여행 장소 새로고침 중 오류 발생: {}", e.getMessage());
+            return ResponseEntity.badRequest().body(null);
+        }
+    }
+
 }
