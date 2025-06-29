@@ -41,13 +41,6 @@
               <small class="address-text">{{ item.address }}</small>
             </div>
             <!-- 변경하기 버튼 -->
-            <button
-              v-if="item.showChangeButton"
-              class="change-button btn btn-sm"
-              @click="onChangeItem(scheduleIndex, index)"
-            >
-              변경하기
-            </button>
           </div>
           <button
             class="fade-button btn btn-sm btn-danger position-absolute"
@@ -121,7 +114,7 @@ const fetchTripData = async () => {
 // 서버 데이터를 tripSchedule에 반영
 const updateTripSchedule = () => {
   const scheduleList = []
-
+  const place = tripScheduleData.value[0].place
   // 시작 날짜와 활동
   if (
     tripScheduleData.value.length > 0 &&
@@ -132,6 +125,7 @@ const updateTripSchedule = () => {
     scheduleList.push({
       id: `schedule-1`,
       date: formatDate(startKey),
+      place: place,
       items: (tripScheduleData.value[0].startYmd[startKey] || []).map((activity, index) => ({
         id: `start-${index}`,
         scheduleId: activity.scheduleId, // scheduleId 추가
@@ -139,7 +133,9 @@ const updateTripSchedule = () => {
         name: activity.activityName,
         address: activity.activityAddress,
         imgUrl: activity.activityImageUrl,
-        isFaded: false
+        place: place,
+        isFaded: false,
+        isRefreshing: false
       }))
     })
   }
@@ -154,6 +150,7 @@ const updateTripSchedule = () => {
     scheduleList.push({
       id: `schedule-2`,
       date: formatDate(endKey),
+      place: place,
       items: (tripScheduleData.value[0].endYmd[endKey] || []).map((activity, index) => ({
         id: `end-${index}`,
         scheduleId: activity.scheduleId, // scheduleId 추가
@@ -161,7 +158,9 @@ const updateTripSchedule = () => {
         name: activity.activityName,
         address: activity.activityAddress,
         imgUrl: activity.activityImageUrl,
-        isFaded: false
+        place: place,
+        isFaded: false,
+        isRefreshing: false
       }))
     })
   }
@@ -204,25 +203,99 @@ const onFadeItem = (scheduleIndex, index) => {
     !tripSchedule.value[scheduleIndex].items[index].isFaded
 }
 
+// 캐싱된 장소 데이터를 저장하는 ref
+const cachedPlaces = ref({}) // { "scheduleIndex:index:activityType": [PlaceWithImage, ...] }
+
 const onRefreshItem = async (scheduleIndex, index, activityType) => {
   const item = tripSchedule.value[scheduleIndex].items[index]
-  if (item.isRefreshing) return
-  item.isRefreshing = true
-  item.showChangeButton = true // 새로고침 시 변경하기 버튼 표시
-  try {
-    // API 호출 시뮬레이션 (실제 API로 대체 가능)
-    await new Promise((resolve) => setTimeout(resolve, 1000))
-    console.log(`Refreshed item at schedule ${scheduleIndex}, index ${index}, type ${activityType}`)
-  } catch (error) {
-    console.error('새로고침 실패:', error)
-  } finally {
-    item.isRefreshing = false
-  }
-}
+  if (item.isRefreshing) return // 이미 새로고침 중이면 중단
+  item.isRefreshing = true // 새로고침 시작 표시
 
-const onChangeItem = (scheduleIndex, index) => {
-  // 변경하기 버튼 클릭 시 버튼 숨김
-  tripSchedule.value[scheduleIndex].items[index].showChangeButton = false
+  try {
+    // 캐시 키 생성 (scheduleIndex:index:activityType)
+    const cacheKey = `${scheduleIndex}:${index}:${activityType}`
+
+    // 캐싱된 데이터가 있는지 확인
+    if (cachedPlaces.value[cacheKey] && cachedPlaces.value[cacheKey].length > 0) {
+      // 캐싱된 데이터에서 첫 번째 장소 가져오기
+      const newPlace = cachedPlaces.value[cacheKey].shift()
+      console.log('Using cached place:', JSON.stringify(newPlace, null, 2))
+
+      // UI 업데이트
+      tripSchedule.value[scheduleIndex].items[index] = {
+        ...item,
+        name: newPlace.place.title,
+        address: newPlace.place.address,
+        imgUrl: newPlace.imageUrl,
+        isRefreshing: false
+      }
+
+      // 캐시가 비었는지 확인
+      if (cachedPlaces.value[cacheKey].length === 0) {
+        delete cachedPlaces.value[cacheKey]
+        console.log('Cache cleared for key:', cacheKey)
+      }
+    } else {
+      // 캐싱된 데이터가 없으면 API 호출
+      const excludedPlaces = []
+      tripSchedule.value.forEach((schedule) => {
+        schedule.items.forEach((place) => {
+          excludedPlaces.push({
+            name: place.name,
+            address: place.address
+          })
+        })
+      })
+
+      // 백엔드로 보낼 데이터 준비
+      const requestData = {
+        place: item.place,
+        activityType: activityType,
+        excludedPlaces: excludedPlaces
+      }
+
+      // 콘솔에 요청 데이터 출력
+      console.log('Request Data:', JSON.stringify(requestData, null, 2))
+
+      // 실제 API 호출
+      const response = await axios.post('/api/refresh/trip-place', requestData, {
+        headers: {
+          Authorization: `Bearer ${authStore.token}`,
+          'Content-Type': 'application/json'
+        }
+      })
+
+      // 응답 데이터 확인
+      console.log('Response Data:', JSON.stringify(response.data, null, 2))
+
+      // 응답 데이터 캐싱
+      if (response.data && response.data.length > 0) {
+        cachedPlaces.value[cacheKey] = response.data
+        const newPlace = cachedPlaces.value[cacheKey].shift()
+
+        // UI 업데이트
+        tripSchedule.value[scheduleIndex].items[index] = {
+          ...item,
+          name: newPlace.place.title,
+          address: newPlace.place.address,
+          imgUrl: newPlace.imageUrl,
+          isRefreshing: false
+        }
+
+        // 캐시가 비었는지 확인
+        if (cachedPlaces.value[cacheKey].length === 0) {
+          delete cachedPlaces.value[cacheKey]
+          console.log('Cache cleared for key:', cacheKey)
+        }
+      } else {
+        console.warn('새로운 장소 데이터가 없습니다.')
+      }
+    }
+  } catch (error) {
+    console.error('새로고침 실패:', error.response?.data || error.message)
+  } finally {
+    item.isRefreshing = false // 새로고침 완료
+  }
 }
 
 // 대체 이미지 (프로젝트의 assets 폴더에 있는지 확인 필요)
@@ -399,26 +472,6 @@ const saveData = async () => {
 .refresh-button:disabled {
   background-color: #ccc;
   cursor: not-allowed;
-}
-
-.change-button {
-  background-color: #ffd700;
-  color: #333;
-  border: none;
-  padding: 0.25rem 0.75rem;
-  width: 80px;
-  font-size: 0.85rem;
-  border-radius: 4px;
-  transition: background-color 0.3s ease, transform 0.3s ease;
-  display: block;
-  margin: 0 auto;
-  margin-top: auto;
-  margin-bottom: 0.5rem;
-}
-
-.change-button:hover {
-  background-color: #ffca28;
-  transform: scale(1.05);
 }
 
 /* 툴팁 페이드인/아웃 애니메이션 정의 */

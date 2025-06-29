@@ -22,6 +22,7 @@ public class NaverSearchResponseDto {
     @NoArgsConstructor
     @AllArgsConstructor
     @ToString
+    @Builder
     public static class Item {
         private String title;
         private String link;
