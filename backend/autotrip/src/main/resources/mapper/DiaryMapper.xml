@@ -1,16 +1,16 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.amad.autotrip.mybatis.DiaryMapper">
-    <resultMap id="tripPlanResultMap" type="com.example.dto.ScheduleDto">
+    <resultMap id="tripPlanResultMap" type="com.amad.autotrip.dto.ScheduleDto">
         <id property="tripId" column="trip_id"/>
         <result property="username" column="username"/>
         <result property="place" column="place"/>
         <result property="settings" column="settings"/>
-        <association property="hotel" javaType="com.example.dto.AccommodationDto">
+        <association property="hotel" javaType="com.amad.autotrip.dto.AccommodationDto">
             <result property="name" column="accommodation_name"/>
             <result property="address" column="accommodation_address"/>
             <result property="imageUrl" column="accommodation_image_url"/>
         </association>
-        <collection property="activities" ofType="com.example.dto.ActivityWithDateDto">
+        <collection property="activities" ofType="com.amad.autotrip.dto.ActivityWithDateDto">
             <result property="scheduleId" column="schedule_id"/>
             <result property="date" column="date"/>
             <result property="dateType" column="date_type"/>
@@ -22,7 +22,7 @@
         </collection>
     </resultMap>
 
-    <select id="findTripPlanByUsername" parameterType="string" resultMap="tripPlanResultMap">
+    <select id="findDiaryByUsername" parameterType="string" resultMap="tripPlanResultMap">
         SELECT ts.schedule_id,
                tp.trip_id,
                tp.username,
