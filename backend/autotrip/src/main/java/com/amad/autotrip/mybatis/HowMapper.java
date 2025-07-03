@@ -5,7 +5,6 @@ import com.amad.autotrip.dto.TripScheduleDto;
 import org.apache.ibatis.annotations.Mapper;
 
 import java.util.List;
-import java.util.Map;
 
 @Mapper
 public interface HowMapper {

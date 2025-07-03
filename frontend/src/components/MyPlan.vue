@@ -9,12 +9,12 @@
         <div class="overview-card card shadow-sm mb-4">
           <div class="card-body">
             <div class="card-text">
-              <span><strong>장소:</strong> {{ tripOverview.location }}</span>
+              <span><strong>장소:</strong> {{ tripOverview.place }}</span>
             </div>
             <div class="card-text">
               <span
-                ><strong>날짜:</strong> {{ tripOverview.startYmd }} ~
-                {{ tripOverview.endYmd }}</span
+                ><strong>날짜:</strong> {{ formatDate(tripOverview.startYmd) }} ~
+                {{ formatDate(tripOverview.endYmd) }}</span
               >
             </div>
           </div>
@@ -64,32 +64,26 @@
     </section>
 
     <!-- 호텔 섹션 -->
-    <section class="mb-5 mx-0">
+    <section class="mb-5 mx-0 hotel-section">
       <h2 class="mb-3">호텔</h2>
       <div
         class="card-container d-flex flex-row flex-wrap align-items-center justify-content-start"
       >
-        <div v-for="hotel in hotels" :key="hotel.id" class="d-flex align-items-center">
+        <div v-if="hotels.length" class="d-flex align-items-center">
           <div class="card d-flex align-items-center p-3 position-relative">
             <img
-              :src="hotel.image || 'https://via.placeholder.com/300x200?text=호텔'"
+              :src="hotels[0].image"
               class="card-img-top"
-              :alt="hotel.name"
+              :alt="hotels[0].name"
               @error="handleImageError"
             />
             <div class="card-body">
               <div class="card-text">
-                <strong>{{ hotel.name }}</strong
-                ><br />
-                <small class="address-text">{{ hotel.address }}</small
-                ><br />
-                <small class="text-muted"
-                  >체크인: {{ hotel.checkIn }} | 체크아웃: {{ hotel.checkOut }}</small
-                >
+                <strong>{{ hotels[0].name }}</strong>
+                <small class="address-text address-text-first">{{ hotels[0].address }}</small>
+                <small class="address-text">체크인: {{ formatDate(tripOverview.startYmd) }}</small>
+                <small class="address-text">체크아웃: {{ formatDate(tripOverview.endYmd) }}</small>
               </div>
-              <a :href="hotel.website" class="btn btn-primary btn-sm mt-2" target="_blank"
-                >예약 사이트</a
-              >
             </div>
           </div>
         </div>
@@ -100,78 +94,99 @@
 </template>
 
 <script setup>
-import { ref, computed } from 'vue'
+import { ref, computed, onMounted } from 'vue'
+import axios from 'axios'
+import { useAuthStore } from '@/stores/auth'
 
-const tripOverview = ref({
-  location: '서울',
-  startYmd: '20250621',
-  endYmd: '20250625'
+const authStore = useAuthStore()
+
+// 컴포넌트 마운트 시 데이터 가져오기
+onMounted(() => {
+  fetchTripData()
 })
 
-const places = ref([
-  {
-    id: 1,
-    name: '경복궁',
-    description: '서울의 대표적인 고궁으로, 조선 시대의 역사를 느낄 수 있는 곳.',
-    date: '20250621',
-    image: 'https://via.placeholder.com/300x200?text=경복궁'
-  },
-  {
-    id: 2,
-    name: '계양 타워',
-    description: '계양구 타워 입니다.',
-    date: '20250621',
-    image: 'https://via.placeholder.com/300x200?text=남산타워'
-  },
-  {
-    id: 3,
-    name: '병방 타워',
-    description: '병방동 타워 입니다.',
-    date: '20250621',
-    image: 'https://via.placeholder.com/300x200?text=남산타워'
-  },
-  {
-    id: 4,
-    name: '용종로 타워',
-    description: '용종로 타워 입니다.',
-    date: '20250621',
-    image: 'https://via.placeholder.com/300x200?text=남산타워'
-  },
-  {
-    id: 5,
-    name: '방통대',
-    description: '배움의 끈이 짧다면 방통대로~',
-    date: '20250621',
-    image: 'https://via.placeholder.com/300x200?text=남산타워'
-  },
-  {
-    id: 2,
-    name: '남산타워',
-    description: '서울의 랜드마크로, 야경이 아름다운 명소.',
-    date: '20250622',
-    image: 'https://via.placeholder.com/300x200?text=남산타워'
-  },
-  {
-    id: 3,
-    name: '에버랜드',
-    description: '볼거리 놀거리 최고~~',
-    date: '20250622',
-    image: 'https://via.placeholder.com/300x200?text=에버랜드'
-  }
-])
+// 데이터 상태
+const tripOverview = ref({
+  place: '',
+  startYmd: '',
+  endYmd: ''
+})
+const places = ref([])
+const hotels = ref([])
 
-const hotels = ref([
-  {
-    id: 1,
-    name: '신라호텔',
-    address: '서울 중구 동호로 249',
-    checkIn: '20250621',
-    checkOut: '20250623',
-    website: 'https://www.shilla.net',
-    image: 'https://via.placeholder.com/300x200?text=신라호텔'
-  }
-])
+// 백엔드에서 데이터 가져오기
+const fetchTripData = async () => {
+  try {
+    const response = await axios.get(`/api/diary/${authStore.username}`, {
+      headers: {
+        Authorization: `Bearer ${authStore.token}`,
+        'Content-Type': 'application/json'
+      }
+    })
+    if (response.data && response.data.length > 0) {
+      const data = response.data[0] // 첫 번째 여행 계획 사용
+      // 여행 개요 설정
+      tripOverview.value = {
+        place: data.place || '',
+        startYmd: Object.keys(data.startYmd || {})[0] || '',
+        endYmd: Object.keys(data.endYmd || {})[0] || ''
+      }
 
+      // 여행 장소 설정
+      places.value = []
+      if (data.startYmd && Object.keys(data.startYmd).length > 0) {
+        const startKey = Object.keys(data.startYmd)[0]
+        places.value.push(
+          ...data.startYmd[startKey].map((activity, index) => ({
+            id: `start-${index}`,
+            name: activity.activityName,
+            description: activity.activityAddress,
+            date: startKey,
+            image: activity.activityImageUrl
+          }))
+        )
+      }
+      if (data.endYmd && Object.keys(data.endYmd).length > 0) {
+        const endKey = Object.keys(data.endYmd)[0]
+        places.value.push(
+          ...data.endYmd[endKey].map((activity, index) => ({
+            id: `end-${index}`,
+            name: activity.activityName,
+            description: activity.activityAddress,
+            date: endKey,
+            image: activity.activityImageUrl
+          }))
+        )
+      }
+
+      // 호텔 설정
+      hotels.value = data.hotel
+        ? [
+            {
+              id: 'hotel-1',
+              name: data.hotel.name || 'Unknown Hotel',
+              address: data.hotel.address || 'No address provided',
+              image: data.hotel.imageUrl || 'https://via.placeholder.com/300x200?text=호텔',
+              website: 'https://example.com', // 백엔드에서 website 제공 안 하므로 기본값
+              checkIn: tripOverview.value.startYmd,
+              checkOut: tripOverview.value.endYmd
+            }
+          ]
+        : []
+    } else {
+      tripOverview.value = { place: '', startYmd: '', endYmd: '' }
+      places.value = []
+      hotels.value = []
+    }
+  } catch (error) {
+    console.error('여행 정보 조회 실패:', error.response?.data || error.message)
+    tripOverview.value = { place: '', startYmd: '', endYmd: '' }
+    places.value = []
+    hotels.value = []
+  }
+}
+
+// 날짜별로 장소 그룹화
 const groupedPlaces = computed(() => {
   const grouped = places.value.reduce((acc, place) => {
     const date = place.date
@@ -184,12 +199,14 @@ const groupedPlaces = computed(() => {
   return Object.values(grouped).sort((a, b) => a.date.localeCompare(b.date))
 })
 
+// 대체 이미지
 const defaultImage = new URL('@/assets/img/swiss.png', import.meta.url).href
 
 const handleImageError = (event) => {
   event.target.src = defaultImage
 }
 
+// 날짜 포맷팅 함수: '20250621' -> '2025년 06월 21일'
 const formatDate = (dateStr) => {
   if (!dateStr) return ''
   const year = dateStr.slice(0, 4)
@@ -202,7 +219,7 @@ const formatDate = (dateStr) => {
 <style scoped>
 /* 여행 개요 카드 스타일 */
 .overview-card {
-  width: 25% !important;
+  width: 30% !important;
   min-height: 120px;
   max-height: 150px;
   background-color: #ffffff;
@@ -325,6 +342,28 @@ const formatDate = (dateStr) => {
   font-size: 33px;
   color: #6c757d;
   margin: 0 1rem;
+}
+
+.hotel-section .card {
+  height: 380px; /* 호텔 섹션 카드 높이 증가 */
+}
+
+.hotel-section .card-body {
+  min-height: 200px; /* 호텔 섹션 카드 바디 높이 증가 */
+  padding-top: 1.3rem; /* 호텔 이름과 이미지 간 간격 증가 */
+}
+
+.hotel-section .card-text strong {
+  margin-bottom: 0.4rem; /* 호텔 이름과 주소 간 간격 유지 */
+}
+
+.hotel-section .card-text .address-text {
+  margin-top: 0.8rem; /* 체크인, 체크아웃 간 간격 증가 */
+}
+
+.hotel-section .card-text .address-text-first {
+  margin-top: 1rem; /* 이름과 주소 간 간격 더 넓게 */
+  margin-bottom: 0.6rem;
 }
 
 h1,

@@ -17,6 +17,7 @@ public class ScheduleDto {
     private String username;
     private String place;
     private String settings;
+    private AccommodationDto hotel;
     private Map<String, List<ActivityDto>> startYmd;
     private Map<String, List<ActivityDto>> endYmd;
     private transient List<ActivityWithDateDto> activities; // JSON 직렬화에서 제외
