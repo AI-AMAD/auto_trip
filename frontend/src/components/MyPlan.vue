@@ -64,7 +64,7 @@
     </section>
 
     <!-- 호텔 섹션 -->
-    <section class="mb-5 mx-0">
+    <section class="mb-5 mx-0 hotel-section">
       <h2 class="mb-3">호텔</h2>
       <div
         class="card-container d-flex flex-row flex-wrap align-items-center justify-content-start"
@@ -79,14 +79,10 @@
             />
             <div class="card-body">
               <div class="card-text">
-                <strong>{{ hotels[0].name }}</strong
-                ><br />
-                <small class="address-text">{{ hotels[0].address }}</small
-                ><br />
-                <small class="text-muted"
-                  >체크인: {{ formatDate(tripOverview.startYmd) }} | 체크아웃:
-                  {{ formatDate(tripOverview.endYmd) }}</small
-                >
+                <strong>{{ hotels[0].name }}</strong>
+                <small class="address-text address-text-first">{{ hotels[0].address }}</small>
+                <small class="address-text">체크인: {{ formatDate(tripOverview.startYmd) }}</small>
+                <small class="address-text">체크아웃: {{ formatDate(tripOverview.endYmd) }}</small>
               </div>
             </div>
           </div>
@@ -346,6 +342,28 @@ const formatDate = (dateStr) => {
   font-size: 33px;
   color: #6c757d;
   margin: 0 1rem;
+}
+
+.hotel-section .card {
+  height: 380px; /* 호텔 섹션 카드 높이 증가 */
+}
+
+.hotel-section .card-body {
+  min-height: 200px; /* 호텔 섹션 카드 바디 높이 증가 */
+  padding-top: 1.3rem; /* 호텔 이름과 이미지 간 간격 증가 */
+}
+
+.hotel-section .card-text strong {
+  margin-bottom: 0.4rem; /* 호텔 이름과 주소 간 간격 유지 */
+}
+
+.hotel-section .card-text .address-text {
+  margin-top: 0.8rem; /* 체크인, 체크아웃 간 간격 증가 */
+}
+
+.hotel-section .card-text .address-text-first {
+  margin-top: 1rem; /* 이름과 주소 간 간격 더 넓게 */
+  margin-bottom: 0.6rem;
 }
 
 h1,
