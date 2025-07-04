@@ -22,7 +22,7 @@ public class HotelController {
         return hotelService.getLastPlace(username);
     }
 
-//    @PostMapping("/get/nearby-hotels")
+    //    @PostMapping("/get/nearby-hotels")
 //    public Mono<ResponseEntity> searchHotels(@RequestBody) {
 //        @Value("${google.api.key}")
 //        private String apiKey;
@@ -89,5 +89,52 @@ public class HotelController {
 //                throw new GoogleApiException();
 //            }
 //        }
-//    }
+//
+    public class HotelFinder {
+        // API 엔드포인트 상수 정의
+        private static final String GEOCODING_API = "https://maps.googleapis.com/maps/api/geocode/json?address={address}&key={key}";
+        private static final String NEARBY_SEARCH_API = "https://maps.googleapis.com/maps/api/place/nearbysearch/json?location={lat},{lng}&radius=5000&type=lodging&key={key}";
+
+        public static void main(String[] args) {
+            // 입력값 설정
+            String address = "서울특별시 강남구 테헤란로 123"; // 사용자가 아는 여행지 주소
+            String apiKey = "YOUR_API_KEY"; // Google API 키 (발급받아야 함)
+
+            // RestTemplate 객체 생성
+            RestTemplate restTemplate = new RestTemplate();
+
+            // 1. Geocoding API 호출
+            String geocodingUrl = GEOCODING_API.replace("{address}", address).replace("{key}", apiKey);
+            String geocodingResponse = restTemplate.getForObject(geocodingUrl, String.class);
+            JSONObject geocodingJson = new JSONObject(geocodingResponse);
+            double lat = geocodingJson.getJSONArray("results")
+                    .getJSONObject(0)
+                    .getJSONObject("geometry")
+                    .getJSONObject("location")
+                    .getDouble("lat");
+            double lng = geocodingJson.getJSONArray("results")
+                    .getJSONObject(0)
+                    .getJSONObject("geometry")
+                    .getJSONObject("location")
+                    .getDouble("lng");
+
+            // 2. Nearby Search API 호출
+            String nearbySearchUrl = NEARBY_SEARCH_API.replace("{lat}", String.valueOf(lat))
+                    .replace("{lng}", String.valueOf(lng))
+                    .replace("{key}", apiKey);
+            String nearbySearchResponse = restTemplate.getForObject(nearbySearchUrl, String.class);
+            JSONObject nearbySearchJson = new JSONObject(nearbySearchResponse);
+
+            // 3. 검색된 호텔 정보 출력 (상위 3개 예시)
+            for (int i = 0; i < Math.min(3, nearbySearchJson.getJSONArray("results").length()); i++) {
+                JSONObject hotel = nearbySearchJson.getJSONArray("results").getJSONObject(i);
+                String name = hotel.getString("name");
+                String vicinity = hotel.getString("vicinity");
+
+                System.out.println("호텔 이름: " + name);
+                System.out.println("호텔 주소: " + vicinity);
+                System.out.println("---");
+            }
+        }
+    }
 }
