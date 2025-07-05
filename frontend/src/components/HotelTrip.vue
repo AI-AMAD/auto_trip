@@ -23,28 +23,41 @@
               <!-- 두 번째 행: 통합된 셀 -->
               <tr>
                 <td colspan="6" class="text-center select-hotel-cell">
-                  <button class="btn btn-primary" @click="searchHotels">가까운 숙소 찾기</button>
+                  <button
+                    class="btn"
+                    :class="{ 'btn-primary': !isSearching, 'btn-warning': isSearching }"
+                    @click="searchHotels"
+                    :disabled="isSearching"
+                  >
+                    <span
+                      v-if="isSearching"
+                      class="spinner-border spinner-border-sm mr-2"
+                      role="status"
+                      aria-hidden="true"
+                    ></span>
+                    {{ isSearching ? '호텔 검색 중...' : '가까운 호텔 찾기' }}
+                  </button>
                 </td>
               </tr>
               <!-- 세 번째 행: 데이터 존재 할 때 렌더링 -->
               <tr v-if="hotels.length > 0">
                 <td colspan="2">
                   <img
-                    :src="hotels[0]?.image || '@/assets/img/hotel1.png'"
+                    :src="hotels[0]?.imageUrl || '@/assets/img/hotel1.png'"
                     class="img-fluid"
                     style="max-width: 90%"
                   />
                 </td>
                 <td colspan="2">
                   <img
-                    :src="hotels[1]?.image || '@/assets/img/hotel2.png'"
+                    :src="hotels[1]?.imageUrl || '@/assets/img/hotel2.png'"
                     class="img-fluid"
                     style="max-width: 90%"
                   />
                 </td>
                 <td colspan="2">
                   <img
-                    :src="hotels[2]?.image || '@/assets/img/hotel3.png'"
+                    :src="hotels[2]?.imageUrl || '@/assets/img/hotel3.png'"
                     class="img-fluid"
                     style="max-width: 90%"
                   />
@@ -89,9 +102,15 @@
                 </td>
               </tr>
               <tr v-if="hotels.length > 0">
-                <td colspan="2">마지막 장소 -> 이동시간: {{ hotels[0]?.travelTime || '' }}</td>
-                <td colspan="2">마지막 장소 -> 이동시간: {{ hotels[1]?.travelTime || '' }}</td>
-                <td colspan="2">마지막 장소 -> 이동시간: {{ hotels[2]?.travelTime || '' }}</td>
+                <td colspan="2">
+                  주소: {{ hotels[0]?.address?.replace('대한민국 ', '') || '주소 검색 실패' }}
+                </td>
+                <td colspan="2">
+                  주소: {{ hotels[1]?.address?.replace('대한민국 ', '') || '주소 검색 실패' }}
+                </td>
+                <td colspan="2">
+                  주소: {{ hotels[2]?.address?.replace('대한민국 ', '') || '주소 검색 실패' }}
+                </td>
               </tr>
             </tbody>
           </table>
@@ -110,6 +129,7 @@
 import { onMounted, ref } from 'vue'
 import SaveButton from '@/components/SaveButton.vue'
 import { useAuthStore } from '@/stores/auth'
+import { useRouter } from 'vue-router'
 import axios from 'axios'
 
 const scheduleDate = ref('')
@@ -118,6 +138,8 @@ const place = ref('')
 const address = ref('')
 const hotels = ref([])
 const selectedHotel = ref('')
+const isSearching = ref(false)
+const router = useRouter()
 
 const authStore = useAuthStore()
 
@@ -160,22 +182,75 @@ const format = (startYmd) => {
   return `${year}년 ${month}월 ${day}일 마지막 일정`
 }
 
+const formatToYmd = (formattedDate) => {
+  // "YYYY년 MM월 DD일 마지막 일정" -> "YYYYMMDD"
+  const match = formattedDate.match(/(\d{4})년\s*(\d{1,2})월\s*(\d{1,2})일/)
+  if (match) {
+    const year = match[1]
+    const month = match[2].padStart(2, '0')
+    const day = match[3].padStart(2, '0')
+    return `${year}${month}${day}`
+  }
+  return ''
+}
+
 const searchHotels = async () => {
+  isSearching.value = true
   try {
-    const response = await axios.get('/api/get/nearby-hotels', {
+    const response = await axios.get('/api/search-hotels', {
       params: {
-        username: authStore.username,
-        address: address.value // 현재 장소의 주소를 기준으로 호텔 검색
+        query: `${place.value} 근처 호텔` // 장소 이름을 기반으로 호텔 검색
       },
       headers: {
         Authorization: `Bearer ${authStore.token}`,
         'Content-Type': 'application/json'
       }
     })
-    hotels.value = response.data.hotels || [] // 백엔드에서 반환된 호텔 데이터 저장
+    hotels.value = response.data.slice(0, 3) || [] // 최대 3개 호텔 데이터만 저장
   } catch (error) {
     console.error('호텔 데이터를 가져오는 중 오류 발생:', error)
     hotels.value = [] // 에러 시 빈 배열로 초기화
+  } finally {
+    isSearching.value = false // 로딩 종료
+  }
+}
+
+const saveData = async () => {
+  if (!selectedHotel.value) {
+    alert('호텔을 선택해주세요.')
+    return
+  }
+
+  const selectedIndex = parseInt(selectedHotel.value) - 1
+  const selected = hotels.value[selectedIndex]
+  if (!selected) {
+    alert('선택한 호텔이 유효하지 않습니다.')
+    return
+  }
+
+  const request = {
+    username: authStore.username,
+    date: formatToYmd(scheduleDate.value),
+    name: selected.name,
+    address: selected.address,
+    imageUrl: selected.imageUrl
+  }
+
+  try {
+    await axios.post('/api/save-hotel', request, {
+      headers: {
+        Authorization: `Bearer ${authStore.token}`,
+        'Content-Type': 'application/json'
+      }
+    })
+    alert('호텔이 성공적으로 저장되었습니다.')
+    const confirmPlan = confirm('모든 여행 계획이 저장되었습니다. 일정을 확인하시겠습니까?')
+    if (confirmPlan) {
+      router.push('/main/plan')
+    }
+  } catch (error) {
+    console.error('호텔 저장 중 오류 발생:', error)
+    alert('호텔 저장에 실패했습니다: ' + (error.response?.data || error.message))
   }
 }
 </script>
@@ -234,5 +309,14 @@ td {
 
 .radio-label {
   margin-left: 8px; /* 라디오 버튼과 텍스트 사이 간격 추가 */
+}
+
+.btn {
+  transition: background-color 0.3s ease, border-color 0.3s ease, color 0.3s ease;
+}
+
+.btn .spinner-border {
+  vertical-align: middle;
+  margin-right: 8px;
 }
 </style>

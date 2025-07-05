@@ -18,4 +18,12 @@
         ORDER BY ts.activity_order DESC
         LIMIT 1;
     </select>
+
+    <insert id="upsertAccommodation" parameterType="com.amad.autotrip.dto.SaveHotelRequestDto">
+        INSERT INTO accommodation (username, date, name, address, image_url)
+        VALUES (#{username}, #{date}, #{name}, #{address}, #{imageUrl})
+        ON DUPLICATE KEY UPDATE name      = #{name},
+                                address   = #{address},
+                                image_url = #{imageUrl}
+    </insert>
 </mapper>
