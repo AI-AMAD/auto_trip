@@ -80,7 +80,9 @@
             <div class="card-body">
               <div class="card-text">
                 <strong>{{ hotels[0].name }}</strong>
-                <small class="address-text address-text-first">{{ hotels[0].address }}</small>
+                <small class="address-text address-text-first">{{
+                  hotels[0].address?.replace('대한민국 ', '')
+                }}</small>
                 <small class="address-text">체크인: {{ formatDate(tripOverview.startYmd) }}</small>
                 <small class="address-text">체크아웃: {{ formatDate(tripOverview.endYmd) }}</small>
               </div>

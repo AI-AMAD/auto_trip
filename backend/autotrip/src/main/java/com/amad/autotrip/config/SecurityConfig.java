@@ -67,7 +67,8 @@ public class SecurityConfig {
                                 "/api/signup",
                                 "/api/auth/kakao/callback",
                                 "api/auto/plan",
-                                "api/schedule/{username}"
+                                "api/schedule/{username}",
+                                "api/search-hotels"
                         ).permitAll()
                         // .requestMatchers(PathRequest.toH2Console()).permitAll()
                         .anyRequest().authenticated()
