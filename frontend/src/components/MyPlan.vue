@@ -202,7 +202,7 @@ const groupedPlaces = computed(() => {
 })
 
 // 대체 이미지
-const defaultImage = new URL('@/assets/img/swiss.png', import.meta.url).href
+const defaultImage = new URL('@/assets/img/noimage.png', import.meta.url).href
 
 const handleImageError = (event) => {
   event.target.src = defaultImage

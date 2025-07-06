@@ -299,7 +299,7 @@ const onRefreshItem = async (scheduleIndex, index, activityType) => {
 }
 
 // 대체 이미지 (프로젝트의 assets 폴더에 있는지 확인 필요)
-const defaultImage = new URL('@/assets/img/swiss.png', import.meta.url).href
+const defaultImage = new URL('@/assets/img/noimage.png', import.meta.url).href
 
 const handleImageError = (event) => {
   event.target.src = defaultImage
