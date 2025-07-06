@@ -22,7 +22,7 @@
         <div class="card">
           <img src="@/assets/img/how.png" class="card-img-top" alt="Where to go" />
           <div class="card-body">
-            <h5 class="card-title">이건 빼줘! 아냐 여기부터 갈래!</h5>
+            <h5 class="card-title">이건 빼줘! 아냐 여기부터 갈래! 다른데는 없어?</h5>
             <p class="card-text">여행지의 순서를 바꿔보세요.</p>
           </div>
         </div>

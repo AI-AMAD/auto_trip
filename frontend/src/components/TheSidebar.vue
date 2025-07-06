@@ -148,16 +148,22 @@ onMounted(() => {
   0% {
     opacity: 0;
   }
-  20% {
+  14.29% {
     opacity: 1;
   }
-  40% {
+  28.57% {
     opacity: 0;
   }
-  60% {
+  42.86% {
     opacity: 1;
   }
-  80% {
+  57.14% {
+    opacity: 0;
+  }
+  71.43% {
+    opacity: 1;
+  }
+  85.71% {
     opacity: 0;
   }
   100% {
