@@ -67,13 +67,10 @@
                   </button>
                   <hr />
                   <button @click="kakaoLogin" class="btn btn-warning btn-user btn-block">
-                    <i class="fab fa-google fa-fw"></i> Kakao로 가입하기
+                    <div class="kakao-login"><i class="fas fa-sign-in-alt"></i>카카오 로그인</div>
                   </button>
                 </form>
                 <hr />
-                <div class="text-center">
-                  <a class="small" href="forgot-password.html">비밀번호가 기억나지 않으실때는?</a>
-                </div>
                 <div class="text-center">
                   <router-link to="/" class="small"
                     >이미 계정이 있으시다면 로그인을 진행해주세요!
@@ -148,5 +145,9 @@ const kakaoLogin = () => {
 
 .card {
   width: 80%;
+}
+
+.kakao-login i {
+  margin-right: 8px;
 }
 </style>
