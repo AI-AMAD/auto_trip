@@ -43,26 +43,29 @@
               <tr v-if="hotels.length > 0">
                 <td colspan="2">
                   <img
-                    :src="hotels[0]?.imageUrl || defaultImage"
+                    :src="hotels[0]?.imageUrl"
                     class="img-fluid"
                     alt="Hotel Image"
                     style="max-width: 90%"
+                    @error="handleImageError"
                   />
                 </td>
                 <td colspan="2">
                   <img
-                    :src="hotels[1]?.imageUrl || defaultImage"
+                    :src="hotels[1]?.imageUrl"
                     class="img-fluid"
                     alt="Hotel Image"
                     style="max-width: 90%"
+                    @error="handleImageError"
                   />
                 </td>
                 <td colspan="2">
                   <img
-                    :src="hotels[2]?.imageUrl || defaultImage"
+                    :src="hotels[2]?.imageUrl"
                     class="img-fluid"
                     alt="Hotel Image"
                     style="max-width: 90%"
+                    @error="handleImageError"
                   />
                 </td>
               </tr>
@@ -220,6 +223,10 @@ const searchHotels = async () => {
 
 // 대체 이미지 (프로젝트의 assets 폴더에 있는지 확인 필요)
 const defaultImage = new URL('@/assets/img/noimage.png', import.meta.url).href
+
+const handleImageError = (event) => {
+  event.target.src = defaultImage
+}
 
 const saveData = async () => {
   if (!selectedHotel.value) {
