@@ -62,7 +62,7 @@ public class KakaoOauthController {
         }
 
         log.info("token----->: " + token);
-        String redirectUrl = "http://localhost:5173/?token=" + token.getBody().getToken();
+        String redirectUrl = "http://localhost:2024/?token=" + token.getBody().getToken();
         response.sendRedirect(redirectUrl);
 
     }

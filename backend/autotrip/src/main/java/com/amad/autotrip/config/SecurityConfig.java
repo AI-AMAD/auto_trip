@@ -70,8 +70,8 @@ public class SecurityConfig {
                                 "api/schedule/{username}",
                                 "api/search-hotels"
                         ).permitAll()
-                        // .requestMatchers(PathRequest.toH2Console()).permitAll()
-                        .anyRequest().authenticated()
+                        .requestMatchers("/api/**").authenticated()
+                        .anyRequest().permitAll()
                 )
 
                 // 세션을 사용하지 않기 때문에 STATELESS로 설정
